@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <!-- Эта строчка нужна, чтобы на мобилках все выглядело четко и не съебывало за края -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Сайокин Казикс</title>
+    <!-- Подрубаем наши будущие стили -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- ЭКРАН 1: ДЕПОЗИТ (по умолчанию активен) -->
+    <div id="deposit-screen" class="screen active">
+        <h1>Закинь бабок</h1>
+        
+        <div class="banks-container">
+            <!-- Рабочая кнопка Сбера. Путь к картинке укажем в папку assets -->
+            <div class="bank-card active-bank" id="btn-sber">
+                <img src="assets/Logo_Sberbank.svg" alt="Сбербанк" width="120">
+            </div>
+            <!-- Серые нерабочие залупы для массовки -->
+            <div class="bank-card disabled">
+                <span>Тинькофф</span><br>
+                <small>(в разработке)</small>
+            </div>
+            <div class="bank-card disabled">
+                <span>Альфа</span><br>
+                <small>(в разработке)</small>
+            </div>
+        </div>
+        
+        <div class="input-group" id="input-section" style="display: none;">
+            <input type="number" id="deposit-amount" placeholder="Введите сумму (₽)">
+            <button id="btn-pay">Оплатить</button>
+        </div>
+        
+        <!-- Фейковая загрузка -->
+        <div id="loading" class="hidden">
+            <p>Связь с банком... ⏳</p>
+        </div>
+    </div>
+
+
+    <!-- ЭКРАН 2: РУЛЕТКА (по умолчанию скрыт) -->
+    <div id="roulette-screen" class="screen hidden">
+        <h1>Ебаная Рулетка</h1>
+        
+        <div class="balance-display">
+            Твой балик: <span id="balance">0</span> ₽
+        </div>
+        
+        <div class="roulette-area">
+            <!-- Тут будут мелькать цифры при прокрутке -->
+            <div id="roulette-result" class="result-box">0</div>
+        </div>
+        
+        <button id="btn-spin" class="spin-btn">Крутить барабан</button>
+        
+        <!-- Кнопка, чтобы можно было еще закинуть лавэ, если все проебал -->
+        <br><br>
+        <button id="btn-back" class="small-btn">Пополнить еще</button>
+    </div>
+
+    <!-- Подрубаем наш будущий скрипт -->
+    <script src="script.js"></script>
+</body>
+</html>

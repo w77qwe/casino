@@ -1,0 +1,184 @@
+/* Сброс базовых отступов, чтобы ничего не съебалось */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* Темная тема, казик всё-таки */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #121212;
+    color: #ffffff;
+    text-align: center;
+    padding: 20px;
+}
+
+h1 {
+    margin-bottom: 20px;
+    color: #f1c40f; /* Золотой цвет для заголовков */
+}
+
+/* Логика скрытия/показа экранов */
+.screen {
+    display: none;
+}
+.screen.active {
+    display: block;
+    animation: fadeIn 0.4s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- ЭКРАН 1: ДЕПОЗИТ --- */
+.banks-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 25px;
+    align-items: center;
+}
+
+.bank-card {
+    width: 100%;
+    max-width: 320px;
+    padding: 15px;
+    border-radius: 12px;
+    border: 2px solid transparent;
+    transition: 0.2s;
+}
+
+/* Кнопка Сбера */
+.active-bank {
+    background-color: #1e1e1e;
+    cursor: pointer;
+    border: 2px solid #21a038; /* Фирменный зеленый цвет Сбера */
+}
+.active-bank:active {
+    transform: scale(0.95);
+}
+
+/* Чтобы кнопка выделялась, когда на неё нажали */
+.active-bank.selected {
+    background-color: rgba(33, 160, 56, 0.2);
+    box-shadow: 0 0 15px rgba(33, 160, 56, 0.5);
+}
+
+/* Серые нерабочие банки */
+.disabled {
+    background-color: #2a2a2a;
+    color: #777;
+    cursor: not-allowed;
+    border: 2px dashed #444;
+    opacity: 0.6;
+}
+
+/* Поля ввода и кнопки */
+.input-group {
+    margin-top: 20px;
+    animation: fadeIn 0.3s;
+}
+
+input[type="number"] {
+    width: 100%;
+    max-width: 320px;
+    padding: 15px;
+    font-size: 20px;
+    border-radius: 8px;
+    border: none;
+    outline: none;
+    text-align: center;
+    margin-bottom: 15px;
+    background-color: #fff;
+    color: #000;
+    font-weight: bold;
+}
+
+button {
+    width: 100%;
+    max-width: 320px;
+    padding: 15px;
+    font-size: 18px;
+    font-weight: bold;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: 0.2s;
+    background-color: #21a038; /* Зеленая кнопка оплаты */
+    color: #ffffff;
+}
+button:active {
+    transform: scale(0.95);
+}
+
+/* Фейковая загрузка */
+.hidden {
+    display: none !important;
+}
+
+#loading {
+    font-size: 18px;
+    color: #f1c40f;
+    margin-top: 25px;
+    font-weight: bold;
+    animation: blink 0.8s infinite alternate;
+}
+
+@keyframes blink {
+    from { opacity: 1; }
+    to { opacity: 0.3; }
+}
+
+/* --- ЭКРАН 2: РУЛЕТКА --- */
+.balance-display {
+    font-size: 26px;
+    font-weight: bold;
+    margin-bottom: 30px;
+    color: #2ecc71;
+    background: #1e1e1e;
+    padding: 15px;
+    border-radius: 10px;
+    display: inline-block;
+    border: 1px solid #333;
+}
+
+/* Кружок самой рулетки */
+.roulette-area {
+    margin: 40px auto;
+    width: 220px;
+    height: 220px;
+    border: 8px solid #f1c40f;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #1e1e1e;
+    box-shadow: 0 0 30px rgba(241, 196, 15, 0.4);
+    transition: transform 0.1s;
+}
+
+.result-box {
+    font-size: 55px;
+    font-weight: bold;
+    color: #fff;
+}
+
+.spin-btn {
+    background-color: #e74c3c;
+    margin-top: 20px;
+    font-size: 22px;
+    box-shadow: 0 4px 15px rgba(231, 76, 60, 0.5);
+}
+
+.small-btn {
+    background-color: transparent;
+    border: 1px solid #777;
+    color: #aaa;
+    width: auto;
+    padding: 10px 20px;
+    font-size: 14px;
+    margin-top: 30px;
+}
