@@ -1,11 +1,10 @@
-/* Сброс базовых отступов, чтобы ничего не съебалось */
+/* Сброс базовых отступов */
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
 
-/* Темная тема, казик всё-таки */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #121212;
@@ -16,10 +15,10 @@ body {
 
 h1 {
     margin-bottom: 20px;
-    color: #f1c40f; /* Золотой цвет для заголовков */
+    color: #f1c40f; 
 }
 
-/* Логика скрытия/показа экранов */
+/* Логика экранов */
 .screen {
     display: none;
 }
@@ -51,23 +50,19 @@ h1 {
     transition: 0.2s;
 }
 
-/* Кнопка Сбера */
 .active-bank {
     background-color: #1e1e1e;
     cursor: pointer;
-    border: 2px solid #21a038; /* Фирменный зеленый цвет Сбера */
+    border: 2px solid #21a038; 
 }
 .active-bank:active {
     transform: scale(0.95);
 }
-
-/* Чтобы кнопка выделялась, когда на неё нажали */
 .active-bank.selected {
     background-color: rgba(33, 160, 56, 0.2);
     box-shadow: 0 0 15px rgba(33, 160, 56, 0.5);
 }
 
-/* Серые нерабочие банки */
 .disabled {
     background-color: #2a2a2a;
     color: #777;
@@ -76,7 +71,6 @@ h1 {
     opacity: 0.6;
 }
 
-/* Поля ввода и кнопки */
 .input-group {
     margin-top: 20px;
     animation: fadeIn 0.3s;
@@ -107,14 +101,13 @@ button {
     border: none;
     cursor: pointer;
     transition: 0.2s;
-    background-color: #21a038; /* Зеленая кнопка оплаты */
+    background-color: #21a038; 
     color: #ffffff;
 }
 button:active {
     transform: scale(0.95);
 }
 
-/* Фейковая загрузка */
 .hidden {
     display: none !important;
 }
@@ -136,7 +129,7 @@ button:active {
 .balance-display {
     font-size: 26px;
     font-weight: bold;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
     color: #2ecc71;
     background: #1e1e1e;
     padding: 15px;
@@ -145,9 +138,8 @@ button:active {
     border: 1px solid #333;
 }
 
-/* Кружок самой рулетки */
 .roulette-area {
-    margin: 40px auto;
+    margin: 20px auto;
     width: 220px;
     height: 220px;
     border: 8px solid #f1c40f;
@@ -157,20 +149,26 @@ button:active {
     justify-content: center;
     background-color: #1e1e1e;
     box-shadow: 0 0 30px rgba(241, 196, 15, 0.4);
-    transition: transform 0.1s;
 }
 
 .result-box {
-    font-size: 55px;
+    font-size: 45px; /* Чуть уменьшил, чтобы большие числа влезали */
     font-weight: bold;
     color: #fff;
 }
 
 .spin-btn {
     background-color: #e74c3c;
-    margin-top: 20px;
+    margin-top: 10px;
     font-size: 22px;
     box-shadow: 0 4px 15px rgba(231, 76, 60, 0.5);
+}
+
+.action-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
 }
 
 .small-btn {
@@ -178,7 +176,96 @@ button:active {
     border: 1px solid #777;
     color: #aaa;
     width: auto;
-    padding: 10px 20px;
+    padding: 10px 15px;
     font-size: 14px;
-    margin-top: 30px;
+}
+.withdraw-btn {
+    border-color: #f1c40f;
+    color: #f1c40f;
+}
+
+/* ИСТОРИЯ ИГР */
+.history-box {
+    margin: 20px auto 0;
+    max-width: 320px;
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 10px;
+    max-height: 150px;
+    overflow-y: auto;
+    text-align: left;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 14px;
+}
+.history-title {
+    color: #777;
+    font-size: 12px;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+    text-align: center;
+}
+.history-item {
+    padding: 5px 0;
+    border-bottom: 1px dashed #333;
+}
+.history-item:last-child {
+    border-bottom: none;
+}
+.hist-win { color: #2ecc71; font-weight: bold; }
+.hist-lose { color: #e74c3c; font-weight: bold; }
+.hist-zero { color: #fff; }
+
+/* --- ЭКРАН 3: ВЫВОД И KYC (КАМЕРА) --- */
+.kyc-box {
+    background: #1e1e1e;
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid #333;
+    max-width: 350px;
+    margin: 0 auto;
+}
+
+.camera-wrapper {
+    position: relative;
+    width: 100%;
+    margin: 15px auto;
+    border: 3px dashed #e74c3c;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #000;
+    min-height: 200px;
+}
+
+#camera-stream {
+    width: 100%;
+    display: block;
+    transform: scaleX(-1); /* Отзеркаливаем ебало, чтоб привычнее было */
+}
+
+/* Блок ошибки дрочки */
+.kyc-error {
+    margin-top: 15px;
+    background: rgba(231, 76, 60, 0.1);
+    border: 2px solid #e74c3c;
+    color: #e74c3c;
+    padding: 15px;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 16px;
+    animation: shake 0.4s ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    50% { transform: translateX(5px); }
+    75% { transform: translateX(-5px); }
+}
+
+.btn-group {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 15px;
 }

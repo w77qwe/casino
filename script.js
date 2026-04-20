@@ -1,23 +1,26 @@
 // --- ЗВУКИ И ГРОМКОСТЬ ---
 const audioPay = new Audio('assets/pay.mp3');
-audioPay.volume = 1.0; // Тихий звук, выкручиваем на максимум
+audioPay.volume = 1.0; 
 
 const audioSpin = new Audio('assets/spin.mp3');
-audioSpin.volume = 0.25; // Этот орет, глушим его до 25%
-audioSpin.loop = false; // Не зацикливаем, он длится 7.9 сек, нам хватит на одну крутку
+audioSpin.volume = 0.25; 
+audioSpin.loop = false; 
 
 const audioWin = new Audio('assets/win.mp3');
-audioWin.volume = 0.35; // Выравниваем под остальные
+audioWin.volume = 0.35; 
 
 const audioLose = new Audio('assets/lose.mp3');
-audioLose.volume = 0.25; // Глушим, чтобы по ушам не било
+audioLose.volume = 0.25; 
 
 // --- ПЕРЕМЕННЫЕ И ЭЛЕМЕНТЫ ---
-let currentBalance = 0;
+// Берем балик и историю из памяти телефона, если их нет — ставим 0 и пустой список
+let currentBalance = parseInt(localStorage.getItem('kaziksBalance')) || 0;
+let gameHistory = JSON.parse(localStorage.getItem('kaziksHistory')) ||[];
 
 // Экраны
 const depositScreen = document.getElementById('deposit-screen');
 const rouletteScreen = document.getElementById('roulette-screen');
+const withdrawScreen = document.getElementById('withdraw-screen');
 
 // Депозит
 const btnSber = document.getElementById('btn-sber');
@@ -32,123 +35,169 @@ const balanceDisplay = document.getElementById('balance');
 const rouletteResult = document.getElementById('roulette-result');
 const btnSpin = document.getElementById('btn-spin');
 const btnBack = document.getElementById('btn-back');
+const btnWithdraw = document.getElementById('btn-withdraw');
+
+// История
+const historyBox = document.getElementById('history-box');
+const historyList = document.getElementById('history-list');
+
+// KYC / Камера
+const withdrawBalanceDisplay = document.getElementById('withdraw-balance');
+const btnStartCam = document.getElementById('btn-start-cam');
+const camSection = document.getElementById('cam-section');
+const videoStream = document.getElementById('camera-stream');
+const kycStatus = document.getElementById('kyc-status');
+const kycErrorBox = document.getElementById('kyc-error-box');
+const kycErrorText = document.getElementById('kyc-error-text');
+const btnRetryKyc = document.getElementById('btn-retry-kyc');
+const btnExitKyc = document.getElementById('btn-exit-kyc');
+const btnCancelWithdraw = document.getElementById('btn-cancel-withdraw');
+
+let kycTimer = null;
+let stream = null;
+
+// --- ИНИЦИАЛИЗАЦИЯ ПРИ ЗАГРУЗКЕ ---
+updateBalance();
+renderHistory();
+
+// --- ЛОГИКА ИСТОРИИ ---
+function addHistoryRecord(amount) {
+    gameHistory.unshift(amount); // Добавляем в начало
+    if (gameHistory.length > 15) gameHistory.pop(); // Храним только последние 15 круток
+    localStorage.setItem('kaziksHistory', JSON.stringify(gameHistory));
+    renderHistory();
+}
+
+function renderHistory() {
+    if (gameHistory.length === 0) {
+        historyBox.style.display = 'none';
+        return;
+    }
+    historyBox.style.display = 'block';
+    historyList.innerHTML = '';
+    
+    gameHistory.forEach(val => {
+        let div = document.createElement('div');
+        div.classList.add('history-item');
+        if (val > 0) {
+            div.innerHTML = `<span class="hist-win">+${val} ₽</span>`;
+        } else if (val < 0) {
+            div.innerHTML = `<span class="hist-lose">${val} ₽</span>`;
+        } else {
+            div.innerHTML = `<span class="hist-zero">0 ₽ (лох)</span>`;
+        }
+        historyList.appendChild(div);
+    });
+}
 
 // --- ЛОГИКА ДЕПОЗИТА ---
-
-// Клик по Сберу
 btnSber.addEventListener('click', () => {
-    btnSber.classList.add('selected'); // Подсвечиваем кнопку
-    inputSection.style.display = 'block'; // Показываем ввод суммы
+    btnSber.classList.add('selected'); 
+    inputSection.style.display = 'block'; 
 });
 
-// Клик по кнопке "Оплатить"
 btnPay.addEventListener('click', () => {
     const amount = parseInt(depositAmountInput.value);
     
-    // Проверка на дурака, чтобы не ввели хуйню или минус
     if (isNaN(amount) || amount <= 0) {
         alert("Братик, введи нормальную сумму, мы тут не в бирюльки играем!");
         return;
     }
 
-    // Прячем всё нахуй и показываем фейк-загрузку
     banksContainer.style.display = 'none';
     inputSection.style.display = 'none';
     loadingText.classList.remove('hidden');
 
-    // ФЕЙКОВАЯ ЗАДЕРЖКА (2 секунды)
     setTimeout(() => {
-        // Загрузка прошла, делаем звук оплаты
         audioPay.currentTime = 0;
-        audioPay.play().catch(e => console.log('Звук не сработал из-за браузера:', e));
+        audioPay.play().catch(e => console.log('Звук не сработал:', e));
         
-        // Зачисляем бабки
         currentBalance += amount;
         updateBalance();
 
-        // Скрываем депозит, показываем рулетку
         depositScreen.classList.remove('active');
         rouletteScreen.classList.remove('hidden');
         rouletteScreen.classList.add('active');
 
-        // Возвращаем экран депозита в исходное состояние (на случай если вернемся)
         loadingText.classList.add('hidden');
         banksContainer.style.display = 'flex';
         depositAmountInput.value = '';
         btnSber.classList.remove('selected');
         
-    }, 2000); // 2000 миллисекунд = 2 секунды
+    }, 2000);
 });
 
-// --- ЛОГИКА РУЛЕТКИ ---
-
-// Функция обновления балика на экране
+// --- ДИНАМИЧЕСКАЯ МАТЕМАТИКА РУЛЕТКИ ---
 function updateBalance() {
     balanceDisplay.innerText = currentBalance;
+    localStorage.setItem('kaziksBalance', currentBalance); // Сохраняем балик намертво
 }
 
-// Возможные исходы пока мельтешат цифры
-const outcomes =[100, -50, 0, 500, -200, 1000, -currentBalance, 50, -10, 0, 200, -100];
+function getDynamicOutcomes(bal) {
+    // Генерим варианты в зависимости от балика
+    if (bal <= 0) return [0];
+    return[
+        Math.round(bal * 0.1),      // +10%
+        -Math.round(bal * 0.25),    // -25%
+        Math.round(bal * 0.5),      // +50%
+        -Math.round(bal * 0.5),     // -50%
+        bal,                        // х2 балика (удвоил)
+        -bal,                       // СЛИЛ ВСЕ НАХУЙ
+        0,                          // Зеро
+        Math.round(bal * 1.5),      // Жирный плюс
+        -Math.round(bal * 0.1),     // Мелкий минус
+        500, -200, 1000             // Парочка случайных статических для массовки
+    ];
+}
 
 let isSpinning = false;
 
 btnSpin.addEventListener('click', () => {
-    // Если бабок нет, шлем нахуй пополнять
     if (currentBalance <= 0) {
         alert("Балик по нулям! Закинь лавэ, чтобы крутить дальше.");
         return;
     }
-    
-    // Защита от спама кликами
     if (isSpinning) return;
     isSpinning = true;
 
-    // Сбрасываем звук спина на начало и врубаем
     audioSpin.currentTime = 0;
     audioSpin.play().catch(e => console.log('Звук не сработал:', e));
 
     let spins = 0;
-    // Настраиваем тайминги под твои 7.941 сек звука
-    // 78 тиков по 100 миллисекунд = 7.8 секунд. Идеально под конец!
     const maxSpins = 78; 
     const spinInterval = 100; 
+    
+    // Получаем свежий массив вариков под текущий балик
+    const outcomes = getDynamicOutcomes(currentBalance);
 
-    // Запускаем мельтешение цифр
     const rouletteTimer = setInterval(() => {
-        // Показываем рандомную хуйню пока крутится
         rouletteResult.innerText = outcomes[Math.floor(Math.random() * outcomes.length)];
-        // Делаем цвет белым пока крутится, чтобы сбросить цвет прошлого выигрыша/проеба
         rouletteResult.style.color = '#fff';
         spins++;
 
-        // Когда крутка заканчивается (звук затухает)
         if (spins >= maxSpins) {
             clearInterval(rouletteTimer);
 
-            // Выбираем ФИНАЛЬНЫЙ результат
-            // Специально обновляем массив, чтобы можно было слить весь балик (-currentBalance)
-            const currentOutcomes =[100, -50, 0, 250, -150, 500, -currentBalance, 50, 0, 200, -100];
-            const finalResult = currentOutcomes[Math.floor(Math.random() * currentOutcomes.length)];
+            // Финальный бросок тоже из динамического массива (чистый рандом без подкрутки)
+            const finalResult = outcomes[Math.floor(Math.random() * outcomes.length)];
             
-            // Если плюс — рисуем с плюсом, иначе как есть
             rouletteResult.innerText = finalResult > 0 ? `+${finalResult}` : finalResult;
 
-            // Обновляем балик
             currentBalance += finalResult;
-            if (currentBalance < 0) currentBalance = 0; // Чтобы в минус не уходить
+            if (currentBalance < 0) currentBalance = 0; 
             updateBalance();
+            addHistoryRecord(finalResult); // Пишем в историю
 
-            // Врубаем звук в зависимости от результата и меняем цвет хуйни на экране
             if (finalResult > 0) {
                 audioWin.currentTime = 0;
                 audioWin.play().catch(e => console.log('Звук не сработал:', e));
-                rouletteResult.style.color = '#2ecc71'; // Зеленый если поднял
+                rouletteResult.style.color = '#2ecc71'; 
             } else if (finalResult < 0) {
                 audioLose.currentTime = 0;
                 audioLose.play().catch(e => console.log('Звук не сработал:', e));
-                rouletteResult.style.color = '#e74c3c'; // Красный если проебал
+                rouletteResult.style.color = '#e74c3c'; 
             } else {
-                rouletteResult.style.color = '#fff'; // Белый если ноль
+                rouletteResult.style.color = '#fff'; 
             }
 
             isSpinning = false;
@@ -156,12 +205,91 @@ btnSpin.addEventListener('click', () => {
     }, spinInterval);
 });
 
-// --- ЛОГИКА КНОПКИ "ПОПОЛНИТЬ ЕЩЕ" ---
 btnBack.addEventListener('click', () => {
     rouletteScreen.classList.remove('active');
     rouletteScreen.classList.add('hidden');
-    
     depositScreen.classList.remove('hidden');
     depositScreen.classList.add('active');
-    inputSection.style.display = 'none'; // Скрываем инпут, пусть заново жмут Сбер
+    inputSection.style.display = 'none'; 
+});
+
+// --- ЛОГИКА ВЫВОДА И КАМЕРЫ (KYC) ---
+
+// Издевательские ошибки для дрочилы
+const kycErrors =[
+    "ОШИБКА: Слишком вяло! Ускорьте темп фрикций!",
+    "ОШИБКА: Куда гонишь, сотрешь! Снизьте темп!",
+    "ОШИБКА: Амплитуда не по ГОСТу. Работай всей кистью!",
+    "ОШИБКА: Не вижу страсти в глазах! Добавь эмоций!",
+    "ОШИБКА: Обнаружен пинцетный хват. Возьми нормально!"
+];
+
+function stopCamera() {
+    if (stream) {
+        stream.getTracks().forEach(track => track.stop()); // Вырубаем лампочку камеры
+        stream = null;
+    }
+    clearTimeout(kycTimer);
+}
+
+btnWithdraw.addEventListener('click', () => {
+    rouletteScreen.classList.remove('active');
+    rouletteScreen.classList.add('hidden');
+    withdrawScreen.classList.remove('hidden');
+    withdrawScreen.classList.add('active');
+    
+    withdrawBalanceDisplay.innerText = currentBalance;
+    camSection.classList.add('hidden');
+    btnStartCam.style.display = 'inline-block';
+});
+
+// Начать "верификацию" (запрашиваем камеру)
+btnStartCam.addEventListener('click', async () => {
+    try {
+        // Просим фронталку
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
+        videoStream.srcObject = stream;
+        
+        btnStartCam.style.display = 'none';
+        camSection.classList.remove('hidden');
+        startFakeKycAnalysis();
+    } catch (err) {
+        alert("Братик, разреши доступ к камере! Иначе мы не поверим, что ты дрочишь!");
+    }
+});
+
+function startFakeKycAnalysis() {
+    kycErrorBox.classList.add('hidden');
+    kycStatus.innerText = "Сканирование биометрии... ⏳";
+    kycStatus.classList.remove('hidden');
+    
+    // Через 5 секунд выдаем пиздец
+    kycTimer = setTimeout(() => {
+        kycStatus.classList.add('hidden');
+        // Выбираем рандомную фразу
+        kycErrorText.innerText = kycErrors[Math.floor(Math.random() * kycErrors.length)];
+        kycErrorBox.classList.remove('hidden');
+    }, 5000);
+}
+
+btnRetryKyc.addEventListener('click', () => {
+    startFakeKycAnalysis(); // Перезапускаем таймер страха
+});
+
+// Кнопка "Выход" из-под камеры
+btnExitKyc.addEventListener('click', () => {
+    stopCamera();
+    withdrawScreen.classList.remove('active');
+    withdrawScreen.classList.add('hidden');
+    rouletteScreen.classList.remove('hidden');
+    rouletteScreen.classList.add('active');
+});
+
+// Кнопка возврата в казик (нижняя)
+btnCancelWithdraw.addEventListener('click', () => {
+    stopCamera();
+    withdrawScreen.classList.remove('active');
+    withdrawScreen.classList.add('hidden');
+    rouletteScreen.classList.remove('hidden');
+    rouletteScreen.classList.add('active');
 });

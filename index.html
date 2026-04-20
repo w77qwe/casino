@@ -2,10 +2,8 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <!-- Эта строчка нужна, чтобы на мобилках все выглядело четко и не съебывало за края -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Сайокин Казикс</title>
-    <!-- Подрубаем наши будущие стили -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -15,11 +13,9 @@
         <h1>Закинь бабок</h1>
         
         <div class="banks-container">
-            <!-- Рабочая кнопка Сбера. Путь к картинке укажем в папку assets -->
             <div class="bank-card active-bank" id="btn-sber">
                 <img src="assets/Logo_Sberbank.svg" alt="Сбербанк" width="120">
             </div>
-            <!-- Серые нерабочие залупы для массовки -->
             <div class="bank-card disabled">
                 <span>Тинькофф</span><br>
                 <small>(в разработке)</small>
@@ -35,7 +31,6 @@
             <button id="btn-pay">Оплатить</button>
         </div>
         
-        <!-- Фейковая загрузка -->
         <div id="loading" class="hidden">
             <p>Связь с банком... ⏳</p>
         </div>
@@ -51,18 +46,68 @@
         </div>
         
         <div class="roulette-area">
-            <!-- Тут будут мелькать цифры при прокрутке -->
             <div id="roulette-result" class="result-box">0</div>
         </div>
         
         <button id="btn-spin" class="spin-btn">Крутить барабан</button>
         
-        <!-- Кнопка, чтобы можно было еще закинуть лавэ, если все проебал -->
-        <br><br>
-        <button id="btn-back" class="small-btn">Пополнить еще</button>
+        <div class="action-buttons">
+            <button id="btn-back" class="small-btn">Депнуть еще</button>
+            <button id="btn-withdraw" class="small-btn withdraw-btn">Вывести кэш</button>
+        </div>
+
+        <!-- НОВЫЙ БЛОК: ИСТОРИЯ ИГР -->
+        <div class="history-box" id="history-box" style="display: none;">
+            <div class="history-title">История лудомании</div>
+            <div id="history-list">
+                <!-- Сюда JS будет закидывать твои проебы и победы -->
+            </div>
+        </div>
     </div>
 
-    <!-- Подрубаем наш будущий скрипт -->
+
+    <!-- ЭКРАН 3: ВЫВОД СРЕДСТВ И ВЕРИФИКАЦИЯ (НОВЫЙ) -->
+    <div id="withdraw-screen" class="screen hidden">
+        <h1>Вывод средств</h1>
+        
+        <div class="balance-display">
+            Доступно: <span id="withdraw-balance">0</span> ₽
+        </div>
+        
+        <div id="kyc-container" class="kyc-box">
+            <h2 style="color: #e74c3c; margin-bottom: 10px;">⚠️ ПРОВЕРКА KYC ⚠️</h2>
+            <p style="font-size: 14px; margin-bottom: 10px; color: #ccc;">
+                По новым законам РФ нам нужно убедиться, что вы — это вы.
+            </p>
+            <p style="margin-bottom: 15px;">
+                <strong>Для подтверждения личности подрочите на камеру. Наш ИИ-алгоритм проанализирует вашу физиологию.</strong>
+            </p>
+            
+            <button id="btn-start-cam" class="spin-btn" style="margin-bottom: 15px;">Врубить камеру</button>
+            
+            <!-- Блок с самой камерой и ошибками (по умолчанию скрыт) -->
+            <div id="cam-section" class="hidden">
+                <div class="camera-wrapper">
+                    <video id="camera-stream" autoplay playsinline></video>
+                </div>
+                
+                <p id="kyc-status" style="color: #f1c40f; font-weight: bold; margin-top: 10px;">Сканирование...</p>
+                
+                <!-- Ошибка дрочки -->
+                <div id="kyc-error-box" class="kyc-error hidden">
+                    <span id="kyc-error-text">Ошибка!</span>
+                    <div class="btn-group">
+                        <button id="btn-retry-kyc" class="small-btn" style="color: #fff; border-color: #fff;">Повторить</button>
+                        <button id="btn-exit-kyc" class="small-btn" style="color: #e74c3c; border-color: #e74c3c;">Выход</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <br>
+        <button id="btn-cancel-withdraw" class="small-btn">Вернуться в казик</button>
+    </div>
+
     <script src="script.js"></script>
 </body>
 </html>
