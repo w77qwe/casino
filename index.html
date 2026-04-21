@@ -23,8 +23,8 @@
             <!-- НАШ ФИРМЕННЫЙ САЙОКИН БАНК С БОНУСОМ -->
             <div class="bank-card active-bank vip-bank" id="btn-sayokin">
                 <div class="badge">🔥 ТОП ВЫБОР</div>
-                <!-- svg Сайокин Банка -->
-                <img src="assets/sayokin_bank.svg" alt="Сайокин Банк" height="40">
+                <!-- Заменили SVG на PNG и вшили жесткие стили для подгонки размеров -->
+                <img src="assets/sayokin_bank.png" alt="Сайокин Банк" style="max-width: 90%; height: 45px; object-fit: contain; display: block; margin: 0 auto;">
                 <div class="bonus-text">Бонус +30% к депу!</div>
             </div>
 
@@ -41,7 +41,6 @@
         </div>
         
         <div class="input-group" id="input-section" style="display: none;">
-            <!-- Уведомление о бонусе Сайокин Банка -->
             <p id="bonus-alert" class="hidden" style="color: #2ecc71; font-weight: bold; margin-bottom: 10px;">Активирован бонус +30% от Сайокин Банка!</p>
             <input type="number" id="deposit-amount" placeholder="Введите сумму (₽)">
             <button id="btn-pay">Оплатить нахуй</button>
@@ -70,12 +69,10 @@
         <div class="action-buttons">
             <button class="small-btn btn-go-deposit">Депнуть еще</button>
             
-            <!-- Издевательская кнопка ВЫВОД -->
             <div class="fake-withdraw">
                 <button class="small-btn fake-disabled" disabled>Вывести кэш</button>
                 <div class="withdraw-status">
                     <span class="unavail-text">недоступно</span>
-                    <!-- Тот самый вопросик с секретом -->
                     <div class="info-icon">?
                         <span class="tooltip-text">посчитали что функция ненужная. а хули нет?</span>
                     </div>
@@ -83,7 +80,6 @@
             </div>
         </div>
 
-        <!-- ИСТОРИЯ ИГР -->
         <div class="history-box" id="history-box" style="display: none;">
             <div class="history-title">История лудомании</div>
             <div id="history-list"></div>
@@ -91,7 +87,7 @@
     </div>
 
 
-    <!-- ЭКРАН 3: КРАШ (НОВАЯ ИГРА) -->
+    <!-- ЭКРАН 3: КРАШ -->
     <div id="crash-screen" class="screen hidden">
         <h1>Сайокин Краш 🚀</h1>
         
@@ -100,23 +96,19 @@
         </div>
         
         <div class="crash-area">
-            <!-- Здесь будут бегать иксы -->
             <div id="crash-multiplier" class="multiplier-box">1.00x</div>
-            <!-- Сообщение о проебе -->
             <div id="crash-message" class="crash-msg hidden">ПИЗДЕЦ!</div>
         </div>
         
         <div class="crash-controls">
             <input type="number" id="crash-bet" placeholder="Ставка (₽)">
             <button id="btn-crash-start" class="spin-btn" style="background-color: #9b59b6;">Полетели нахуй</button>
-            <!-- Кнопка вывода ставки В ИГРЕ -->
             <button id="btn-crash-cashout" class="spin-btn hidden" style="background-color: #2ecc71;">Съебаться с бабками</button>
         </div>
 
         <div class="action-buttons">
             <button class="small-btn btn-go-deposit">Депнуть еще</button>
             
-            <!-- Такая же издевательская кнопка вывода для краша -->
             <div class="fake-withdraw">
                 <button class="small-btn fake-disabled" disabled>Вывести кэш</button>
                 <div class="withdraw-status">
