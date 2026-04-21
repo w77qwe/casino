@@ -32,6 +32,38 @@ h1 {
     to { opacity: 1; transform: translateY(0); }
 }
 
+/* --- НАВИГАЦИЯ (ВКЛАДКИ) --- */
+.top-nav {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 25px;
+    background: #1a1a1a;
+    padding: 10px;
+    border-radius: 12px;
+    border: 1px solid #333;
+}
+
+.tab-btn {
+    background: transparent;
+    color: #777;
+    border: none;
+    font-size: 16px;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: 0.3s;
+    border-radius: 8px;
+    max-width: none;
+    width: auto;
+}
+
+.active-tab {
+    background: #f1c40f;
+    color: #000;
+    font-weight: bold;
+    box-shadow: 0 0 10px rgba(241, 196, 15, 0.4);
+}
+
 /* --- ЭКРАН 1: ДЕПОЗИТ --- */
 .banks-container {
     display: flex;
@@ -42,25 +74,65 @@ h1 {
 }
 
 .bank-card {
+    position: relative;
     width: 100%;
     max-width: 320px;
     padding: 15px;
     border-radius: 12px;
     border: 2px solid transparent;
     transition: 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 80px;
 }
 
 .active-bank {
     background-color: #1e1e1e;
     cursor: pointer;
-    border: 2px solid #21a038; 
+    border: 2px solid #444; 
 }
 .active-bank:active {
     transform: scale(0.95);
 }
 .active-bank.selected {
     background-color: rgba(33, 160, 56, 0.2);
+    border-color: #21a038;
     box-shadow: 0 0 15px rgba(33, 160, 56, 0.5);
+}
+
+/* VIP САЙОКИН БАНК */
+.vip-bank {
+    border: 2px solid #f1c40f;
+    background: linear-gradient(145deg, #2c2c2c, #1a1a1a);
+    box-shadow: 0 0 15px rgba(241, 196, 15, 0.3);
+}
+.vip-bank.selected {
+    background-color: rgba(241, 196, 15, 0.2);
+    border-color: #f1c40f;
+    box-shadow: 0 0 25px rgba(241, 196, 15, 0.6);
+}
+
+.badge {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background: #e74c3c;
+    color: #fff;
+    font-size: 10px;
+    font-weight: bold;
+    padding: 4px 8px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+    z-index: 10;
+}
+
+.bonus-text {
+    color: #2ecc71;
+    font-size: 12px;
+    font-weight: bold;
+    margin-top: 8px;
 }
 
 .disabled {
@@ -152,7 +224,7 @@ button:active {
 }
 
 .result-box {
-    font-size: 45px; /* Чуть уменьшил, чтобы большие числа влезали */
+    font-size: 45px;
     font-weight: bold;
     color: #fff;
 }
@@ -164,11 +236,56 @@ button:active {
     box-shadow: 0 4px 15px rgba(231, 76, 60, 0.5);
 }
 
+/* --- ЭКРАН 3: КРАШ --- */
+.crash-area {
+    margin: 20px auto;
+    width: 100%;
+    max-width: 320px;
+    height: 200px;
+    border: 3px solid #9b59b6;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #1a1a1a;
+    box-shadow: 0 0 25px rgba(155, 89, 182, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.multiplier-box {
+    font-size: 55px;
+    font-weight: bold;
+    color: #fff;
+    z-index: 2;
+}
+
+.crash-msg {
+    position: absolute;
+    bottom: 20px;
+    font-size: 20px;
+    font-weight: bold;
+    color: #e74c3c;
+    z-index: 2;
+    animation: shake 0.3s infinite;
+}
+
+.crash-controls {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+/* --- КНОПКИ ВЫВОДА И ТРОЛЛИНГ --- */
 .action-buttons {
     display: flex;
     justify-content: center;
+    align-items: center;
     gap: 10px;
-    margin-top: 20px;
+    margin-top: 25px;
 }
 
 .small-btn {
@@ -178,15 +295,97 @@ button:active {
     width: auto;
     padding: 10px 15px;
     font-size: 14px;
+    margin: 0;
 }
-.withdraw-btn {
-    border-color: #f1c40f;
-    color: #f1c40f;
+
+/* Блок фейкового вывода */
+.fake-withdraw {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+}
+
+.fake-disabled {
+    border-color: #444;
+    color: #555;
+    cursor: not-allowed;
+    background: #1a1a1a;
+}
+
+.withdraw-status {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 5px;
+}
+
+.unavail-text {
+    color: #e74c3c;
+    font-size: 11px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+/* Вопросик */
+.info-icon {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #555;
+    color: #fff;
+    font-size: 11px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+}
+
+/* Подсказка (тултип) */
+.tooltip-text {
+    visibility: hidden;
+    width: 180px;
+    background-color: #e74c3c;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 8px;
+    position: absolute;
+    z-index: 100;
+    bottom: 125%; /* Вылезает над вопросиком */
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 11px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    pointer-events: none; /* Чтобы не мешала кликать */
+}
+
+/* Треугольничек внизу подсказки */
+.tooltip-text::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #e74c3c transparent transparent transparent;
+}
+
+/* Показываем при наведении ИЛИ если добавим класс через JS (для телефонов) */
+.info-icon:hover .tooltip-text,
+.info-icon.show-tooltip .tooltip-text {
+    visibility: visible;
+    opacity: 1;
 }
 
 /* ИСТОРИЯ ИГР */
 .history-box {
-    margin: 20px auto 0;
+    margin: 30px auto 0;
     max-width: 320px;
     background: #1a1a1a;
     border: 1px solid #333;
@@ -216,56 +415,9 @@ button:active {
 .hist-lose { color: #e74c3c; font-weight: bold; }
 .hist-zero { color: #fff; }
 
-/* --- ЭКРАН 3: ВЫВОД И KYC (КАМЕРА) --- */
-.kyc-box {
-    background: #1e1e1e;
-    padding: 20px;
-    border-radius: 12px;
-    border: 1px solid #333;
-    max-width: 350px;
-    margin: 0 auto;
-}
-
-.camera-wrapper {
-    position: relative;
-    width: 100%;
-    margin: 15px auto;
-    border: 3px dashed #e74c3c;
-    border-radius: 12px;
-    overflow: hidden;
-    background: #000;
-    min-height: 200px;
-}
-
-#camera-stream {
-    width: 100%;
-    display: block;
-    transform: scaleX(-1); /* Отзеркаливаем ебало, чтоб привычнее было */
-}
-
-/* Блок ошибки дрочки */
-.kyc-error {
-    margin-top: 15px;
-    background: rgba(231, 76, 60, 0.1);
-    border: 2px solid #e74c3c;
-    color: #e74c3c;
-    padding: 15px;
-    border-radius: 8px;
-    font-weight: bold;
-    font-size: 16px;
-    animation: shake 0.4s ease-in-out;
-}
-
 @keyframes shake {
     0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-5px); }
-    50% { transform: translateX(5px); }
-    75% { transform: translateX(-5px); }
-}
-
-.btn-group {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-    margin-top: 15px;
+    25% { transform: translateX(-3px); }
+    50% { transform: translateX(3px); }
+    75% { transform: translateX(-3px); }
 }
