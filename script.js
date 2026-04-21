@@ -32,7 +32,7 @@ const btnPay = document.getElementById('btn-pay');
 const loadingText = document.getElementById('loading');
 const banksContainer = document.querySelector('.banks-container');
 const bonusAlert = document.getElementById('bonus-alert');
-let selectedBank = ''; // Запоминаем, какой банк выбрали
+let selectedBank = ''; 
 
 // Общие элементы
 const balanceDisplays = document.querySelectorAll('#balance, #crash-balance');
@@ -42,12 +42,13 @@ const btnGoDeposits = document.querySelectorAll('.btn-go-deposit');
 const rouletteResult = document.getElementById('roulette-result');
 const btnSpin = document.getElementById('btn-spin');
 
-// Краш
+// Краш и Ракета
 const crashMultiplier = document.getElementById('crash-multiplier');
 const crashMessage = document.getElementById('crash-message');
 const crashBetInput = document.getElementById('crash-bet');
 const btnCrashStart = document.getElementById('btn-crash-start');
 const btnCrashCashout = document.getElementById('btn-crash-cashout');
+const rocket = document.getElementById('rocket');
 
 // История
 const historyBox = document.getElementById('history-box');
@@ -55,7 +56,6 @@ const historyList = document.getElementById('history-list');
 
 // Тултипы
 const infoIcons = document.querySelectorAll('.info-icon');
-
 
 // --- ИНИЦИАЛИЗАЦИЯ ---
 updateBalance();
@@ -65,7 +65,7 @@ renderHistory();
 function addHistoryRecord(amount, gameName = '') {
     const text = gameName ? `[${gameName}] ` : '';
     gameHistory.unshift({ val: amount, label: text }); 
-    if (gameHistory.length > 15) gameHistory.pop(); // Храним 15 штук
+    if (gameHistory.length > 15) gameHistory.pop(); // Храним последние 15 игр
     localStorage.setItem('kaziksHistory', JSON.stringify(gameHistory));
     renderHistory();
 }
@@ -99,7 +99,7 @@ function updateBalance() {
 
 // --- НАВИГАЦИЯ (ВКЛАДКИ) ---
 tabRoulette.addEventListener('click', () => {
-    if (isSpinning || isCrashing) return; // Блокируем переключение во время игры
+    if (isSpinning || isCrashing) return; 
     tabCrash.classList.remove('active-tab');
     tabRoulette.classList.add('active-tab');
     crashScreen.classList.remove('active');
@@ -144,7 +144,6 @@ bankCards.forEach(card => {
         
         inputSection.style.display = 'block';
         
-        // Врубаем замануху если это наш банк
         if (selectedBank === 'btn-sayokin') {
             bonusAlert.classList.remove('hidden');
         } else {
@@ -157,7 +156,7 @@ btnPay.addEventListener('click', () => {
     let amount = parseInt(depositAmountInput.value);
     
     if (isNaN(amount) || amount <= 0) {
-        alert("Братик, введи нормальную сумму, мы тут не в бирюльки играем!");
+        alert("Братик, введи нормальную сумму!");
         return;
     }
 
@@ -169,7 +168,7 @@ btnPay.addEventListener('click', () => {
         audioPay.currentTime = 0;
         audioPay.play().catch(e => console.log('Звук не сработал:', e));
         
-        // Накидываем +30% если Сайокин Банк
+        // Бонус от Сайокин Банка
         if (selectedBank === 'btn-sayokin') {
             amount = Math.round(amount * 1.3);
         }
@@ -180,11 +179,10 @@ btnPay.addEventListener('click', () => {
         depositScreen.classList.remove('active');
         depositScreen.classList.add('hidden');
         
-        // Показываем меню и кидаем на рулетку
         topNav.classList.remove('hidden');
         rouletteScreen.classList.remove('hidden');
         rouletteScreen.classList.add('active');
-        tabRoulette.click(); // Форсируем активную вкладку рулетки
+        tabRoulette.click(); 
 
         loadingText.classList.add('hidden');
         banksContainer.style.display = 'flex';
@@ -224,9 +222,8 @@ btnSpin.addEventListener('click', () => {
         rouletteResult.style.color = '#fff';
         spins++;
 
-        if (spins >= 78) { // 7.8 сек
+        if (spins >= 78) {
             clearInterval(rouletteTimer);
-
             const finalResult = outcomes[Math.floor(Math.random() * outcomes.length)];
             rouletteResult.innerText = finalResult > 0 ? `+${finalResult}` : finalResult;
 
@@ -251,27 +248,30 @@ btnSpin.addEventListener('click', () => {
     }, 100);
 });
 
-// --- ЛОГИКА КРАША ---
+// --- ЛОГИКА КРАША И ПОЛЕТА РАКЕТЫ ---
 let isCrashing = false;
 let crashTimer = null;
 let currentMultiplier = 1.00;
 let currentBet = 0;
+let rocketX = 10;
+let rocketY = 10;
 
 btnCrashStart.addEventListener('click', () => {
     currentBet = parseInt(crashBetInput.value);
     
     if (isNaN(currentBet) || currentBet <= 0 || currentBet > currentBalance) {
-        alert("Эй, введи нормальную ставку! У тебя нет столько бабок.");
+        alert("Ставка хуйня! Либо денег нет, либо ввел криво.");
         return;
     }
     
     if (isSpinning || isCrashing) return;
     isCrashing = true;
 
-    // Списываем ставку на старте
+    // Списываем ставку
     currentBalance -= currentBet;
     updateBalance();
 
+    // Настраиваем интерфейс
     btnCrashStart.classList.add('hidden');
     btnCrashCashout.classList.remove('hidden');
     crashMessage.classList.add('hidden');
@@ -279,34 +279,56 @@ btnCrashStart.addEventListener('click', () => {
     crashMultiplier.innerText = '1.00x';
     currentMultiplier = 1.00;
 
-    // Подлая математика краша
+    // Сбрасываем и врубаем ракету
+    rocket.classList.remove('rocket-crashed');
+    rocket.classList.add('rocket-flying');
+    rocketX = 10;
+    rocketY = 10;
+    rocket.style.left = rocketX + 'px';
+    rocket.style.bottom = rocketY + 'px';
+
+    // Математика жадности (тут решаем, когда всё наебнется)
     let targetCrashPoint = 1.00;
     const r = Math.random();
-    if (r < 0.20) targetCrashPoint = 1.00; // 20% шанс слить нахуй прям на старте
-    else if (r < 0.60) targetCrashPoint = 1.01 + Math.random() * 1.5; // до 2.5x
-    else if (r < 0.85) targetCrashPoint = 2.00 + Math.random() * 5.0; // до 7x
-    else targetCrashPoint = 5.00 + Math.random() * 25.0; // до 30x (замануха)
+    if (r < 0.20) targetCrashPoint = 1.00; // Пиздец на старте (20% шанс)
+    else if (r < 0.60) targetCrashPoint = 1.01 + Math.random() * 1.5; 
+    else if (r < 0.85) targetCrashPoint = 2.00 + Math.random() * 5.0; 
+    else targetCrashPoint = 5.00 + Math.random() * 20.0; // Ложная надежда
 
-    // Погнали ракету
+    // Запускаем полет
     crashTimer = setInterval(() => {
-        // Скорость роста зависит от величины
-        if (currentMultiplier < 3.00) currentMultiplier += 0.01;
-        else if (currentMultiplier < 10.00) currentMultiplier += 0.05;
-        else currentMultiplier += 0.15;
+        // Ускоряем рост
+        if (currentMultiplier < 3.00) {
+            currentMultiplier += 0.01;
+            rocketX += 0.8; rocketY += 0.5;
+        } else if (currentMultiplier < 10.00) {
+            currentMultiplier += 0.05;
+            rocketX += 1.5; rocketY += 1.0;
+        } else {
+            currentMultiplier += 0.15;
+            rocketX += 2; rocketY += 1.5;
+        }
 
-        // Если долетели до точки краша
+        // Ограничиваем полет ракеты рамками экрана, чтобы не улетела в космос
+        if (rocketX > 250) rocketX = 250;
+        if (rocketY > 150) rocketY = 150;
+        
+        rocket.style.left = rocketX + 'px';
+        rocket.style.bottom = rocketY + 'px';
+
+        // Проверка на краш
         if (currentMultiplier >= targetCrashPoint) {
-            currentMultiplier = targetCrashPoint; // фиксируем
-            endCrash(false); // Проеб
+            currentMultiplier = targetCrashPoint; 
+            endCrash(false); 
         } else {
             crashMultiplier.innerText = currentMultiplier.toFixed(2) + 'x';
         }
-    }, 50); // каждые 50мс тик
+    }, 50); 
 });
 
 btnCrashCashout.addEventListener('click', () => {
     if (!isCrashing) return;
-    endCrash(true); // Успел вывести
+    endCrash(true); 
 });
 
 function endCrash(win) {
@@ -317,25 +339,26 @@ function endCrash(win) {
     btnCrashStart.classList.remove('hidden');
 
     crashMultiplier.innerText = currentMultiplier.toFixed(2) + 'x';
+    rocket.classList.remove('rocket-flying');
 
     if (win) {
-        // Вывел бабки
+        // Успел!
         const winAmount = Math.round(currentBet * currentMultiplier);
         const pureProfit = winAmount - currentBet;
         currentBalance += winAmount;
         updateBalance();
-        addHistoryRecord(pureProfit, 'Краш'); // Пишем только чистый плюс
+        addHistoryRecord(pureProfit, 'Краш'); 
 
         crashMultiplier.style.color = '#2ecc71';
         audioWin.currentTime = 0;
         audioWin.play().catch(e => console.log('Звук не сработал:', e));
-        
     } else {
-        // Ракета взорвалась
+        // Проебал!
         crashMessage.classList.remove('hidden');
         crashMultiplier.style.color = '#e74c3c';
         
-        // Пишем минус ставка в историю
+        rocket.classList.add('rocket-crashed'); // Анимация падения ракеты
+        
         addHistoryRecord(-currentBet, 'Краш'); 
         
         audioLose.currentTime = 0;
@@ -343,19 +366,15 @@ function endCrash(win) {
     }
 }
 
-// --- ЛОГИКА ТУЛТИПА НА ТЕЛЕФОНЕ ---
+// --- ЛОГИКА ТУЛТИПА ---
 infoIcons.forEach(icon => {
     icon.addEventListener('click', (e) => {
-        // Убираем у всех, чтобы не висело по 100 подсказок
         infoIcons.forEach(i => { if (i !== icon) i.classList.remove('show-tooltip'); });
-        // Тогглим класс на кликнутом
         icon.classList.toggle('show-tooltip');
-        // Чтобы клик не срабатывал куда не надо
         e.stopPropagation();
     });
 });
 
-// Если кликаем по пустому месту — прячем подсказку
 document.addEventListener('click', () => {
     infoIcons.forEach(icon => icon.classList.remove('show-tooltip'));
 });
