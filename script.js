@@ -9,8 +9,12 @@ audioSpin.loop = false;
 const audioWin = new Audio('assets/win.mp3');
 audioWin.volume = 0.35; 
 
-const audioLose = new Audio('assets/lose.mp3');
-audioLose.volume = 0.25; 
+// Заряжаем Виктора Пузо
+const audioPizdec = new Audio('assets/pizdec.mp3');
+audioPizdec.volume = 0.30; // Выравниваем средний проеб
+
+const audioAhueli = new Audio('assets/you ahueli.mp3');
+audioAhueli.volume = 0.20; // Громкий бас, приглушаем, чтобы не оглохли
 
 // --- ПЕРЕМЕННЫЕ И ЭЛЕМЕНТЫ ---
 let currentBalance = parseInt(localStorage.getItem('kaziksBalance')) || 0;
@@ -65,7 +69,7 @@ renderHistory();
 function addHistoryRecord(amount, gameName = '') {
     const text = gameName ? `[${gameName}] ` : '';
     gameHistory.unshift({ val: amount, label: text }); 
-    if (gameHistory.length > 15) gameHistory.pop(); // Храним последние 15 игр
+    if (gameHistory.length > 15) gameHistory.pop(); 
     localStorage.setItem('kaziksHistory', JSON.stringify(gameHistory));
     renderHistory();
 }
@@ -205,6 +209,8 @@ function getDynamicOutcomes(bal) {
 
 btnSpin.addEventListener('click', () => {
     if (currentBalance <= 0) {
+        audioAhueli.currentTime = 0;
+        audioAhueli.play().catch(e => console.log('Звук:', e));
         alert("Балик по нулям! Закинь лавэ.");
         return;
     }
@@ -237,8 +243,14 @@ btnSpin.addEventListener('click', () => {
                 audioWin.play().catch(e => console.log('Звук не сработал:', e));
                 rouletteResult.style.color = '#2ecc71'; 
             } else if (finalResult < 0) {
-                audioLose.currentTime = 0;
-                audioLose.play().catch(e => console.log('Звук не сработал:', e));
+                // ПРОВЕРКА НА БОМЖА ОТ ВИКТОРА ПУЗО
+                if (currentBalance <= 0) {
+                    audioAhueli.currentTime = 0;
+                    audioAhueli.play().catch(e => console.log('Звук:', e));
+                } else {
+                    audioPizdec.currentTime = 0;
+                    audioPizdec.play().catch(e => console.log('Звук:', e));
+                }
                 rouletteResult.style.color = '#e74c3c'; 
             } else {
                 rouletteResult.style.color = '#fff'; 
@@ -287,17 +299,14 @@ btnCrashStart.addEventListener('click', () => {
     rocket.style.left = rocketX + 'px';
     rocket.style.bottom = rocketY + 'px';
 
-    // Математика жадности (тут решаем, когда всё наебнется)
     let targetCrashPoint = 1.00;
     const r = Math.random();
-    if (r < 0.20) targetCrashPoint = 1.00; // Пиздец на старте (20% шанс)
+    if (r < 0.20) targetCrashPoint = 1.00; 
     else if (r < 0.60) targetCrashPoint = 1.01 + Math.random() * 1.5; 
     else if (r < 0.85) targetCrashPoint = 2.00 + Math.random() * 5.0; 
-    else targetCrashPoint = 5.00 + Math.random() * 20.0; // Ложная надежда
+    else targetCrashPoint = 5.00 + Math.random() * 20.0; 
 
-    // Запускаем полет
     crashTimer = setInterval(() => {
-        // Ускоряем рост
         if (currentMultiplier < 3.00) {
             currentMultiplier += 0.01;
             rocketX += 0.8; rocketY += 0.5;
@@ -309,14 +318,12 @@ btnCrashStart.addEventListener('click', () => {
             rocketX += 2; rocketY += 1.5;
         }
 
-        // Ограничиваем полет ракеты рамками экрана, чтобы не улетела в космос
         if (rocketX > 250) rocketX = 250;
         if (rocketY > 150) rocketY = 150;
         
         rocket.style.left = rocketX + 'px';
         rocket.style.bottom = rocketY + 'px';
 
-        // Проверка на краш
         if (currentMultiplier >= targetCrashPoint) {
             currentMultiplier = targetCrashPoint; 
             endCrash(false); 
@@ -342,7 +349,6 @@ function endCrash(win) {
     rocket.classList.remove('rocket-flying');
 
     if (win) {
-        // Успел!
         const winAmount = Math.round(currentBet * currentMultiplier);
         const pureProfit = winAmount - currentBet;
         currentBalance += winAmount;
@@ -353,16 +359,21 @@ function endCrash(win) {
         audioWin.currentTime = 0;
         audioWin.play().catch(e => console.log('Звук не сработал:', e));
     } else {
-        // Проебал!
         crashMessage.classList.remove('hidden');
         crashMultiplier.style.color = '#e74c3c';
         
-        rocket.classList.add('rocket-crashed'); // Анимация падения ракеты
+        rocket.classList.add('rocket-crashed'); 
         
         addHistoryRecord(-currentBet, 'Краш'); 
         
-        audioLose.currentTime = 0;
-        audioLose.play().catch(e => console.log('Звук не сработал:', e));
+        // ПРОВЕРКА НА БОМЖА ОТ ВИКТОРА ПУЗО (если слил всё в краше)
+        if (currentBalance <= 0) {
+            audioAhueli.currentTime = 0;
+            audioAhueli.play().catch(e => console.log('Звук:', e));
+        } else {
+            audioPizdec.currentTime = 0;
+            audioPizdec.play().catch(e => console.log('Звук:', e));
+        }
     }
 }
 
