@@ -11,10 +11,10 @@ audioWin.volume = 0.35;
 
 // Заряжаем Виктора Пузо
 const audioPizdec = new Audio('assets/pizdec.mp3');
-audioPizdec.volume = 0.30; // Выравниваем средний проеб
+audioPizdec.volume = 0.30; 
 
 const audioAhueli = new Audio('assets/you ahueli.mp3');
-audioAhueli.volume = 0.20; // Громкий бас, приглушаем, чтобы не оглохли
+audioAhueli.volume = 0.20; 
 
 // --- ПЕРЕМЕННЫЕ И ЭЛЕМЕНТЫ ---
 let currentBalance = parseInt(localStorage.getItem('kaziksBalance')) || 0;
@@ -172,7 +172,6 @@ btnPay.addEventListener('click', () => {
         audioPay.currentTime = 0;
         audioPay.play().catch(e => console.log('Звук не сработал:', e));
         
-        // Бонус от Сайокин Банка
         if (selectedBank === 'btn-sayokin') {
             amount = Math.round(amount * 1.3);
         }
@@ -243,7 +242,6 @@ btnSpin.addEventListener('click', () => {
                 audioWin.play().catch(e => console.log('Звук не сработал:', e));
                 rouletteResult.style.color = '#2ecc71'; 
             } else if (finalResult < 0) {
-                // ПРОВЕРКА НА БОМЖА ОТ ВИКТОРА ПУЗО
                 if (currentBalance <= 0) {
                     audioAhueli.currentTime = 0;
                     audioAhueli.play().catch(e => console.log('Звук:', e));
@@ -269,10 +267,18 @@ let rocketX = 10;
 let rocketY = 10;
 
 btnCrashStart.addEventListener('click', () => {
+    // В первую очередь чекаем, не бомж ли он
+    if (currentBalance <= 0) {
+        audioAhueli.currentTime = 0;
+        audioAhueli.play().catch(e => console.log('Звук:', e));
+        alert("Балик по нулям! Хули ты тыкаешь, иди депай!");
+        return;
+    }
+
     currentBet = parseInt(crashBetInput.value);
     
     if (isNaN(currentBet) || currentBet <= 0 || currentBet > currentBalance) {
-        alert("Ставка хуйня! Либо денег нет, либо ввел криво.");
+        alert("Ставка хуйня! Либо больше балика, либо ввел криво.");
         return;
     }
     
