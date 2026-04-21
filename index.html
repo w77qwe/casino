@@ -3,46 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Сайокин Казикс</title>
+    <title>Сайокин Казикс & Краш</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
+    <!-- НАВИГАЦИЯ (МЕНЮШКА ИГР) -->
+    <div class="top-nav hidden" id="top-nav">
+        <button id="tab-roulette" class="tab-btn active-tab">Рулетка</button>
+        <button id="tab-crash" class="tab-btn">🚀 Краш</button>
+    </div>
+
     <!-- ЭКРАН 1: ДЕПОЗИТ (по умолчанию активен) -->
     <div id="deposit-screen" class="screen active">
-        <h1>Закинь бабок</h1>
+        <h1>Касса</h1>
+        <p style="color: #aaa; margin-bottom: 20px;">Выбери способ пополнения балика:</p>
         
         <div class="banks-container">
+            <!-- НАШ ФИРМЕННЫЙ САЙОКИН БАНК С БОНУСОМ -->
+            <div class="bank-card active-bank vip-bank" id="btn-sayokin">
+                <div class="badge">🔥 ТОП ВЫБОР</div>
+                <!-- svg Сайокин Банка -->
+                <img src="assets/sayokin_bank.svg" alt="Сайокин Банк" height="40">
+                <div class="bonus-text">Бонус +30% к депу!</div>
+            </div>
+
+            <!-- Остальные рабочие банки -->
+            <div class="bank-card active-bank" id="btn-tinkoff">
+                <img src="assets/Tinkoff_logo_2024.svg" alt="Тинькофф" height="30">
+            </div>
+            <div class="bank-card active-bank" id="btn-alfa">
+                <img src="assets/Alfa_Bank_RU_logo.svg" alt="Альфа-Банк" height="30">
+            </div>
             <div class="bank-card active-bank" id="btn-sber">
-                <img src="assets/Logo_Sberbank.svg" alt="Сбербанк" width="120">
-            </div>
-            <div class="bank-card disabled">
-                <span>Тинькофф</span><br>
-                <small>(в разработке)</small>
-            </div>
-            <div class="bank-card disabled">
-                <span>Альфа</span><br>
-                <small>(в разработке)</small>
+                <img src="assets/Logo_Sberbank.svg" alt="Сбербанк" height="30">
             </div>
         </div>
         
         <div class="input-group" id="input-section" style="display: none;">
+            <!-- Уведомление о бонусе Сайокин Банка -->
+            <p id="bonus-alert" class="hidden" style="color: #2ecc71; font-weight: bold; margin-bottom: 10px;">Активирован бонус +30% от Сайокин Банка!</p>
             <input type="number" id="deposit-amount" placeholder="Введите сумму (₽)">
-            <button id="btn-pay">Оплатить</button>
+            <button id="btn-pay">Оплатить нахуй</button>
         </div>
         
         <div id="loading" class="hidden">
-            <p>Связь с банком... ⏳</p>
+            <p>Пиздим деньги с карты... ⏳</p>
         </div>
     </div>
 
 
-    <!-- ЭКРАН 2: РУЛЕТКА (по умолчанию скрыт) -->
+    <!-- ЭКРАН 2: РУЛЕТКА -->
     <div id="roulette-screen" class="screen hidden">
         <h1>Ебаная Рулетка</h1>
         
         <div class="balance-display">
-            Твой балик: <span id="balance">0</span> ₽
+            Балик: <span id="balance">0</span> ₽
         </div>
         
         <div class="roulette-area">
@@ -52,60 +68,65 @@
         <button id="btn-spin" class="spin-btn">Крутить барабан</button>
         
         <div class="action-buttons">
-            <button id="btn-back" class="small-btn">Депнуть еще</button>
-            <button id="btn-withdraw" class="small-btn withdraw-btn">Вывести кэш</button>
-        </div>
-
-        <!-- НОВЫЙ БЛОК: ИСТОРИЯ ИГР -->
-        <div class="history-box" id="history-box" style="display: none;">
-            <div class="history-title">История лудомании</div>
-            <div id="history-list">
-                <!-- Сюда JS будет закидывать твои проебы и победы -->
-            </div>
-        </div>
-    </div>
-
-
-    <!-- ЭКРАН 3: ВЫВОД СРЕДСТВ И ВЕРИФИКАЦИЯ (НОВЫЙ) -->
-    <div id="withdraw-screen" class="screen hidden">
-        <h1>Вывод средств</h1>
-        
-        <div class="balance-display">
-            Доступно: <span id="withdraw-balance">0</span> ₽
-        </div>
-        
-        <div id="kyc-container" class="kyc-box">
-            <h2 style="color: #e74c3c; margin-bottom: 10px;">⚠️ ПРОВЕРКА KYC ⚠️</h2>
-            <p style="font-size: 14px; margin-bottom: 10px; color: #ccc;">
-                По новым законам РФ нам нужно убедиться, что вы — это вы.
-            </p>
-            <p style="margin-bottom: 15px;">
-                <strong>Для подтверждения личности подрочите на камеру. Наш ИИ-алгоритм проанализирует вашу физиологию.</strong>
-            </p>
+            <button class="small-btn btn-go-deposit">Депнуть еще</button>
             
-            <button id="btn-start-cam" class="spin-btn" style="margin-bottom: 15px;">Врубить камеру</button>
-            
-            <!-- Блок с самой камерой и ошибками (по умолчанию скрыт) -->
-            <div id="cam-section" class="hidden">
-                <div class="camera-wrapper">
-                    <video id="camera-stream" autoplay playsinline></video>
-                </div>
-                
-                <p id="kyc-status" style="color: #f1c40f; font-weight: bold; margin-top: 10px;">Сканирование...</p>
-                
-                <!-- Ошибка дрочки -->
-                <div id="kyc-error-box" class="kyc-error hidden">
-                    <span id="kyc-error-text">Ошибка!</span>
-                    <div class="btn-group">
-                        <button id="btn-retry-kyc" class="small-btn" style="color: #fff; border-color: #fff;">Повторить</button>
-                        <button id="btn-exit-kyc" class="small-btn" style="color: #e74c3c; border-color: #e74c3c;">Выход</button>
+            <!-- Издевательская кнопка ВЫВОД -->
+            <div class="fake-withdraw">
+                <button class="small-btn fake-disabled" disabled>Вывести кэш</button>
+                <div class="withdraw-status">
+                    <span class="unavail-text">недоступно</span>
+                    <!-- Тот самый вопросик с секретом -->
+                    <div class="info-icon">?
+                        <span class="tooltip-text">посчитали что функция ненужная. а хули нет?</span>
                     </div>
                 </div>
             </div>
         </div>
+
+        <!-- ИСТОРИЯ ИГР -->
+        <div class="history-box" id="history-box" style="display: none;">
+            <div class="history-title">История лудомании</div>
+            <div id="history-list"></div>
+        </div>
+    </div>
+
+
+    <!-- ЭКРАН 3: КРАШ (НОВАЯ ИГРА) -->
+    <div id="crash-screen" class="screen hidden">
+        <h1>Сайокин Краш 🚀</h1>
         
-        <br>
-        <button id="btn-cancel-withdraw" class="small-btn">Вернуться в казик</button>
+        <div class="balance-display">
+            Балик: <span id="crash-balance">0</span> ₽
+        </div>
+        
+        <div class="crash-area">
+            <!-- Здесь будут бегать иксы -->
+            <div id="crash-multiplier" class="multiplier-box">1.00x</div>
+            <!-- Сообщение о проебе -->
+            <div id="crash-message" class="crash-msg hidden">ПИЗДЕЦ!</div>
+        </div>
+        
+        <div class="crash-controls">
+            <input type="number" id="crash-bet" placeholder="Ставка (₽)">
+            <button id="btn-crash-start" class="spin-btn" style="background-color: #9b59b6;">Полетели нахуй</button>
+            <!-- Кнопка вывода ставки В ИГРЕ -->
+            <button id="btn-crash-cashout" class="spin-btn hidden" style="background-color: #2ecc71;">Съебаться с бабками</button>
+        </div>
+
+        <div class="action-buttons">
+            <button class="small-btn btn-go-deposit">Депнуть еще</button>
+            
+            <!-- Такая же издевательская кнопка вывода для краша -->
+            <div class="fake-withdraw">
+                <button class="small-btn fake-disabled" disabled>Вывести кэш</button>
+                <div class="withdraw-status">
+                    <span class="unavail-text">недоступно</span>
+                    <div class="info-icon">?
+                        <span class="tooltip-text">посчитали что функция ненужная. а хули нет?</span>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="script.js"></script>
