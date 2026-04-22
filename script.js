@@ -1,19 +1,9 @@
 // --- ЗВУКИ И ГРОМКОСТЬ ---
-const audioPay = new Audio('assets/pay.mp3');
-audioPay.volume = 1.0; 
-
-const audioSpin = new Audio('assets/spin.mp3');
-audioSpin.volume = 0.25; 
-audioSpin.loop = false; 
-
-const audioWin = new Audio('assets/win.mp3');
-audioWin.volume = 0.35; 
-
-const audioPizdec = new Audio('assets/pizdec.mp3');
-audioPizdec.volume = 0.30; 
-
-const audioAhueli = new Audio('assets/you ahueli.mp3');
-audioAhueli.volume = 0.20; 
+const audioPay = new Audio('assets/pay.mp3'); audioPay.volume = 1.0; 
+const audioSpin = new Audio('assets/spin.mp3'); audioSpin.volume = 0.25; audioSpin.loop = false; 
+const audioWin = new Audio('assets/win.mp3'); audioWin.volume = 0.35; 
+const audioPizdec = new Audio('assets/pizdec.mp3'); audioPizdec.volume = 0.30; 
+const audioAhueli = new Audio('assets/you ahueli.mp3'); audioAhueli.volume = 0.20; 
 
 // --- ПЕРЕМЕННЫЕ И ЭЛЕМЕНТЫ ---
 let currentBalance = parseInt(localStorage.getItem('kaziksBalance')) || 0;
@@ -23,9 +13,11 @@ let gameHistory = JSON.parse(localStorage.getItem('kaziksHistory')) ||[];
 const topNav = document.getElementById('top-nav');
 const tabRoulette = document.getElementById('tab-roulette');
 const tabCrash = document.getElementById('tab-crash');
+const tabMines = document.getElementById('tab-mines');
 const depositScreen = document.getElementById('deposit-screen');
 const rouletteScreen = document.getElementById('roulette-screen');
 const crashScreen = document.getElementById('crash-screen');
+const minesScreen = document.getElementById('mines-screen');
 const withdrawScreen = document.getElementById('withdraw-screen');
 const loanScreen = document.getElementById('loan-screen');
 
@@ -55,8 +47,10 @@ const loanAmountDisplay = document.getElementById('loan-amount-display');
 const btnAcceptLoan = document.getElementById('btn-accept-loan');
 
 // Общие
-const balanceDisplays = document.querySelectorAll('#balance, #crash-balance');
+const balanceDisplays = document.querySelectorAll('.balance-amount');
 const btnGoDeposits = document.querySelectorAll('.btn-go-deposit');
+const historyBoxes = document.querySelectorAll('.history-box');
+const historyLists = document.querySelectorAll('.history-list');
 
 // Рулетка
 const rouletteResult = document.getElementById('roulette-result');
@@ -70,13 +64,22 @@ const btnCrashStart = document.getElementById('btn-crash-start');
 const btnCrashCashout = document.getElementById('btn-crash-cashout');
 const rocket = document.getElementById('rocket');
 
-// История
-const historyBox = document.getElementById('history-box');
-const historyList = document.getElementById('history-list');
+// Мины
+const minesGrid = document.getElementById('mines-grid');
+const minesBetInput = document.getElementById('mines-bet');
+const minesCountSelect = document.getElementById('mines-count');
+const btnMinesStart = document.getElementById('btn-mines-start');
+const btnMinesCashout = document.getElementById('btn-mines-cashout');
+const minesStatusBar = document.getElementById('mines-status-bar');
+const minesMultText = document.getElementById('mines-multiplier-text');
+
+let isSpinning = false;
+let isCrashing = false;
 
 // --- ИНИЦИАЛИЗАЦИЯ ---
 updateBalance();
 renderHistory();
+initMinesGridEmpty();
 
 // --- ИСТОРИЯ ---
 function addHistoryRecord(amount, gameName = '') {
@@ -89,23 +92,20 @@ function addHistoryRecord(amount, gameName = '') {
 
 function renderHistory() {
     if (gameHistory.length === 0) {
-        historyBox.style.display = 'none';
+        historyBoxes.forEach(box => box.style.display = 'none');
         return;
     }
-    historyBox.style.display = 'block';
-    historyList.innerHTML = '';
-    
-    gameHistory.forEach(item => {
-        let div = document.createElement('div');
-        div.classList.add('history-item');
-        if (item.val > 0) {
-            div.innerHTML = `<span>${item.label}</span><span class="hist-win">+${item.val} ₽</span>`;
-        } else if (item.val < 0) {
-            div.innerHTML = `<span>${item.label}</span><span class="hist-lose">${item.val} ₽</span>`;
-        } else {
-            div.innerHTML = `<span>${item.label}</span><span class="hist-zero">0 ₽ (лох)</span>`;
-        }
-        historyList.appendChild(div);
+    historyBoxes.forEach(box => box.style.display = 'block');
+    historyLists.forEach(list => {
+        list.innerHTML = '';
+        gameHistory.forEach(item => {
+            let div = document.createElement('div');
+            div.classList.add('history-item');
+            if (item.val > 0) div.innerHTML = `<span>${item.label}</span><span class="hist-win">+${item.val} ₽</span>`;
+            else if (item.val < 0) div.innerHTML = `<span>${item.label}</span><span class="hist-lose">${item.val} ₽</span>`;
+            else div.innerHTML = `<span>${item.label}</span><span class="hist-zero">0 ₽ (лох)</span>`;
+            list.appendChild(div);
+        });
     });
 }
 
@@ -115,37 +115,39 @@ function updateBalance() {
 }
 
 // --- НАВИГАЦИЯ ---
+function hideAllScreens() {[depositScreen, rouletteScreen, crashScreen, minesScreen, withdrawScreen, loanScreen].forEach(s => {
+        s.classList.remove('active');
+        s.classList.add('hidden');
+    });[tabRoulette, tabCrash, tabMines].forEach(t => t.classList.remove('active-tab'));
+}
+
 tabRoulette.addEventListener('click', () => {
-    if (isSpinning || isCrashing) return; 
-    tabCrash.classList.remove('active-tab');
+    if (isSpinning || isCrashing || isMinesPlaying) return; 
+    hideAllScreens();
     tabRoulette.classList.add('active-tab');
-    crashScreen.classList.remove('active');
-    crashScreen.classList.add('hidden');
-    rouletteScreen.classList.remove('hidden');
-    rouletteScreen.classList.add('active');
+    rouletteScreen.classList.remove('hidden'); rouletteScreen.classList.add('active');
 });
 
 tabCrash.addEventListener('click', () => {
-    if (isSpinning || isCrashing) return;
-    tabRoulette.classList.remove('active-tab');
+    if (isSpinning || isCrashing || isMinesPlaying) return;
+    hideAllScreens();
     tabCrash.classList.add('active-tab');
-    rouletteScreen.classList.remove('active');
-    rouletteScreen.classList.add('hidden');
-    crashScreen.classList.remove('hidden');
-    crashScreen.classList.add('active');
+    crashScreen.classList.remove('hidden'); crashScreen.classList.add('active');
+});
+
+tabMines.addEventListener('click', () => {
+    if (isSpinning || isCrashing || isMinesPlaying) return;
+    hideAllScreens();
+    tabMines.classList.add('active-tab');
+    minesScreen.classList.remove('hidden'); minesScreen.classList.add('active');
 });
 
 btnGoDeposits.forEach(btn => {
     btn.addEventListener('click', () => {
-        if (isSpinning || isCrashing) return;
-        rouletteScreen.classList.remove('active');
-        rouletteScreen.classList.add('hidden');
-        crashScreen.classList.remove('active');
-        crashScreen.classList.add('hidden');
+        if (isSpinning || isCrashing || isMinesPlaying) return;
+        hideAllScreens();
         topNav.classList.add('hidden');
-        
-        depositScreen.classList.remove('hidden');
-        depositScreen.classList.add('active');
+        depositScreen.classList.remove('hidden'); depositScreen.classList.add('active');
         inputSection.style.display = 'none'; 
         bankCards.forEach(b => b.classList.remove('selected'));
     });
@@ -158,12 +160,8 @@ bankCards.forEach(card => {
         card.classList.add('selected');
         selectedBank = card.id;
         inputSection.style.display = 'block';
-        
-        if (selectedBank === 'btn-sayokin') {
-            bonusAlert.classList.remove('hidden');
-        } else {
-            bonusAlert.classList.add('hidden');
-        }
+        if (selectedBank === 'btn-sayokin') bonusAlert.classList.remove('hidden');
+        else bonusAlert.classList.add('hidden');
     });
 });
 
@@ -171,52 +169,30 @@ btnPay.addEventListener('click', () => {
     let amount = parseInt(depositAmountInput.value);
     if (isNaN(amount) || amount <= 0) { alert("Братик, введи нормальную сумму!"); return; }
 
-    banksContainer.style.display = 'none';
-    inputSection.style.display = 'none';
+    banksContainer.style.display = 'none'; inputSection.style.display = 'none';
     loadingText.classList.remove('hidden');
 
     setTimeout(() => {
-        audioPay.currentTime = 0;
-        audioPay.play().catch(e => console.log('Звук не сработал:', e));
-        
+        audioPay.currentTime = 0; audioPay.play().catch(e => console.log(e));
         if (selectedBank === 'btn-sayokin') amount = Math.round(amount * 1.3);
-
-        currentBalance += amount;
-        updateBalance();
-
-        depositScreen.classList.remove('active');
-        depositScreen.classList.add('hidden');
+        currentBalance += amount; updateBalance();
         
-        topNav.classList.remove('hidden');
-        rouletteScreen.classList.remove('hidden');
-        rouletteScreen.classList.add('active');
-        tabRoulette.click(); 
-
-        loadingText.classList.add('hidden');
-        banksContainer.style.display = 'flex';
-        depositAmountInput.value = '';
+        hideAllScreens(); topNav.classList.remove('hidden');
+        rouletteScreen.classList.remove('hidden'); rouletteScreen.classList.add('active');
+        tabRoulette.classList.add('active-tab');
+        
+        loadingText.classList.add('hidden'); banksContainer.style.display = 'flex'; depositAmountInput.value = '';
     }, 2000);
 });
-
 
 // --- ВЫВОД И КРЕДИТНЫЙ ПРИКОЛ ---
 btnGoWithdraws.forEach(btn => {
     btn.addEventListener('click', () => {
-        if (isSpinning || isCrashing) return;
-        if (currentBalance <= 0) {
-            alert("Выводить нехуй, балик по нулям. Иди депай!");
-            return;
-        }
-
-        rouletteScreen.classList.remove('active');
-        rouletteScreen.classList.add('hidden');
-        crashScreen.classList.remove('active');
-        crashScreen.classList.add('hidden');
-        topNav.classList.add('hidden');
+        if (isSpinning || isCrashing || isMinesPlaying) return;
+        if (currentBalance <= 0) { alert("Выводить нехуй, балик по нулям. Иди депай!"); return; }
         
-        withdrawScreen.classList.remove('hidden');
-        withdrawScreen.classList.add('active');
-        
+        hideAllScreens(); topNav.classList.add('hidden');
+        withdrawScreen.classList.remove('hidden'); withdrawScreen.classList.add('active');
         withdrawInputSection.style.display = 'none'; 
         withdrawBankCards.forEach(b => b.classList.remove('selected'));
     });
@@ -225,240 +201,269 @@ btnGoWithdraws.forEach(btn => {
 withdrawBankCards.forEach(card => {
     card.addEventListener('click', () => {
         withdrawBankCards.forEach(b => b.classList.remove('selected'));
-        card.classList.add('selected');
-        selectedWithdrawBank = card.id;
+        card.classList.add('selected'); selectedWithdrawBank = card.id;
         withdrawInputSection.style.display = 'block';
     });
 });
 
 btnCancelWithdraw.addEventListener('click', () => {
-    withdrawScreen.classList.remove('active');
-    withdrawScreen.classList.add('hidden');
-    topNav.classList.remove('hidden');
-    
-    if (tabRoulette.classList.contains('active-tab')) {
-        rouletteScreen.classList.remove('hidden');
-        rouletteScreen.classList.add('active');
-    } else {
-        crashScreen.classList.remove('hidden');
-        crashScreen.classList.add('active');
-    }
+    hideAllScreens(); topNav.classList.remove('hidden');
+    rouletteScreen.classList.remove('hidden'); rouletteScreen.classList.add('active');
+    tabRoulette.classList.add('active-tab');
 });
 
 btnSubmitWithdraw.addEventListener('click', () => {
     let amount = parseInt(withdrawAmountInput.value);
-    
-    if (isNaN(amount) || amount <= 0 || amount > currentBalance) {
-        alert("Введи нормальную сумму! У тебя столько нет на балике.");
-        return;
-    }
+    if (isNaN(amount) || amount <= 0 || amount > currentBalance) { alert("Введи нормальную сумму! У тебя столько нет на балике."); return; }
 
-    withdrawBanksContainer.style.display = 'none';
-    withdrawInputSection.style.display = 'none';
-    btnCancelWithdraw.classList.add('hidden');
-    withdrawLoading.classList.remove('hidden');
+    withdrawBanksContainer.style.display = 'none'; withdrawInputSection.style.display = 'none';
+    btnCancelWithdraw.classList.add('hidden'); withdrawLoading.classList.remove('hidden');
 
     setTimeout(() => {
-        // Вывод прошел (спиздили бабки с балика казика)
-        currentBalance -= amount;
-        updateBalance();
-        addHistoryRecord(-amount, 'Вывод (ага, щас)');
-
-        // ПРИКОЛ!
-        audioPay.currentTime = 0;
-        audioPay.play().catch(e => console.log('Звук не сработал:', e));
+        currentBalance -= amount; updateBalance(); addHistoryRecord(-amount, 'Вывод (ага, щас)');
+        audioPay.currentTime = 0; audioPay.play().catch(e => console.log(e));
         
-        withdrawScreen.classList.remove('active');
-        withdrawScreen.classList.add('hidden');
+        hideAllScreens();
+        loanScreen.classList.remove('hidden'); loanScreen.classList.add('active');
+        loanAmountDisplay.innerText = amount; 
         
-        loanScreen.classList.remove('hidden');
-        loanScreen.classList.add('active');
-        
-        loanAmountDisplay.innerText = amount; // Показываем сумму кредита
-        
-        withdrawLoading.classList.add('hidden');
-        withdrawBanksContainer.style.display = 'flex';
-        btnCancelWithdraw.classList.remove('hidden');
-        withdrawAmountInput.value = '';
+        withdrawLoading.classList.add('hidden'); withdrawBanksContainer.style.display = 'flex';
+        btnCancelWithdraw.classList.remove('hidden'); withdrawAmountInput.value = '';
     }, 2000);
 });
 
 btnAcceptLoan.addEventListener('click', () => {
-    loanScreen.classList.remove('active');
-    loanScreen.classList.add('hidden');
-    
-    topNav.classList.remove('hidden');
-    rouletteScreen.classList.remove('hidden');
-    rouletteScreen.classList.add('active');
-    tabRoulette.click(); 
+    hideAllScreens(); topNav.classList.remove('hidden');
+    rouletteScreen.classList.remove('hidden'); rouletteScreen.classList.add('active');
+    tabRoulette.classList.add('active-tab');
 });
 
-
 // --- ЛОГИКА РУЛЕТКИ ---
-let isSpinning = false;
 function getDynamicOutcomes(bal) {
     if (bal <= 0) return [0];
-    return[
-        Math.round(bal * 0.1), -Math.round(bal * 0.25), 
-        Math.round(bal * 0.5), -Math.round(bal * 0.5), 
-        bal, -bal, 0, Math.round(bal * 1.5), 
-        -Math.round(bal * 0.1), 500, -200, 1000
-    ];
+    return[ Math.round(bal * 0.1), -Math.round(bal * 0.25), Math.round(bal * 0.5), -Math.round(bal * 0.5), bal, -bal, 0, Math.round(bal * 1.5), -Math.round(bal * 0.1), 500, -200, 1000 ];
 }
 
 btnSpin.addEventListener('click', () => {
-    if (currentBalance <= 0) {
-        audioAhueli.currentTime = 0;
-        audioAhueli.play().catch(e => console.log('Звук:', e));
-        alert("Балик по нулям! Закинь лавэ.");
-        return;
-    }
-    if (isSpinning || isCrashing) return;
-    isSpinning = true;
+    if (currentBalance <= 0) { audioAhueli.currentTime = 0; audioAhueli.play(); alert("Балик по нулям! Закинь лавэ."); return; }
+    if (isSpinning || isCrashing || isMinesPlaying) return;
+    isSpinning = true; audioSpin.currentTime = 0; audioSpin.play();
 
-    audioSpin.currentTime = 0;
-    audioSpin.play().catch(e => console.log('Звук не сработал:', e));
-
-    let spins = 0;
-    const outcomes = getDynamicOutcomes(currentBalance);
-
+    let spins = 0; const outcomes = getDynamicOutcomes(currentBalance);
     const rouletteTimer = setInterval(() => {
-        rouletteResult.innerText = outcomes[Math.floor(Math.random() * outcomes.length)];
-        rouletteResult.style.color = '#fff';
-        spins++;
-
+        rouletteResult.innerText = outcomes[Math.floor(Math.random() * outcomes.length)]; rouletteResult.style.color = '#fff'; spins++;
         if (spins >= 78) {
             clearInterval(rouletteTimer);
             const finalResult = outcomes[Math.floor(Math.random() * outcomes.length)];
             rouletteResult.innerText = finalResult > 0 ? `+${finalResult}` : finalResult;
-
-            currentBalance += finalResult;
-            if (currentBalance < 0) currentBalance = 0; 
-            updateBalance();
-            addHistoryRecord(finalResult, 'Рулетка'); 
-
-            if (finalResult > 0) {
-                audioWin.currentTime = 0;
-                audioWin.play().catch(e => console.log('Звук не сработал:', e));
-                rouletteResult.style.color = '#2ecc71'; 
-            } else if (finalResult < 0) {
-                if (currentBalance <= 0) {
-                    audioAhueli.currentTime = 0;
-                    audioAhueli.play().catch(e => console.log('Звук:', e));
-                } else {
-                    audioPizdec.currentTime = 0;
-                    audioPizdec.play().catch(e => console.log('Звук:', e));
-                }
+            currentBalance += finalResult; if (currentBalance < 0) currentBalance = 0; 
+            updateBalance(); addHistoryRecord(finalResult, 'Рулетка'); 
+            
+            if (finalResult > 0) { audioWin.currentTime = 0; audioWin.play(); rouletteResult.style.color = '#2ecc71'; }
+            else if (finalResult < 0) {
+                if (currentBalance <= 0) { audioAhueli.currentTime = 0; audioAhueli.play(); } else { audioPizdec.currentTime = 0; audioPizdec.play(); }
                 rouletteResult.style.color = '#e74c3c'; 
-            } else {
-                rouletteResult.style.color = '#fff'; 
-            }
+            } else { rouletteResult.style.color = '#fff'; }
             isSpinning = false;
         }
     }, 100);
 });
 
 // --- ЛОГИКА КРАША ---
-let isCrashing = false;
-let crashTimer = null;
-let currentMultiplier = 1.00;
-let currentBet = 0;
-let rocketX = 10;
-let rocketY = 10;
-
 btnCrashStart.addEventListener('click', () => {
-    if (currentBalance <= 0) {
-        audioAhueli.currentTime = 0;
-        audioAhueli.play().catch(e => console.log('Звук:', e));
-        alert("Балик по нулям! Хули ты тыкаешь, иди депай!");
-        return;
-    }
-
+    if (currentBalance <= 0) { audioAhueli.currentTime = 0; audioAhueli.play(); alert("Балик по нулям! Хули ты тыкаешь, иди депай!"); return; }
     currentBet = parseInt(crashBetInput.value);
+    if (isNaN(currentBet) || currentBet <= 0 || currentBet > currentBalance) { alert("Ставка хуйня!"); return; }
+    if (isSpinning || isCrashing || isMinesPlaying) return;
     
-    if (isNaN(currentBet) || currentBet <= 0 || currentBet > currentBalance) {
-        alert("Ставка хуйня! Либо больше балика, либо ввел криво.");
-        return;
-    }
-    
-    if (isSpinning || isCrashing) return;
-    isCrashing = true;
+    isCrashing = true; currentBalance -= currentBet; updateBalance();
+    btnCrashStart.classList.add('hidden'); btnCrashCashout.classList.remove('hidden');
+    crashMessage.classList.add('hidden'); crashMultiplier.style.color = '#fff'; crashMultiplier.innerText = '1.00x'; currentMultiplier = 1.00;
 
-    currentBalance -= currentBet;
-    updateBalance();
+    rocket.classList.remove('rocket-crashed'); rocket.classList.add('rocket-flying');
+    rocketX = 10; rocketY = 10; rocket.style.left = rocketX + 'px'; rocket.style.bottom = rocketY + 'px';
 
-    btnCrashStart.classList.add('hidden');
-    btnCrashCashout.classList.remove('hidden');
-    crashMessage.classList.add('hidden');
-    crashMultiplier.style.color = '#fff';
-    crashMultiplier.innerText = '1.00x';
-    currentMultiplier = 1.00;
-
-    rocket.classList.remove('rocket-crashed');
-    rocket.classList.add('rocket-flying');
-    rocketX = 10; rocketY = 10;
-    rocket.style.left = rocketX + 'px'; rocket.style.bottom = rocketY + 'px';
-
-    let targetCrashPoint = 1.00;
-    const r = Math.random();
-    if (r < 0.20) targetCrashPoint = 1.00; 
-    else if (r < 0.60) targetCrashPoint = 1.01 + Math.random() * 1.5; 
-    else if (r < 0.85) targetCrashPoint = 2.00 + Math.random() * 5.0; 
-    else targetCrashPoint = 5.00 + Math.random() * 20.0; 
+    let targetCrashPoint = 1.00; const r = Math.random();
+    if (r < 0.20) targetCrashPoint = 1.00; else if (r < 0.60) targetCrashPoint = 1.01 + Math.random() * 1.5; else if (r < 0.85) targetCrashPoint = 2.00 + Math.random() * 5.0; else targetCrashPoint = 5.00 + Math.random() * 20.0; 
 
     crashTimer = setInterval(() => {
-        if (currentMultiplier < 3.00) {
-            currentMultiplier += 0.01; rocketX += 0.8; rocketY += 0.5;
-        } else if (currentMultiplier < 10.00) {
-            currentMultiplier += 0.05; rocketX += 1.5; rocketY += 1.0;
-        } else {
-            currentMultiplier += 0.15; rocketX += 2; rocketY += 1.5;
-        }
+        if (currentMultiplier < 3.00) { currentMultiplier += 0.01; rocketX += 0.8; rocketY += 0.5; }
+        else if (currentMultiplier < 10.00) { currentMultiplier += 0.05; rocketX += 1.5; rocketY += 1.0; }
+        else { currentMultiplier += 0.15; rocketX += 2; rocketY += 1.5; }
 
-        if (rocketX > 250) rocketX = 250;
-        if (rocketY > 150) rocketY = 150;
+        if (rocketX > 250) rocketX = 250; if (rocketY > 150) rocketY = 150;
         rocket.style.left = rocketX + 'px'; rocket.style.bottom = rocketY + 'px';
 
-        if (currentMultiplier >= targetCrashPoint) {
-            currentMultiplier = targetCrashPoint; 
-            endCrash(false); 
-        } else {
-            crashMultiplier.innerText = currentMultiplier.toFixed(2) + 'x';
-        }
+        if (currentMultiplier >= targetCrashPoint) { currentMultiplier = targetCrashPoint; endCrash(false); }
+        else { crashMultiplier.innerText = currentMultiplier.toFixed(2) + 'x'; }
     }, 50); 
 });
 
-btnCrashCashout.addEventListener('click', () => {
-    if (!isCrashing) return;
-    endCrash(true); 
-});
+btnCrashCashout.addEventListener('click', () => { if (isCrashing) endCrash(true); });
 
 function endCrash(win) {
-    clearInterval(crashTimer);
-    isCrashing = false;
-    btnCrashCashout.classList.add('hidden');
-    btnCrashStart.classList.remove('hidden');
-    crashMultiplier.innerText = currentMultiplier.toFixed(2) + 'x';
-    rocket.classList.remove('rocket-flying');
+    clearInterval(crashTimer); isCrashing = false;
+    btnCrashCashout.classList.add('hidden'); btnCrashStart.classList.remove('hidden');
+    crashMultiplier.innerText = currentMultiplier.toFixed(2) + 'x'; rocket.classList.remove('rocket-flying');
 
     if (win) {
-        const winAmount = Math.round(currentBet * currentMultiplier);
-        const pureProfit = winAmount - currentBet;
-        currentBalance += winAmount;
-        updateBalance();
-        addHistoryRecord(pureProfit, 'Краш'); 
-        crashMultiplier.style.color = '#2ecc71';
-        audioWin.currentTime = 0; audioWin.play().catch(e => console.log('Звук:', e));
+        const winAmount = Math.round(currentBet * currentMultiplier); const pureProfit = winAmount - currentBet;
+        currentBalance += winAmount; updateBalance(); addHistoryRecord(pureProfit, 'Краш'); 
+        crashMultiplier.style.color = '#2ecc71'; audioWin.currentTime = 0; audioWin.play();
     } else {
-        crashMessage.classList.remove('hidden');
-        crashMultiplier.style.color = '#e74c3c';
-        rocket.classList.add('rocket-crashed'); 
+        crashMessage.classList.remove('hidden'); crashMultiplier.style.color = '#e74c3c'; rocket.classList.add('rocket-crashed'); 
         addHistoryRecord(-currentBet, 'Краш'); 
+        if (currentBalance <= 0) { audioAhueli.currentTime = 0; audioAhueli.play(); } else { audioPizdec.currentTime = 0; audioPizdec.play(); }
+    }
+}
+
+// --- ЛОГИКА МИН (ЧЕСТНАЯ) ---
+let isMinesPlaying = false;
+let minesGridArray =[];
+let currentMinesBet = 0;
+let totalMinesCount = 5;
+let safeClicksCount = 0;
+let currentMinesMult = 1.00;
+
+function initMinesGridEmpty() {
+    minesGrid.innerHTML = '';
+    for(let i=0; i<25; i++) {
+        let cell = document.createElement('div');
+        cell.classList.add('mine-cell');
+        cell.innerText = '';
+        minesGrid.appendChild(cell);
+    }
+}
+
+btnMinesStart.addEventListener('click', () => {
+    if (currentBalance <= 0) { audioAhueli.currentTime = 0; audioAhueli.play(); alert("Балик по нулям! Иди депай!"); return; }
+    
+    currentMinesBet = parseInt(minesBetInput.value);
+    totalMinesCount = parseInt(minesCountSelect.value);
+
+    if (isNaN(currentMinesBet) || currentMinesBet <= 0 || currentMinesBet > currentBalance) {
+        alert("Ставка хуйня!"); return;
+    }
+
+    if (isSpinning || isCrashing || isMinesPlaying) return;
+    isMinesPlaying = true;
+
+    // Списываем ставку
+    currentBalance -= currentMinesBet;
+    updateBalance();
+
+    // Настраиваем интерфейс
+    btnMinesStart.classList.add('hidden');
+    btnMinesCashout.classList.remove('hidden');
+    minesStatusBar.classList.remove('hidden');
+    
+    safeClicksCount = 0;
+    currentMinesMult = 1.00;
+    minesMultText.innerText = '1.00x';
+    minesMultText.style.color = '#2ecc71';
+
+    // ЧЕСТНАЯ ГЕНЕРАЦИЯ ПОЛЯ (25 ячеек)
+    minesGridArray = Array(25).fill('💎');
+    for(let i=0; i<totalMinesCount; i++) minesGridArray[i] = '💣';
+    minesGridArray.sort(() => Math.random() - 0.5); // Тщательно перемешиваем
+
+    // Отрисовываем сетку
+    minesGrid.innerHTML = '';
+    for(let i=0; i<25; i++) {
+        let cell = document.createElement('div');
+        cell.classList.add('mine-cell');
+        cell.dataset.index = i;
+        cell.addEventListener('click', handleMineClick);
+        minesGrid.appendChild(cell);
+    }
+});
+
+function handleMineClick(e) {
+    if (!isMinesPlaying) return;
+    let cell = e.target;
+    if (cell.classList.contains('revealed')) return;
+
+    let index = cell.dataset.index;
+    let item = minesGridArray[index];
+    cell.classList.add('revealed');
+
+    if (item === '💣') {
+        // ПИЗДЕЦ, ПОДОРВАЛСЯ
+        cell.classList.add('boom');
+        cell.innerText = '💣';
+        endMinesGame(false);
+    } else {
+        // ФУХ, АЛМАЗ
+        cell.classList.add('safe');
+        cell.innerText = '💎';
+        safeClicksCount++;
+
+        // Считаем честный множитель: mult = mult * (осталось всего / осталось сейвов)
+        let remainingTotal = 25 - (safeClicksCount - 1);
+        let remainingSafe = (25 - totalMinesCount) - (safeClicksCount - 1);
+        currentMinesMult *= (remainingTotal / remainingSafe);
         
-        if (currentBalance <= 0) {
-            audioAhueli.currentTime = 0; audioAhueli.play().catch(e => console.log('Звук:', e));
-        } else {
-            audioPizdec.currentTime = 0; audioPizdec.play().catch(e => console.log('Звук:', e));
+        minesMultText.innerText = currentMinesMult.toFixed(2) + 'x';
+        
+        // Маленький звук клика (монетка)
+        audioPay.currentTime = 0; audioPay.volume = 0.5; audioPay.play().catch(e=>{});
+
+        // Если открыл вообще все безопасные ячейки - автовывод
+        if (safeClicksCount === 25 - totalMinesCount) {
+            endMinesGame(true);
         }
     }
 }
+
+btnMinesCashout.addEventListener('click', () => {
+    if (isMinesPlaying && safeClicksCount > 0) {
+        endMinesGame(true);
+    }
+});
+
+function endMinesGame(win) {
+    isMinesPlaying = false;
+    btnMinesCashout.classList.add('hidden');
+    btnMinesStart.classList.remove('hidden');
+
+    // Вскрываем остальное поле, чтобы лох видел, как близко он был
+    const cells = minesGrid.querySelectorAll('.mine-cell');
+    cells.forEach(cell => {
+        if (!cell.classList.contains('revealed')) {
+            cell.classList.add('revealed', 'dim');
+            cell.innerText = minesGridArray[cell.dataset.index];
+        }
+    });
+
+    if (win) {
+        const winAmount = Math.round(currentMinesBet * currentMinesMult);
+        const pureProfit = winAmount - currentMinesBet;
+        currentBalance += winAmount;
+        updateBalance();
+        addHistoryRecord(pureProfit, 'Мины');
+        
+        audioWin.currentTime = 0; audioWin.play().catch(e=>{});
+    } else {
+        minesMultText.style.color = '#e74c3c';
+        addHistoryRecord(-currentMinesBet, 'Мины');
+        
+        if (currentBalance <= 0) { audioAhueli.currentTime = 0; audioAhueli.play(); } 
+        else { audioPizdec.currentTime = 0; audioPizdec.play(); }
+    }
+    
+    // Возвращаем звук pay обратно на 1.0 (т.к. мы его убавляли для кликов)
+    audioPay.volume = 1.0;
+}
+
+// --- ТУЛТИПЫ (СЕКРЕТНАЯ ВКЛАДКА) ---
+infoIcons.forEach(icon => {
+    icon.addEventListener('click', (e) => {
+        infoIcons.forEach(i => { if (i !== icon) i.classList.remove('show-tooltip'); });
+        icon.classList.toggle('show-tooltip');
+        e.stopPropagation();
+    });
+});
+
+document.addEventListener('click', () => {
+    infoIcons.forEach(icon => icon.classList.remove('show-tooltip'));
+});
