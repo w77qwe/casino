@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Сайокин Казикс & Краш</title>
+    <title>Сайокин Казикс</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -12,6 +12,18 @@
     <div class="top-nav hidden" id="top-nav">
         <button id="tab-roulette" class="tab-btn active-tab">Рулетка</button>
         <button id="tab-crash" class="tab-btn">🚀 Краш</button>
+        <button id="tab-mines" class="tab-btn">💣 Мины</button>
+        
+        <!-- ФЕЙКОВАЯ ВКЛАДКА С МОЛОТКОМ -->
+        <div class="fake-tab-wrapper">
+            <button class="tab-btn fake-disabled" style="cursor: not-allowed; color: #555;">Секрет</button>
+            <div class="info-icon tab-info-icon">?
+                <span class="tooltip-text gif-tooltip">
+                    <img src="assets/hammer.gif" alt="В разработке" style="width: 50px; margin-bottom: 5px;">
+                    <br>игра в разработке. иди нахуй отсюда
+                </span>
+            </div>
+        </div>
     </div>
 
     <!-- ЭКРАН 1: ДЕПОЗИТ -->
@@ -41,17 +53,13 @@
             <input type="number" id="deposit-amount" placeholder="Введите сумму (₽)">
             <button id="btn-pay">Оплатить нахуй</button>
         </div>
-        
-        <div id="loading" class="hidden">
-            <p>Пиздим деньги с карты... ⏳</p>
-        </div>
+        <div id="loading" class="hidden"><p>Пиздим деньги с карты... ⏳</p></div>
     </div>
-
 
     <!-- ЭКРАН 2: РУЛЕТКА -->
     <div id="roulette-screen" class="screen hidden">
         <h1>Ебаная Рулетка</h1>
-        <div class="balance-display">Балик: <span id="balance">0</span> ₽</div>
+        <div class="balance-display">Балик: <span class="balance-amount">0</span> ₽</div>
         
         <div class="roulette-area">
             <div id="roulette-result" class="result-box">0</div>
@@ -63,18 +71,13 @@
             <button class="small-btn btn-go-deposit">Депнуть еще</button>
             <button class="small-btn btn-go-withdraw" style="color: #f1c40f; border-color: #f1c40f;">Вывести кэш</button>
         </div>
-
-        <div class="history-box" id="history-box" style="display: none;">
-            <div class="history-title">История лудомании</div>
-            <div id="history-list"></div>
-        </div>
+        <div class="history-box" style="display: none;"><div class="history-title">История лудомании</div><div class="history-list"></div></div>
     </div>
-
 
     <!-- ЭКРАН 3: КРАШ -->
     <div id="crash-screen" class="screen hidden">
         <h1>Сайокин Краш 🚀</h1>
-        <div class="balance-display">Балик: <span id="crash-balance">0</span> ₽</div>
+        <div class="balance-display">Балик: <span class="balance-amount">0</span> ₽</div>
         
         <div class="crash-area">
             <div id="crash-multiplier" class="multiplier-box">1.00x</div>
@@ -87,68 +90,81 @@
             <button id="btn-crash-start" class="spin-btn" style="background-color: #9b59b6;">Полетели нахуй</button>
             <button id="btn-crash-cashout" class="spin-btn hidden" style="background-color: #2ecc71;">Съебаться с бабками</button>
         </div>
+        <div class="action-buttons">
+            <button class="small-btn btn-go-deposit">Депнуть еще</button>
+            <button class="small-btn btn-go-withdraw" style="color: #f1c40f; border-color: #f1c40f;">Вывести кэш</button>
+        </div>
+        <div class="history-box" style="display: none;"><div class="history-title">История лудомании</div><div class="history-list"></div></div>
+    </div>
+
+    <!-- ЭКРАН 4: МИНЫ -->
+    <div id="mines-screen" class="screen hidden">
+        <h1>Минное поле 💣</h1>
+        <div class="balance-display">Балик: <span class="balance-amount">0</span> ₽</div>
+
+        <div class="mines-controls">
+            <input type="number" id="mines-bet" placeholder="Ставка (₽)">
+            <select id="mines-count" class="mines-select">
+                <option value="3">3 мины (для лохов)</option>
+                <option value="5" selected>5 мин (нормально)</option>
+                <option value="10">10 мин (смертник)</option>
+                <option value="20">20 мин (долбоеб)</option>
+            </select>
+        </div>
+
+        <div class="mines-status hidden" id="mines-status-bar">
+            Множитель: <span id="mines-multiplier-text" style="color: #2ecc71; font-weight: bold; font-size: 24px;">1.00x</span>
+        </div>
+
+        <div class="mines-grid" id="mines-grid">
+            <!-- Сюда JS нарисует 25 кнопок -->
+        </div>
+
+        <button id="btn-mines-start" class="spin-btn" style="background-color: #3498db;">Начать саперные работы</button>
+        <button id="btn-mines-cashout" class="spin-btn hidden" style="background-color: #2ecc71;">Забрать бабки</button>
 
         <div class="action-buttons">
             <button class="small-btn btn-go-deposit">Депнуть еще</button>
             <button class="small-btn btn-go-withdraw" style="color: #f1c40f; border-color: #f1c40f;">Вывести кэш</button>
         </div>
+        <div class="history-box" style="display: none;"><div class="history-title">История лудомании</div><div class="history-list"></div></div>
     </div>
 
-
-    <!-- ЭКРАН 4: ВЫВОД СРЕДСТВ (ФЕЙКОВЫЙ) -->
+    <!-- ЭКРАН 5: ВЫВОД СРЕДСТВ -->
     <div id="withdraw-screen" class="screen hidden">
         <h1>Вывод средств</h1>
         <p style="color: #aaa; margin-bottom: 20px;">Куда будем выводить бабки?</p>
-        
         <div class="banks-container" id="withdraw-banks-container">
-            <!-- Клонируем банки для вывода -->
-            <div class="bank-card withdraw-bank" id="wd-sber">
-                <img src="assets/Logo_Sberbank.svg" alt="Сбербанк" height="30">
-            </div>
-            <div class="bank-card withdraw-bank" id="wd-tinkoff">
-                <img src="assets/Tinkoff_logo_2024.svg" alt="Тинькофф" height="30">
-            </div>
-            <div class="bank-card withdraw-bank" id="wd-alfa">
-                <img src="assets/Alfa_Bank_RU_logo.svg" alt="Альфа-Банк" height="30">
-            </div>
+            <div class="bank-card withdraw-bank" id="wd-sber"><img src="assets/Logo_Sberbank.svg" alt="Сбербанк" height="30"></div>
+            <div class="bank-card withdraw-bank" id="wd-tinkoff"><img src="assets/Tinkoff_logo_2024.svg" alt="Тинькофф" height="30"></div>
+            <div class="bank-card withdraw-bank" id="wd-alfa"><img src="assets/Alfa_Bank_RU_logo.svg" alt="Альфа-Банк" height="30"></div>
             <div class="bank-card withdraw-bank vip-bank" id="wd-sayokin">
                 <div class="badge">БЕЗ КОМИССИИ</div>
                 <img src="assets/sayokin_bank.svg" alt="Сайокин Банк" style="max-width: 90%; height: 45px; object-fit: contain; display: block; margin: 0 auto;">
             </div>
         </div>
-
         <div class="input-group" id="withdraw-input-section" style="display: none;">
             <input type="number" id="withdraw-amount" placeholder="Сколько выводим? (₽)">
             <button id="btn-submit-withdraw" style="background-color: #e74c3c;">Подтвердить вывод</button>
         </div>
-
-        <div id="withdraw-loading" class="hidden">
-            <p>Связь с банком... Обработка транзакции ⏳</p>
-        </div>
-
+        <div id="withdraw-loading" class="hidden"><p>Связь с банком... Обработка транзакции ⏳</p></div>
         <button id="btn-cancel-withdraw" class="small-btn" style="margin-top: 20px;">Вернуться в казик</button>
     </div>
 
-
-    <!-- ЭКРАН 5: ПРИКОЛ С КРЕДИТОМ ОТ ШАЙЛИЛИ БАНКА -->
+    <!-- ЭКРАН 6: КРЕДИТ ОТ ШАЙЛИЛИ БАНКА -->
     <div id="loan-screen" class="screen hidden">
         <h1 style="color: #e74c3c; font-size: 36px; animation: shake-text 0.5s infinite;">⚠️ ОДОБРЕНО! ⚠️</h1>
-        
         <div class="loan-box">
             <p style="font-size: 20px; margin-bottom: 15px;">Поздравляем!</p>
             <p style="font-size: 18px; margin-bottom: 10px;">Вам успешно оформлен кредит на сумму:</p>
             <div class="loan-amount-text"><span id="loan-amount-display">0</span> ₽</div>
             <p style="color: #aaa; font-size: 12px; margin-bottom: 20px;">*Средства уже зачислены на ваш счет. Процентная ставка: 365% годовых. При просрочке платежа мы заберем вашу почку.</p>
-            
-            <!-- Вот обновленный блок с горизонтальным логотипом -->
             <div class="shylily-partner">
                 <p style="font-size: 12px; color: #777; margin-bottom: 10px;">Финансовый партнер операции:</p>
-                <!-- Здесь высота 45px идеально встанет для широкой картинки с текстом -->
                 <img src="assets/shylily_bank.png" alt="Shylily Bank" height="45">
             </div>
         </div>
-        
-        <button id="btn-accept-loan" class="spin-btn" style="margin-top: 20px;">Ахуеть, спасибо</button>
+        <button id="btn-accept-loan" class="spin-btn" style="margin-top: 20px;">Охуеть, спасибо</button>
     </div>
 
     <script src="script.js"></script>
