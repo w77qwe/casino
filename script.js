@@ -9,7 +9,6 @@ audioSpin.loop = false;
 const audioWin = new Audio('assets/win.mp3');
 audioWin.volume = 0.35; 
 
-// Заряжаем Виктора Пузо
 const audioPizdec = new Audio('assets/pizdec.mp3');
 audioPizdec.volume = 0.30; 
 
@@ -27,18 +26,35 @@ const tabCrash = document.getElementById('tab-crash');
 const depositScreen = document.getElementById('deposit-screen');
 const rouletteScreen = document.getElementById('roulette-screen');
 const crashScreen = document.getElementById('crash-screen');
+const withdrawScreen = document.getElementById('withdraw-screen');
+const loanScreen = document.getElementById('loan-screen');
 
 // Депозит
-const bankCards = document.querySelectorAll('.bank-card');
+const bankCards = document.querySelectorAll('#deposit-screen .bank-card');
 const inputSection = document.getElementById('input-section');
 const depositAmountInput = document.getElementById('deposit-amount');
 const btnPay = document.getElementById('btn-pay');
 const loadingText = document.getElementById('loading');
-const banksContainer = document.querySelector('.banks-container');
+const banksContainer = document.querySelector('#deposit-screen .banks-container');
 const bonusAlert = document.getElementById('bonus-alert');
 let selectedBank = ''; 
 
-// Общие элементы
+// Вывод средств
+const btnGoWithdraws = document.querySelectorAll('.btn-go-withdraw');
+const withdrawBankCards = document.querySelectorAll('.withdraw-bank');
+const withdrawInputSection = document.getElementById('withdraw-input-section');
+const withdrawAmountInput = document.getElementById('withdraw-amount');
+const btnSubmitWithdraw = document.getElementById('btn-submit-withdraw');
+const withdrawLoading = document.getElementById('withdraw-loading');
+const withdrawBanksContainer = document.getElementById('withdraw-banks-container');
+const btnCancelWithdraw = document.getElementById('btn-cancel-withdraw');
+let selectedWithdrawBank = '';
+
+// Кредит
+const loanAmountDisplay = document.getElementById('loan-amount-display');
+const btnAcceptLoan = document.getElementById('btn-accept-loan');
+
+// Общие
 const balanceDisplays = document.querySelectorAll('#balance, #crash-balance');
 const btnGoDeposits = document.querySelectorAll('.btn-go-deposit');
 
@@ -46,7 +62,7 @@ const btnGoDeposits = document.querySelectorAll('.btn-go-deposit');
 const rouletteResult = document.getElementById('roulette-result');
 const btnSpin = document.getElementById('btn-spin');
 
-// Краш и Ракета
+// Краш
 const crashMultiplier = document.getElementById('crash-multiplier');
 const crashMessage = document.getElementById('crash-message');
 const crashBetInput = document.getElementById('crash-bet');
@@ -58,14 +74,11 @@ const rocket = document.getElementById('rocket');
 const historyBox = document.getElementById('history-box');
 const historyList = document.getElementById('history-list');
 
-// Тултипы
-const infoIcons = document.querySelectorAll('.info-icon');
-
 // --- ИНИЦИАЛИЗАЦИЯ ---
 updateBalance();
 renderHistory();
 
-// --- ЛОГИКА ИСТОРИИ ---
+// --- ИСТОРИЯ ---
 function addHistoryRecord(amount, gameName = '') {
     const text = gameName ? `[${gameName}] ` : '';
     gameHistory.unshift({ val: amount, label: text }); 
@@ -101,7 +114,7 @@ function updateBalance() {
     localStorage.setItem('kaziksBalance', currentBalance);
 }
 
-// --- НАВИГАЦИЯ (ВКЛАДКИ) ---
+// --- НАВИГАЦИЯ ---
 tabRoulette.addEventListener('click', () => {
     if (isSpinning || isCrashing) return; 
     tabCrash.classList.remove('active-tab');
@@ -122,7 +135,6 @@ tabCrash.addEventListener('click', () => {
     crashScreen.classList.add('active');
 });
 
-// Кнопки "Депнуть еще"
 btnGoDeposits.forEach(btn => {
     btn.addEventListener('click', () => {
         if (isSpinning || isCrashing) return;
@@ -139,13 +151,12 @@ btnGoDeposits.forEach(btn => {
     });
 });
 
-// --- ЛОГИКА ДЕПОЗИТА ---
+// --- ДЕПОЗИТ ---
 bankCards.forEach(card => {
     card.addEventListener('click', () => {
         bankCards.forEach(b => b.classList.remove('selected'));
         card.classList.add('selected');
         selectedBank = card.id;
-        
         inputSection.style.display = 'block';
         
         if (selectedBank === 'btn-sayokin') {
@@ -158,11 +169,7 @@ bankCards.forEach(card => {
 
 btnPay.addEventListener('click', () => {
     let amount = parseInt(depositAmountInput.value);
-    
-    if (isNaN(amount) || amount <= 0) {
-        alert("Братик, введи нормальную сумму!");
-        return;
-    }
+    if (isNaN(amount) || amount <= 0) { alert("Братик, введи нормальную сумму!"); return; }
 
     banksContainer.style.display = 'none';
     inputSection.style.display = 'none';
@@ -172,9 +179,7 @@ btnPay.addEventListener('click', () => {
         audioPay.currentTime = 0;
         audioPay.play().catch(e => console.log('Звук не сработал:', e));
         
-        if (selectedBank === 'btn-sayokin') {
-            amount = Math.round(amount * 1.3);
-        }
+        if (selectedBank === 'btn-sayokin') amount = Math.round(amount * 1.3);
 
         currentBalance += amount;
         updateBalance();
@@ -190,9 +195,104 @@ btnPay.addEventListener('click', () => {
         loadingText.classList.add('hidden');
         banksContainer.style.display = 'flex';
         depositAmountInput.value = '';
-        
     }, 2000);
 });
+
+
+// --- ВЫВОД И КРЕДИТНЫЙ ПРИКОЛ ---
+btnGoWithdraws.forEach(btn => {
+    btn.addEventListener('click', () => {
+        if (isSpinning || isCrashing) return;
+        if (currentBalance <= 0) {
+            alert("Выводить нехуй, балик по нулям. Иди депай!");
+            return;
+        }
+
+        rouletteScreen.classList.remove('active');
+        rouletteScreen.classList.add('hidden');
+        crashScreen.classList.remove('active');
+        crashScreen.classList.add('hidden');
+        topNav.classList.add('hidden');
+        
+        withdrawScreen.classList.remove('hidden');
+        withdrawScreen.classList.add('active');
+        
+        withdrawInputSection.style.display = 'none'; 
+        withdrawBankCards.forEach(b => b.classList.remove('selected'));
+    });
+});
+
+withdrawBankCards.forEach(card => {
+    card.addEventListener('click', () => {
+        withdrawBankCards.forEach(b => b.classList.remove('selected'));
+        card.classList.add('selected');
+        selectedWithdrawBank = card.id;
+        withdrawInputSection.style.display = 'block';
+    });
+});
+
+btnCancelWithdraw.addEventListener('click', () => {
+    withdrawScreen.classList.remove('active');
+    withdrawScreen.classList.add('hidden');
+    topNav.classList.remove('hidden');
+    
+    if (tabRoulette.classList.contains('active-tab')) {
+        rouletteScreen.classList.remove('hidden');
+        rouletteScreen.classList.add('active');
+    } else {
+        crashScreen.classList.remove('hidden');
+        crashScreen.classList.add('active');
+    }
+});
+
+btnSubmitWithdraw.addEventListener('click', () => {
+    let amount = parseInt(withdrawAmountInput.value);
+    
+    if (isNaN(amount) || amount <= 0 || amount > currentBalance) {
+        alert("Введи нормальную сумму! У тебя столько нет на балике.");
+        return;
+    }
+
+    withdrawBanksContainer.style.display = 'none';
+    withdrawInputSection.style.display = 'none';
+    btnCancelWithdraw.classList.add('hidden');
+    withdrawLoading.classList.remove('hidden');
+
+    setTimeout(() => {
+        // Вывод прошел (спиздили бабки с балика казика)
+        currentBalance -= amount;
+        updateBalance();
+        addHistoryRecord(-amount, 'Вывод (ага, щас)');
+
+        // ПРИКОЛ!
+        audioPay.currentTime = 0;
+        audioPay.play().catch(e => console.log('Звук не сработал:', e));
+        
+        withdrawScreen.classList.remove('active');
+        withdrawScreen.classList.add('hidden');
+        
+        loanScreen.classList.remove('hidden');
+        loanScreen.classList.add('active');
+        
+        loanAmountDisplay.innerText = amount; // Показываем сумму кредита
+        
+        withdrawLoading.classList.add('hidden');
+        withdrawBanksContainer.style.display = 'flex';
+        btnCancelWithdraw.classList.remove('hidden');
+        withdrawAmountInput.value = '';
+    }, 2000);
+});
+
+btnAcceptLoan.addEventListener('click', () => {
+    loanScreen.classList.remove('active');
+    loanScreen.classList.add('hidden');
+    
+    topNav.classList.remove('hidden');
+    rouletteScreen.classList.remove('hidden');
+    rouletteScreen.classList.add('active');
+    tabRoulette.click(); 
+});
+
 
 // --- ЛОГИКА РУЛЕТКИ ---
 let isSpinning = false;
@@ -258,7 +358,7 @@ btnSpin.addEventListener('click', () => {
     }, 100);
 });
 
-// --- ЛОГИКА КРАША И ПОЛЕТА РАКЕТЫ ---
+// --- ЛОГИКА КРАША ---
 let isCrashing = false;
 let crashTimer = null;
 let currentMultiplier = 1.00;
@@ -267,7 +367,6 @@ let rocketX = 10;
 let rocketY = 10;
 
 btnCrashStart.addEventListener('click', () => {
-    // В первую очередь чекаем, не бомж ли он
     if (currentBalance <= 0) {
         audioAhueli.currentTime = 0;
         audioAhueli.play().catch(e => console.log('Звук:', e));
@@ -285,11 +384,9 @@ btnCrashStart.addEventListener('click', () => {
     if (isSpinning || isCrashing) return;
     isCrashing = true;
 
-    // Списываем ставку
     currentBalance -= currentBet;
     updateBalance();
 
-    // Настраиваем интерфейс
     btnCrashStart.classList.add('hidden');
     btnCrashCashout.classList.remove('hidden');
     crashMessage.classList.add('hidden');
@@ -297,13 +394,10 @@ btnCrashStart.addEventListener('click', () => {
     crashMultiplier.innerText = '1.00x';
     currentMultiplier = 1.00;
 
-    // Сбрасываем и врубаем ракету
     rocket.classList.remove('rocket-crashed');
     rocket.classList.add('rocket-flying');
-    rocketX = 10;
-    rocketY = 10;
-    rocket.style.left = rocketX + 'px';
-    rocket.style.bottom = rocketY + 'px';
+    rocketX = 10; rocketY = 10;
+    rocket.style.left = rocketX + 'px'; rocket.style.bottom = rocketY + 'px';
 
     let targetCrashPoint = 1.00;
     const r = Math.random();
@@ -314,21 +408,16 @@ btnCrashStart.addEventListener('click', () => {
 
     crashTimer = setInterval(() => {
         if (currentMultiplier < 3.00) {
-            currentMultiplier += 0.01;
-            rocketX += 0.8; rocketY += 0.5;
+            currentMultiplier += 0.01; rocketX += 0.8; rocketY += 0.5;
         } else if (currentMultiplier < 10.00) {
-            currentMultiplier += 0.05;
-            rocketX += 1.5; rocketY += 1.0;
+            currentMultiplier += 0.05; rocketX += 1.5; rocketY += 1.0;
         } else {
-            currentMultiplier += 0.15;
-            rocketX += 2; rocketY += 1.5;
+            currentMultiplier += 0.15; rocketX += 2; rocketY += 1.5;
         }
 
         if (rocketX > 250) rocketX = 250;
         if (rocketY > 150) rocketY = 150;
-        
-        rocket.style.left = rocketX + 'px';
-        rocket.style.bottom = rocketY + 'px';
+        rocket.style.left = rocketX + 'px'; rocket.style.bottom = rocketY + 'px';
 
         if (currentMultiplier >= targetCrashPoint) {
             currentMultiplier = targetCrashPoint; 
@@ -347,10 +436,8 @@ btnCrashCashout.addEventListener('click', () => {
 function endCrash(win) {
     clearInterval(crashTimer);
     isCrashing = false;
-    
     btnCrashCashout.classList.add('hidden');
     btnCrashStart.classList.remove('hidden');
-
     crashMultiplier.innerText = currentMultiplier.toFixed(2) + 'x';
     rocket.classList.remove('rocket-flying');
 
@@ -360,38 +447,18 @@ function endCrash(win) {
         currentBalance += winAmount;
         updateBalance();
         addHistoryRecord(pureProfit, 'Краш'); 
-
         crashMultiplier.style.color = '#2ecc71';
-        audioWin.currentTime = 0;
-        audioWin.play().catch(e => console.log('Звук не сработал:', e));
+        audioWin.currentTime = 0; audioWin.play().catch(e => console.log('Звук:', e));
     } else {
         crashMessage.classList.remove('hidden');
         crashMultiplier.style.color = '#e74c3c';
-        
         rocket.classList.add('rocket-crashed'); 
-        
         addHistoryRecord(-currentBet, 'Краш'); 
         
-        // ПРОВЕРКА НА БОМЖА ОТ ВИКТОРА ПУЗО (если слил всё в краше)
         if (currentBalance <= 0) {
-            audioAhueli.currentTime = 0;
-            audioAhueli.play().catch(e => console.log('Звук:', e));
+            audioAhueli.currentTime = 0; audioAhueli.play().catch(e => console.log('Звук:', e));
         } else {
-            audioPizdec.currentTime = 0;
-            audioPizdec.play().catch(e => console.log('Звук:', e));
+            audioPizdec.currentTime = 0; audioPizdec.play().catch(e => console.log('Звук:', e));
         }
     }
 }
-
-// --- ЛОГИКА ТУЛТИПА ---
-infoIcons.forEach(icon => {
-    icon.addEventListener('click', (e) => {
-        infoIcons.forEach(i => { if (i !== icon) i.classList.remove('show-tooltip'); });
-        icon.classList.toggle('show-tooltip');
-        e.stopPropagation();
-    });
-});
-
-document.addEventListener('click', () => {
-    infoIcons.forEach(icon => icon.classList.remove('show-tooltip'));
-});
