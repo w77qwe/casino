@@ -1,0 +1,20 @@
+<svg width="400" height="80" viewBox="0 0 400 80" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Пиздатый градиент, который привлечет бабки -->
+    <linearGradient id="sayokinGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF0055" />
+      <stop offset="100%" stop-color="#FF9900" />
+    </linearGradient>
+  </defs>
+
+  <!-- Охуенный значок (Буква С) -->
+  <path d="M 66 19 A 30 30 0 1 0 66 61 L 58 53 A 18 18 0 1 1 58 27 Z" fill="url(#sayokinGrad)" />
+  <!-- Точка-прицел внутри -->
+  <circle cx="41" cy="40" r="8" fill="#FFFFFF" />
+
+  <!-- Текст логотипа -->
+  <text x="85" y="52" font-family="'Arial', 'Helvetica', sans-serif" font-weight="900" font-size="36" letter-spacing="1">
+    <tspan fill="#FFFFFF">САЙОКИН</tspan>
+    <tspan fill="url(#sayokinGrad)"> БАНК</tspan>
+  </text>
+</svg>
