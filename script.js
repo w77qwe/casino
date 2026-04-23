@@ -5,6 +5,10 @@ const audioWin = new Audio('assets/win.mp3'); audioWin.volume = 0.35;
 const audioPizdec = new Audio('assets/pizdec.mp3'); audioPizdec.volume = 0.30; 
 const audioAhueli = new Audio('assets/you ahueli.mp3'); audioAhueli.volume = 0.20; 
 
+// Добавляем новый звук для нуля
+const audioLoh = new Audio('assets/loh.mp3');
+audioLoh.volume = 0.35;
+
 // --- ПЕРЕМЕННЫЕ И ЭЛЕМЕНТЫ ---
 let currentBalance = parseInt(localStorage.getItem('kaziksBalance')) || 0;
 let gameHistory = JSON.parse(localStorage.getItem('kaziksHistory')) ||[];
@@ -220,7 +224,11 @@ btnSubmitWithdraw.addEventListener('click', () => {
     btnCancelWithdraw.classList.add('hidden'); withdrawLoading.classList.remove('hidden');
 
     setTimeout(() => {
-        currentBalance -= amount; updateBalance(); addHistoryRecord(-amount, 'Вывод (ага, щас)');
+        currentBalance -= amount; updateBalance(); 
+        
+        // Поменяли с "Вывод (ага, щас)" на просто "Вывод"
+        addHistoryRecord(-amount, 'Вывод');
+        
         audioPay.currentTime = 0; audioPay.play().catch(e => console.log(e));
         
         hideAllScreens();
@@ -259,11 +267,17 @@ btnSpin.addEventListener('click', () => {
             currentBalance += finalResult; if (currentBalance < 0) currentBalance = 0; 
             updateBalance(); addHistoryRecord(finalResult, 'Рулетка'); 
             
-            if (finalResult > 0) { audioWin.currentTime = 0; audioWin.play(); rouletteResult.style.color = '#2ecc71'; }
-            else if (finalResult < 0) {
+            if (finalResult > 0) { 
+                audioWin.currentTime = 0; audioWin.play(); 
+                rouletteResult.style.color = '#2ecc71'; 
+            } else if (finalResult < 0) {
                 if (currentBalance <= 0) { audioAhueli.currentTime = 0; audioAhueli.play(); } else { audioPizdec.currentTime = 0; audioPizdec.play(); }
                 rouletteResult.style.color = '#e74c3c'; 
-            } else { rouletteResult.style.color = '#fff'; }
+            } else { 
+                // Выпал чистый НОЛЬ
+                audioLoh.currentTime = 0; audioLoh.play().catch(e=>console.log(e));
+                rouletteResult.style.color = '#fff'; 
+            }
             isSpinning = false;
         }
     }, 100);
@@ -348,11 +362,9 @@ btnMinesStart.addEventListener('click', () => {
     if (isSpinning || isCrashing || isMinesPlaying) return;
     isMinesPlaying = true;
 
-    // Списываем ставку
     currentBalance -= currentMinesBet;
     updateBalance();
 
-    // Настраиваем интерфейс
     btnMinesStart.classList.add('hidden');
     btnMinesCashout.classList.remove('hidden');
     minesStatusBar.classList.remove('hidden');
@@ -362,12 +374,10 @@ btnMinesStart.addEventListener('click', () => {
     minesMultText.innerText = '1.00x';
     minesMultText.style.color = '#2ecc71';
 
-    // ЧЕСТНАЯ ГЕНЕРАЦИЯ ПОЛЯ (25 ячеек)
     minesGridArray = Array(25).fill('💎');
     for(let i=0; i<totalMinesCount; i++) minesGridArray[i] = '💣';
-    minesGridArray.sort(() => Math.random() - 0.5); // Тщательно перемешиваем
+    minesGridArray.sort(() => Math.random() - 0.5);
 
-    // Отрисовываем сетку
     minesGrid.innerHTML = '';
     for(let i=0; i<25; i++) {
         let cell = document.createElement('div');
@@ -388,27 +398,21 @@ function handleMineClick(e) {
     cell.classList.add('revealed');
 
     if (item === '💣') {
-        // ПИЗДЕЦ, ПОДОРВАЛСЯ
         cell.classList.add('boom');
         cell.innerText = '💣';
         endMinesGame(false);
     } else {
-        // ФУХ, АЛМАЗ
         cell.classList.add('safe');
         cell.innerText = '💎';
         safeClicksCount++;
 
-        // Считаем честный множитель: mult = mult * (осталось всего / осталось сейвов)
         let remainingTotal = 25 - (safeClicksCount - 1);
         let remainingSafe = (25 - totalMinesCount) - (safeClicksCount - 1);
         currentMinesMult *= (remainingTotal / remainingSafe);
         
         minesMultText.innerText = currentMinesMult.toFixed(2) + 'x';
-        
-        // Маленький звук клика (монетка)
         audioPay.currentTime = 0; audioPay.volume = 0.5; audioPay.play().catch(e=>{});
 
-        // Если открыл вообще все безопасные ячейки - автовывод
         if (safeClicksCount === 25 - totalMinesCount) {
             endMinesGame(true);
         }
@@ -426,7 +430,6 @@ function endMinesGame(win) {
     btnMinesCashout.classList.add('hidden');
     btnMinesStart.classList.remove('hidden');
 
-    // Вскрываем остальное поле, чтобы лох видел, как близко он был
     const cells = minesGrid.querySelectorAll('.mine-cell');
     cells.forEach(cell => {
         if (!cell.classList.contains('revealed')) {
@@ -441,21 +444,17 @@ function endMinesGame(win) {
         currentBalance += winAmount;
         updateBalance();
         addHistoryRecord(pureProfit, 'Мины');
-        
         audioWin.currentTime = 0; audioWin.play().catch(e=>{});
     } else {
         minesMultText.style.color = '#e74c3c';
         addHistoryRecord(-currentMinesBet, 'Мины');
-        
         if (currentBalance <= 0) { audioAhueli.currentTime = 0; audioAhueli.play(); } 
         else { audioPizdec.currentTime = 0; audioPizdec.play(); }
     }
-    
-    // Возвращаем звук pay обратно на 1.0 (т.к. мы его убавляли для кликов)
     audioPay.volume = 1.0;
 }
 
-// --- ТУЛТИПЫ (СЕКРЕТНАЯ ВКЛАДКА) ---
+// --- ТУЛТИПЫ ---
 infoIcons.forEach(icon => {
     icon.addEventListener('click', (e) => {
         infoIcons.forEach(i => { if (i !== icon) i.classList.remove('show-tooltip'); });
