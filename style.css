@@ -76,7 +76,8 @@ button:active { transform: scale(0.95); }
 .cases-container { min-height: 180px; display: flex; flex-direction: column; justify-content: center; margin-top: 10px; }
 .cases-area { width: 300px; height: 120px; overflow: hidden; position: relative; margin: 0 auto; border: 3px solid #f1c40f; border-radius: 8px; background: #1a1a1a; box-shadow: 0 0 20px rgba(241, 196, 15, 0.3); }
 .cases-pointer { position: absolute; left: 50%; top: 0; bottom: 0; width: 4px; background: #e74c3c; z-index: 10; transform: translateX(-50%); box-shadow: 0 0 10px red; }
-.cases-ribbon { display: flex; width: max-content; }
+/* Добавлен запрет выделения и кликов по ленте, чтобы мамонт не свайпал её пальцем */
+.cases-ribbon { display: flex; width: max-content; pointer-events: none; user-select: none; }
 .case-item { width: 100px; height: 114px; display: flex; justify-content: center; align-items: center; border-right: 2px solid #333; flex-shrink: 0; background: linear-gradient(180deg, #2a2a2a, #111); padding: 15px; }
 .case-item img { max-width: 100%; max-height: 100%; object-fit: contain; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5)); }
 
