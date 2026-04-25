@@ -13,10 +13,11 @@
         <button id="tab-roulette" class="tab-btn active-tab">Рулетка</button>
         <button id="tab-crash" class="tab-btn">🚀 Краш</button>
         <button id="tab-mines" class="tab-btn">💣 Мины</button>
+        <button id="tab-cases" class="tab-btn">📦 Кейсы</button>
         
-        <!-- ФЕЙКОВАЯ ВКЛАДКА КЕЙСЫ С МОЛОТКОМ -->
+        <!-- ФЕЙКОВАЯ ВКЛАДКА С МОЛОТКОМ -->
         <div class="fake-tab-wrapper">
-            <button class="tab-btn fake-disabled" style="cursor: not-allowed; color: #555;">📦 Кейсы</button>
+            <button class="tab-btn fake-disabled" style="cursor: not-allowed; color: #555;">Секрет</button>
             <div class="info-icon tab-info-icon">?
                 <span class="tooltip-text gif-tooltip">
                     <img src="assets/hammer.gif" alt="В разработке" style="width: 50px; margin-bottom: 5px;">
@@ -65,7 +66,6 @@
             <div id="roulette-result" class="result-box">0</div>
         </div>
         
-        <!-- КНОПКУ ПЕРЕИМЕНОВАЛИ В "ВЪЕБАТЬ БАЛАНС" -->
         <button id="btn-spin" class="spin-btn">въебать баланс</button>
         
         <div class="action-buttons">
@@ -129,7 +129,37 @@
         <div class="history-box" style="display: none;"><div class="history-title">История лудомании</div><div class="history-list"></div></div>
     </div>
 
-    <!-- ЭКРАН 5: ВЫВОД СРЕДСТВ -->
+    <!-- ЭКРАН 5: КЕЙСЫ -->
+    <div id="cases-screen" class="screen hidden">
+        <h1>Лутбоксы 📦</h1>
+        <div class="balance-display">Балик: <span class="balance-amount">0</span> ₽</div>
+
+        <div class="cases-container">
+            <img src="assets/case_closed.webp" id="closed-case-img" alt="Кейс" style="width: 150px; margin: 20px auto; display: block;">
+            
+            <div class="cases-area hidden" id="cases-area">
+                <div class="cases-pointer"></div>
+                <div class="cases-ribbon" id="cases-ribbon">
+                    <!-- Сюда JS накидает лут -->
+                </div>
+            </div>
+            
+            <div id="cases-result" class="crash-msg hidden" style="position: relative; margin-top: 20px;"></div>
+        </div>
+
+        <div class="crash-controls">
+            <input type="number" id="cases-bet" placeholder="Цена кейса (₽)">
+            <button id="btn-cases-start" class="spin-btn" style="background-color: #f39c12;">Открыть нахуй</button>
+        </div>
+
+        <div class="action-buttons">
+            <button class="small-btn btn-go-deposit">Депнуть еще</button>
+            <button class="small-btn btn-go-withdraw" style="color: #f1c40f; border-color: #f1c40f;">Вывести кэш</button>
+        </div>
+        <div class="history-box" style="display: none;"><div class="history-title">История лудомании</div><div class="history-list"></div></div>
+    </div>
+
+    <!-- ЭКРАН 6: ВЫВОД СРЕДСТВ -->
     <div id="withdraw-screen" class="screen hidden">
         <h1>Вывод средств</h1>
         <p style="color: #aaa; margin-bottom: 20px;">Куда будем выводить бабки?</p>
@@ -150,7 +180,7 @@
         <button id="btn-cancel-withdraw" class="small-btn" style="margin-top: 20px;">Вернуться в казик</button>
     </div>
 
-    <!-- ЭКРАН 6: КРЕДИТ ОТ ШАЙЛИЛИ БАНКА -->
+    <!-- ЭКРАН 7: КРЕДИТ (ТРОЛЛФЕЙС БАНК) -->
     <div id="loan-screen" class="screen hidden">
         <h1 style="color: #e74c3c; font-size: 36px; animation: shake-text 0.5s infinite;">⚠️ ОДОБРЕНО! ⚠️</h1>
         <div class="loan-box">
@@ -160,7 +190,8 @@
             <p style="color: #aaa; font-size: 12px; margin-bottom: 20px;">*Средства уже зачислены на ваш счет. Процентная ставка: 365% годовых. При просрочке платежа мы заберем вашу почку.</p>
             <div class="shylily-partner">
                 <p style="font-size: 12px; color: #777; margin-bottom: 10px;">Финансовый партнер операции:</p>
-                <img src="assets/shylily_bank.png" alt="Shylily Bank" height="45">
+                <img src="assets/wtf.webp" alt="Troll Bank" height="60">
+                <h3 style="color: #e74c3c; margin-top: 5px;">WTF Bank</h3>
             </div>
         </div>
         <button id="btn-accept-loan" class="spin-btn" style="margin-top: 20px;">Охуеть, спасибо</button>
