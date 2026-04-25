@@ -189,7 +189,7 @@ btnPay.addEventListener('click', () => {
     }, 2000);
 });
 
-// --- ВЫВОД И КРЕДИТНЫЙ ПРИКОЛ ---
+// --- ВЫВОД ---
 btnGoWithdraws.forEach(btn => {
     btn.addEventListener('click', () => {
         if (isSpinning || isCrashing || isMinesPlaying || isCaseOpening) return;
@@ -392,14 +392,15 @@ function endMinesGame(win) {
     audioPay.volume = 1.0;
 }
 
-// --- ЛОГИКА КЕЙСОВ (АБСОЛЮТНО ЧЕСТНЫЙ И КРАСИВЫЙ РАНДОМ) ---
+// --- ЛОГИКА КЕЙСОВ (ЧЕСТНЫЙ И КРАСИВЫЙ РАНДОМ) ---
 function getRandomCaseItem() {
     const r = Math.random();
-    if (r < 0.10) return 'item_gold.webp'; 
-    if (r < 0.25) return 'item_iphone.webp'; 
-    if (r < 0.50) return 'item_minus.webp'; 
-    if (r < 0.75) return 'wtf.webp'; 
-    return 'item_shit.webp'; 
+    // 15% Голда, 15% Айфон, 25% Минус, 25% Говно, 20% WTF
+    if (r < 0.15) return 'item_gold.webp'; 
+    if (r < 0.30) return 'item_iphone.webp'; 
+    if (r < 0.55) return 'item_minus.webp'; 
+    if (r < 0.80) return 'item_shit.webp'; 
+    return 'wtf.webp'; 
 }
 
 btnCasesStart.addEventListener('click', () => {
@@ -425,44 +426,36 @@ btnCasesStart.addEventListener('click', () => {
     let itemsArray =[];
     let lastItem = '';
     
-    // Генерим 70 элементов. БЕЗ ПОВТОРОВ ПОДРЯД! Твой перфекционист ликует.
-    for(let i=0; i<70; i++) {
+    // Генерим 100 элементов для долгой прокрутки
+    for(let i=0; i<100; i++) {
         let img = getRandomCaseItem();
-        // Крутим рандом пока не выпадет картинка, отличная от предыдущей
-        while(img === lastItem) {
-            img = getRandomCaseItem();
+        
+        // Защита: не даем выпасть 3 одинаковым предметам подряд, чтобы лента была пестрой
+        if (i >= 2 && itemsArray[i-1] === img && itemsArray[i-2] === img) {
+            img = (img === 'item_shit.webp') ? 'item_iphone.webp' : 'item_gold.webp';
         }
-        lastItem = img;
+        
         itemsArray.push(img);
+        itemsHTML += `<div class="case-item"><img src="assets/${img}" alt="Приз"></div>`;
     }
-
-    // Выбираем индекс победителя (от 50 до 55)
-    const targetIndex = 50 + Math.floor(Math.random() * 6); 
-    const winningItem = itemsArray[targetIndex];
-
-    // БОНУС! Жесткая замануха для тильта.
-    // Если выиграли говно/фак/троллфейс, ставим слева и справа от него АЙФОН или ЗОЛОТО
-    if (winningItem !== 'item_gold.webp' && winningItem !== 'item_iphone.webp') {
-        const topItems =['item_gold.webp', 'item_iphone.webp'];
-        itemsArray[targetIndex - 1] = topItems[Math.floor(Math.random() * topItems.length)];
-        itemsArray[targetIndex + 1] = topItems[Math.floor(Math.random() * topItems.length)];
-    }
-
-    for(let i=0; i<70; i++) {
-        itemsHTML += `<div class="case-item"><img src="assets/${itemsArray[i]}" alt="Приз"></div>`;
-    }
+    
     casesRibbon.innerHTML = itemsHTML;
     
+    // Сброс позиции ленты на старт
     casesRibbon.style.transition = 'none';
     casesRibbon.style.transform = 'translateX(0px)';
-    casesRibbon.offsetHeight; // Форсируем браузер обновить кадр
+    casesRibbon.offsetHeight; // Принудительный рефреш браузера
 
-    // Вычисляем пиксели так, чтобы лента остановилась прямо на победном элементе
-    const jitter = Math.floor(Math.random() * 60) - 30; // Небольшая рандомизация остановки внутри картинки
+    // Выбираем индекс победителя в конце ленты (от 80 до 85)
+    const targetIndex = 80 + Math.floor(Math.random() * 6); 
+    const winningItem = itemsArray[targetIndex];
+
+    // Идеальная центровка элемента (targetIndex * 100 - 100) + легкий джиттер (до +- 35px)
+    const jitter = Math.floor(Math.random() * 70) - 35; 
     const finalOffset = (targetIndex * 100) - 100 + jitter;
 
-    // Анимация 9.4 секунды (идеально под длину трека 9.5с)
-    casesRibbon.style.transition = 'transform 9.4s cubic-bezier(0.1, 0.85, 0.1, 1)';
+    // Анимация 9.2 секунды под идеальное затухание тиканья рулетки CS:GO
+    casesRibbon.style.transition = 'transform 9.2s cubic-bezier(0.1, 0.9, 0.2, 1)';
     casesRibbon.style.transform = `translateX(-${finalOffset}px)`;
 
     setTimeout(() => {
@@ -481,7 +474,7 @@ btnCasesStart.addEventListener('click', () => {
             updateBalance();
             addHistoryRecord(pureProfit, 'Кейсы');
             
-            casesResult.innerText = `Выпал ТОП! Выигрыш: ${winAmount} ₽`;
+            casesResult.innerText = `ЕБАТЬ! Выпал ТОП! Выигрыш: ${winAmount} ₽`;
             casesResult.style.color = '#2ecc71';
             audioWin.currentTime = 0; audioWin.play();
         } else {
@@ -494,7 +487,7 @@ btnCasesStart.addEventListener('click', () => {
                 setTimeout(() => { audioAhueli.currentTime = 0; audioAhueli.play(); }, 1200);
             }
         }
-    }, 9400); // Тайминг остановки ровно под конец звука
+    }, 9200); 
 });
 
 // --- ТУЛТИПЫ ---
