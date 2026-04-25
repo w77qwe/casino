@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Сайокин Казикс</title>
-    <link rel="stylesheet" href="style.css">
+    <!-- Добавили ?v=2 чтобы телефон сбросил кэш -->
+    <link rel="stylesheet" href="style.css?v=2">
 </head>
 <body>
 
@@ -15,7 +16,6 @@
         <button id="tab-mines" class="tab-btn">💣 Мины</button>
         <button id="tab-cases" class="tab-btn">📦 Кейсы</button>
         
-        <!-- ФЕЙКОВАЯ ВКЛАДКА С МОЛОТКОМ -->
         <div class="fake-tab-wrapper">
             <button class="tab-btn fake-disabled" style="cursor: not-allowed; color: #555;">Секрет</button>
             <div class="info-icon tab-info-icon">?
@@ -149,7 +149,7 @@
 
         <div class="crash-controls">
             <input type="number" id="cases-bet" placeholder="Цена кейса (₽)">
-            <button id="btn-cases-start" class="spin-btn" style="background-color: #f39c12;">Открыть нахуй</button>
+            <button id="btn-cases-start" class="spin-btn" style="background-color: #f39c12;">ОТКРЫТЬ НАХУЙ</button>
         </div>
 
         <div class="action-buttons">
@@ -180,7 +180,7 @@
         <button id="btn-cancel-withdraw" class="small-btn" style="margin-top: 20px;">Вернуться в казик</button>
     </div>
 
-    <!-- ЭКРАН 7: КРЕДИТ (ТРОЛЛФЕЙС БАНК) -->
+    <!-- ЭКРАН 7: КРЕДИТ -->
     <div id="loan-screen" class="screen hidden">
         <h1 style="color: #e74c3c; font-size: 36px; animation: shake-text 0.5s infinite;">⚠️ ОДОБРЕНО! ⚠️</h1>
         <div class="loan-box">
@@ -190,13 +190,13 @@
             <p style="color: #aaa; font-size: 12px; margin-bottom: 20px;">*Средства уже зачислены на ваш счет. Процентная ставка: 365% годовых. При просрочке платежа мы заберем вашу почку.</p>
             <div class="shylily-partner">
                 <p style="font-size: 12px; color: #777; margin-bottom: 10px;">Финансовый партнер операции:</p>
-                <img src="assets/wtf.webp" alt="Troll Bank" height="60">
-                <h3 style="color: #e74c3c; margin-top: 5px;">WTF Bank</h3>
+                <img src="assets/shylily_bank.png" alt="Shylily Bank" height="45">
             </div>
         </div>
         <button id="btn-accept-loan" class="spin-btn" style="margin-top: 20px;">Охуеть, спасибо</button>
     </div>
 
-    <script src="script.js"></script>
+    <!-- Обновляем кэш скрипта! -->
+    <script src="script.js?v=2"></script>
 </body>
 </html>
