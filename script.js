@@ -5,13 +5,12 @@ const audioWin = new Audio('assets/win.mp3'); audioWin.volume = 0.35;
 const audioPizdec = new Audio('assets/pizdec.mp3'); audioPizdec.volume = 0.30; 
 const audioAhueli = new Audio('assets/you ahueli.mp3'); audioAhueli.volume = 0.20; 
 const audioLoh = new Audio('assets/loh.mp3'); audioLoh.volume = 0.35;
-const audioCaseSpin = new Audio('assets/go-new-gambling.mp3'); audioCaseSpin.volume = 1.0; // Слишком тихий, выкручиваем в сотку
+const audioCaseSpin = new Audio('assets/go-new-gambling.mp3'); audioCaseSpin.volume = 1.0;
 
 // --- ПЕРЕМЕННЫЕ И ЭЛЕМЕНТЫ ---
 let currentBalance = parseInt(localStorage.getItem('kaziksBalance')) || 0;
 let gameHistory = JSON.parse(localStorage.getItem('kaziksHistory')) ||[];
 
-// Экраны и Навигация
 const topNav = document.getElementById('top-nav');
 const tabRoulette = document.getElementById('tab-roulette');
 const tabCrash = document.getElementById('tab-crash');
@@ -25,7 +24,6 @@ const casesScreen = document.getElementById('cases-screen');
 const withdrawScreen = document.getElementById('withdraw-screen');
 const loanScreen = document.getElementById('loan-screen');
 
-// Депозит
 const bankCards = document.querySelectorAll('#deposit-screen .bank-card');
 const inputSection = document.getElementById('input-section');
 const depositAmountInput = document.getElementById('deposit-amount');
@@ -35,7 +33,6 @@ const banksContainer = document.querySelector('#deposit-screen .banks-container'
 const bonusAlert = document.getElementById('bonus-alert');
 let selectedBank = ''; 
 
-// Вывод средств
 const btnGoWithdraws = document.querySelectorAll('.btn-go-withdraw');
 const withdrawBankCards = document.querySelectorAll('.withdraw-bank');
 const withdrawInputSection = document.getElementById('withdraw-input-section');
@@ -46,17 +43,14 @@ const withdrawBanksContainer = document.getElementById('withdraw-banks-container
 const btnCancelWithdraw = document.getElementById('btn-cancel-withdraw');
 let selectedWithdrawBank = '';
 
-// Кредит
 const loanAmountDisplay = document.getElementById('loan-amount-display');
 const btnAcceptLoan = document.getElementById('btn-accept-loan');
 
-// Общие
 const balanceDisplays = document.querySelectorAll('.balance-amount');
 const btnGoDeposits = document.querySelectorAll('.btn-go-deposit');
 const historyBoxes = document.querySelectorAll('.history-box');
 const historyLists = document.querySelectorAll('.history-list');
 
-// Игры:
 const rouletteResult = document.getElementById('roulette-result');
 const btnSpin = document.getElementById('btn-spin');
 
@@ -92,7 +86,7 @@ updateBalance();
 renderHistory();
 initMinesGridEmpty();
 
-// --- ИСТОРИЯ ---
+// --- ИСТОРИЯ И БАЛАНС ---
 function addHistoryRecord(amount, gameName = '') {
     const text = gameName ? `[${gameName}] ` : '';
     gameHistory.unshift({ val: amount, label: text }); 
@@ -276,7 +270,7 @@ btnSpin.addEventListener('click', () => {
                 if (currentBalance <= 0) { audioAhueli.currentTime = 0; audioAhueli.play(); } else { audioPizdec.currentTime = 0; audioPizdec.play(); }
                 rouletteResult.style.color = '#e74c3c'; 
             } else { 
-                audioLoh.currentTime = 0; audioLoh.play();
+                audioLoh.currentTime = 0; audioLoh.play().catch(e=>console.log(e));
                 rouletteResult.style.color = '#fff'; 
             }
             isSpinning = false;
@@ -398,14 +392,14 @@ function endMinesGame(win) {
     audioPay.volume = 1.0;
 }
 
-// --- ЛОГИКА КЕЙСОВ (ЛУТБОКСОВ) ---
+// --- ЛОГИКА КЕЙСОВ (ЧЕСТНЫЙ РАНДОМ) ---
 function getRandomCaseItem() {
     const r = Math.random();
-    if (r < 0.1) return 'item_gold.webp';
-    if (r < 0.3) return 'item_iphone.webp';
-    if (r < 0.6) return 'item_minus.webp';
-    if (r < 0.8) return 'wtf.webp';
-    return 'item_shit.webp';
+    if (r < 0.10) return 'item_gold.webp'; // 10% шанс на голду
+    if (r < 0.25) return 'item_iphone.webp'; // 15% шанс на айфон
+    if (r < 0.50) return 'item_minus.webp'; // 25% минус
+    if (r < 0.75) return 'wtf.webp'; // 25% троллфейс
+    return 'item_shit.webp'; // 25% говно
 }
 
 btnCasesStart.addEventListener('click', () => {
@@ -417,7 +411,6 @@ btnCasesStart.addEventListener('click', () => {
     if (isSpinning || isCrashing || isMinesPlaying || isCaseOpening) return;
     isCaseOpening = true;
 
-    // Списываем бабки за кейс
     currentBalance -= currentBet;
     updateBalance();
 
@@ -429,46 +422,61 @@ btnCasesStart.addEventListener('click', () => {
     casesResult.classList.add('hidden');
 
     let itemsHTML = '';
-    // Генерим 60 призов. 50-й это тот, что нам выпадет. 49-й - наебка (Айфон)
-    for(let i=0; i<60; i++) {
+    let itemsArray =[];
+    // Генерим 70 элементов на лету
+    for(let i=0; i<70; i++) {
         let img = getRandomCaseItem();
-        if (i === 49) img = 'item_iphone.webp'; // Жирная приманка
-        if (i === 50) { // То, что реально выпадает
-            const bads =['item_shit.webp', 'item_minus.webp', 'wtf.webp'];
-            img = bads[Math.floor(Math.random() * bads.length)];
-        }
+        itemsArray.push(img);
         itemsHTML += `<div class="case-item"><img src="assets/${img}" alt="Приз"></div>`;
     }
     casesRibbon.innerHTML = itemsHTML;
     
-    // Сбрасываем анимацию в 0
     casesRibbon.style.transition = 'none';
     casesRibbon.style.transform = 'translateX(0px)';
-    casesRibbon.offsetHeight; // Заставляем браузер перерисовать кадр
+    casesRibbon.offsetHeight; // Форсируем браузер обновить кадр
 
-    // ЕБЕЙШАЯ ПОДЛАЯ МАТЕМАТИКА ОСТАНОВКИ:
-    // Ширина 1 ячейки - 100px. Ширина окошка - 300px. Центр на 150px.
-    // Останавливаемся на отметке -4860px. Это значит 49-й (Айфон) уезжает, 
-    // а 50-й (Говно) ЗАЕЗЖАЕТ НА ПОЛОСКУ РОВНО НА 10 ПИКСЕЛЕЙ!
-    casesRibbon.style.transition = 'transform 8.5s cubic-bezier(0.1, 0.8, 0.1, 1)';
-    casesRibbon.style.transform = 'translateX(-4860px)';
+    // Выбираем честный индекс победителя (от 50 до 54)
+    const targetIndex = 50 + Math.floor(Math.random() * 5); 
+    const winningItem = itemsArray[targetIndex];
 
-    // Звук CS:GO длится 9.5с, мы заканчиваем анимацию через 8.5с
+    // Вычисляем пиксели так, чтобы лента остановилась прямо на нем + мелкая случайная тряска (jitter)
+    const jitter = Math.floor(Math.random() * 80) - 40; 
+    const finalOffset = (targetIndex * 100) - 100 + jitter;
+
+    // Анимация 9.4 секунды (идеально под длину трека)
+    casesRibbon.style.transition = 'transform 9.4s cubic-bezier(0.1, 0.85, 0.1, 1)';
+    casesRibbon.style.transform = `translateX(-${finalOffset}px)`;
+
     setTimeout(() => {
         isCaseOpening = false;
         
-        audioLoh.currentTime = 0;
-        audioLoh.play();
+        let multiplier = 0;
+        if (winningItem === 'item_gold.webp') multiplier = 5;
+        else if (winningItem === 'item_iphone.webp') multiplier = 10;
         
-        casesResult.innerText = "Выпало говно! ЛОХ!";
         casesResult.classList.remove('hidden');
-        
-        addHistoryRecord(-currentBet, 'Кейсы');
-        if (currentBalance <= 0) { 
-            setTimeout(() => { audioAhueli.currentTime = 0; audioAhueli.play(); }, 1200); // Чтобы лох.мп3 доиграл
+
+        if (multiplier > 0) {
+            const winAmount = currentBet * multiplier;
+            const pureProfit = winAmount - currentBet;
+            currentBalance += winAmount;
+            updateBalance();
+            addHistoryRecord(pureProfit, 'Кейсы');
+            
+            casesResult.innerText = `Выпал ТОП! Выигрыш: ${winAmount} ₽`;
+            casesResult.style.color = '#2ecc71';
+            audioWin.currentTime = 0; audioWin.play();
+        } else {
+            addHistoryRecord(-currentBet, 'Кейсы');
+            casesResult.innerText = "Выпало говно! ЛОХ!";
+            casesResult.style.color = '#e74c3c';
+            
+            audioLoh.currentTime = 0; audioLoh.play();
+            if (currentBalance <= 0) { 
+                setTimeout(() => { audioAhueli.currentTime = 0; audioAhueli.play(); }, 1200);
+            }
         }
-        
-    }, 8500);
+    }, 9400); // Тайминг остановки
 });
 
 // --- ТУЛТИПЫ ---

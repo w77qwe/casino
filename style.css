@@ -72,7 +72,7 @@ button:active { transform: scale(0.95); }
 .mine-cell.revealed.boom { background: #e74c3c; animation: shake-text 0.3s; cursor: default; transform: none; }
 .mine-cell.revealed.dim { opacity: 0.5; cursor: default; }
 
-/* КЕЙСЫ (АНИМАЦИЯ РУЛЕТКИ CS:GO) */
+/* КЕЙСЫ */
 .cases-container { min-height: 180px; display: flex; flex-direction: column; justify-content: center; margin-top: 10px; }
 .cases-area { width: 300px; height: 120px; overflow: hidden; position: relative; margin: 0 auto; border: 3px solid #f1c40f; border-radius: 8px; background: #1a1a1a; box-shadow: 0 0 20px rgba(241, 196, 15, 0.3); }
 .cases-pointer { position: absolute; left: 50%; top: 0; bottom: 0; width: 4px; background: #e74c3c; z-index: 10; transform: translateX(-50%); box-shadow: 0 0 10px red; }
