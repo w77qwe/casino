@@ -183,8 +183,8 @@ btnPay.addEventListener('click', () => {
         
         hideAllScreens(); topNav.classList.remove('hidden');
         rouletteScreen.classList.remove('hidden'); rouletteScreen.classList.add('active');
-        tabRoulette.classList.add('active-tab');
-        
+        tabRoulette.click(); 
+
         loadingText.classList.add('hidden'); banksContainer.style.display = 'flex'; depositAmountInput.value = '';
     }, 2000);
 });
@@ -392,14 +392,14 @@ function endMinesGame(win) {
     audioPay.volume = 1.0;
 }
 
-// --- ЛОГИКА КЕЙСОВ (ЧЕСТНЫЙ РАНДОМ) ---
+// --- ЛОГИКА КЕЙСОВ (АБСОЛЮТНО ЧЕСТНЫЙ И КРАСИВЫЙ РАНДОМ) ---
 function getRandomCaseItem() {
     const r = Math.random();
-    if (r < 0.10) return 'item_gold.webp'; // 10% шанс на голду
-    if (r < 0.25) return 'item_iphone.webp'; // 15% шанс на айфон
-    if (r < 0.50) return 'item_minus.webp'; // 25% минус
-    if (r < 0.75) return 'wtf.webp'; // 25% троллфейс
-    return 'item_shit.webp'; // 25% говно
+    if (r < 0.10) return 'item_gold.webp'; 
+    if (r < 0.25) return 'item_iphone.webp'; 
+    if (r < 0.50) return 'item_minus.webp'; 
+    if (r < 0.75) return 'wtf.webp'; 
+    return 'item_shit.webp'; 
 }
 
 btnCasesStart.addEventListener('click', () => {
@@ -423,11 +423,33 @@ btnCasesStart.addEventListener('click', () => {
 
     let itemsHTML = '';
     let itemsArray =[];
-    // Генерим 70 элементов на лету
+    let lastItem = '';
+    
+    // Генерим 70 элементов. БЕЗ ПОВТОРОВ ПОДРЯД! Твой перфекционист ликует.
     for(let i=0; i<70; i++) {
         let img = getRandomCaseItem();
+        // Крутим рандом пока не выпадет картинка, отличная от предыдущей
+        while(img === lastItem) {
+            img = getRandomCaseItem();
+        }
+        lastItem = img;
         itemsArray.push(img);
-        itemsHTML += `<div class="case-item"><img src="assets/${img}" alt="Приз"></div>`;
+    }
+
+    // Выбираем индекс победителя (от 50 до 55)
+    const targetIndex = 50 + Math.floor(Math.random() * 6); 
+    const winningItem = itemsArray[targetIndex];
+
+    // БОНУС! Жесткая замануха для тильта.
+    // Если выиграли говно/фак/троллфейс, ставим слева и справа от него АЙФОН или ЗОЛОТО
+    if (winningItem !== 'item_gold.webp' && winningItem !== 'item_iphone.webp') {
+        const topItems =['item_gold.webp', 'item_iphone.webp'];
+        itemsArray[targetIndex - 1] = topItems[Math.floor(Math.random() * topItems.length)];
+        itemsArray[targetIndex + 1] = topItems[Math.floor(Math.random() * topItems.length)];
+    }
+
+    for(let i=0; i<70; i++) {
+        itemsHTML += `<div class="case-item"><img src="assets/${itemsArray[i]}" alt="Приз"></div>`;
     }
     casesRibbon.innerHTML = itemsHTML;
     
@@ -435,15 +457,11 @@ btnCasesStart.addEventListener('click', () => {
     casesRibbon.style.transform = 'translateX(0px)';
     casesRibbon.offsetHeight; // Форсируем браузер обновить кадр
 
-    // Выбираем честный индекс победителя (от 50 до 54)
-    const targetIndex = 50 + Math.floor(Math.random() * 5); 
-    const winningItem = itemsArray[targetIndex];
-
-    // Вычисляем пиксели так, чтобы лента остановилась прямо на нем + мелкая случайная тряска (jitter)
-    const jitter = Math.floor(Math.random() * 80) - 40; 
+    // Вычисляем пиксели так, чтобы лента остановилась прямо на победном элементе
+    const jitter = Math.floor(Math.random() * 60) - 30; // Небольшая рандомизация остановки внутри картинки
     const finalOffset = (targetIndex * 100) - 100 + jitter;
 
-    // Анимация 9.4 секунды (идеально под длину трека)
+    // Анимация 9.4 секунды (идеально под длину трека 9.5с)
     casesRibbon.style.transition = 'transform 9.4s cubic-bezier(0.1, 0.85, 0.1, 1)';
     casesRibbon.style.transform = `translateX(-${finalOffset}px)`;
 
@@ -476,7 +494,7 @@ btnCasesStart.addEventListener('click', () => {
                 setTimeout(() => { audioAhueli.currentTime = 0; audioAhueli.play(); }, 1200);
             }
         }
-    }, 9400); // Тайминг остановки
+    }, 9400); // Тайминг остановки ровно под конец звука
 });
 
 // --- ТУЛТИПЫ ---
