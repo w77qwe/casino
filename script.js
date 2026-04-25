@@ -4,10 +4,8 @@ const audioSpin = new Audio('assets/spin.mp3'); audioSpin.volume = 0.25; audioSp
 const audioWin = new Audio('assets/win.mp3'); audioWin.volume = 0.35; 
 const audioPizdec = new Audio('assets/pizdec.mp3'); audioPizdec.volume = 0.30; 
 const audioAhueli = new Audio('assets/you ahueli.mp3'); audioAhueli.volume = 0.20; 
-
-// Добавляем новый звук для нуля
-const audioLoh = new Audio('assets/loh.mp3');
-audioLoh.volume = 0.35;
+const audioLoh = new Audio('assets/loh.mp3'); audioLoh.volume = 0.35;
+const audioCaseSpin = new Audio('assets/go-new-gambling.mp3'); audioCaseSpin.volume = 1.0; // Слишком тихий, выкручиваем в сотку
 
 // --- ПЕРЕМЕННЫЕ И ЭЛЕМЕНТЫ ---
 let currentBalance = parseInt(localStorage.getItem('kaziksBalance')) || 0;
@@ -18,10 +16,12 @@ const topNav = document.getElementById('top-nav');
 const tabRoulette = document.getElementById('tab-roulette');
 const tabCrash = document.getElementById('tab-crash');
 const tabMines = document.getElementById('tab-mines');
+const tabCases = document.getElementById('tab-cases');
 const depositScreen = document.getElementById('deposit-screen');
 const rouletteScreen = document.getElementById('roulette-screen');
 const crashScreen = document.getElementById('crash-screen');
 const minesScreen = document.getElementById('mines-screen');
+const casesScreen = document.getElementById('cases-screen');
 const withdrawScreen = document.getElementById('withdraw-screen');
 const loanScreen = document.getElementById('loan-screen');
 
@@ -56,11 +56,10 @@ const btnGoDeposits = document.querySelectorAll('.btn-go-deposit');
 const historyBoxes = document.querySelectorAll('.history-box');
 const historyLists = document.querySelectorAll('.history-list');
 
-// Рулетка
+// Игры:
 const rouletteResult = document.getElementById('roulette-result');
 const btnSpin = document.getElementById('btn-spin');
 
-// Краш
 const crashMultiplier = document.getElementById('crash-multiplier');
 const crashMessage = document.getElementById('crash-message');
 const crashBetInput = document.getElementById('crash-bet');
@@ -68,7 +67,6 @@ const btnCrashStart = document.getElementById('btn-crash-start');
 const btnCrashCashout = document.getElementById('btn-crash-cashout');
 const rocket = document.getElementById('rocket');
 
-// Мины
 const minesGrid = document.getElementById('mines-grid');
 const minesBetInput = document.getElementById('mines-bet');
 const minesCountSelect = document.getElementById('mines-count');
@@ -77,8 +75,17 @@ const btnMinesCashout = document.getElementById('btn-mines-cashout');
 const minesStatusBar = document.getElementById('mines-status-bar');
 const minesMultText = document.getElementById('mines-multiplier-text');
 
+const casesRibbon = document.getElementById('cases-ribbon');
+const closedCaseImg = document.getElementById('closed-case-img');
+const casesArea = document.getElementById('cases-area');
+const casesResult = document.getElementById('cases-result');
+const casesBetInput = document.getElementById('cases-bet');
+const btnCasesStart = document.getElementById('btn-cases-start');
+
 let isSpinning = false;
 let isCrashing = false;
+let isMinesPlaying = false;
+let isCaseOpening = false;
 
 // --- ИНИЦИАЛИЗАЦИЯ ---
 updateBalance();
@@ -119,41 +126,41 @@ function updateBalance() {
 }
 
 // --- НАВИГАЦИЯ ---
-function hideAllScreens() {[depositScreen, rouletteScreen, crashScreen, minesScreen, withdrawScreen, loanScreen].forEach(s => {
-        s.classList.remove('active');
-        s.classList.add('hidden');
-    });[tabRoulette, tabCrash, tabMines].forEach(t => t.classList.remove('active-tab'));
+function hideAllScreens() {[depositScreen, rouletteScreen, crashScreen, minesScreen, casesScreen, withdrawScreen, loanScreen].forEach(s => {
+        s.classList.remove('active'); s.classList.add('hidden');
+    });[tabRoulette, tabCrash, tabMines, tabCases].forEach(t => t.classList.remove('active-tab'));
 }
 
 tabRoulette.addEventListener('click', () => {
-    if (isSpinning || isCrashing || isMinesPlaying) return; 
-    hideAllScreens();
-    tabRoulette.classList.add('active-tab');
+    if (isSpinning || isCrashing || isMinesPlaying || isCaseOpening) return; 
+    hideAllScreens(); tabRoulette.classList.add('active-tab');
     rouletteScreen.classList.remove('hidden'); rouletteScreen.classList.add('active');
 });
 
 tabCrash.addEventListener('click', () => {
-    if (isSpinning || isCrashing || isMinesPlaying) return;
-    hideAllScreens();
-    tabCrash.classList.add('active-tab');
+    if (isSpinning || isCrashing || isMinesPlaying || isCaseOpening) return;
+    hideAllScreens(); tabCrash.classList.add('active-tab');
     crashScreen.classList.remove('hidden'); crashScreen.classList.add('active');
 });
 
 tabMines.addEventListener('click', () => {
-    if (isSpinning || isCrashing || isMinesPlaying) return;
-    hideAllScreens();
-    tabMines.classList.add('active-tab');
+    if (isSpinning || isCrashing || isMinesPlaying || isCaseOpening) return;
+    hideAllScreens(); tabMines.classList.add('active-tab');
     minesScreen.classList.remove('hidden'); minesScreen.classList.add('active');
+});
+
+tabCases.addEventListener('click', () => {
+    if (isSpinning || isCrashing || isMinesPlaying || isCaseOpening) return;
+    hideAllScreens(); tabCases.classList.add('active-tab');
+    casesScreen.classList.remove('hidden'); casesScreen.classList.add('active');
 });
 
 btnGoDeposits.forEach(btn => {
     btn.addEventListener('click', () => {
-        if (isSpinning || isCrashing || isMinesPlaying) return;
-        hideAllScreens();
-        topNav.classList.add('hidden');
+        if (isSpinning || isCrashing || isMinesPlaying || isCaseOpening) return;
+        hideAllScreens(); topNav.classList.add('hidden');
         depositScreen.classList.remove('hidden'); depositScreen.classList.add('active');
-        inputSection.style.display = 'none'; 
-        bankCards.forEach(b => b.classList.remove('selected'));
+        inputSection.style.display = 'none'; bankCards.forEach(b => b.classList.remove('selected'));
     });
 });
 
@@ -161,8 +168,7 @@ btnGoDeposits.forEach(btn => {
 bankCards.forEach(card => {
     card.addEventListener('click', () => {
         bankCards.forEach(b => b.classList.remove('selected'));
-        card.classList.add('selected');
-        selectedBank = card.id;
+        card.classList.add('selected'); selectedBank = card.id;
         inputSection.style.display = 'block';
         if (selectedBank === 'btn-sayokin') bonusAlert.classList.remove('hidden');
         else bonusAlert.classList.add('hidden');
@@ -192,7 +198,7 @@ btnPay.addEventListener('click', () => {
 // --- ВЫВОД И КРЕДИТНЫЙ ПРИКОЛ ---
 btnGoWithdraws.forEach(btn => {
     btn.addEventListener('click', () => {
-        if (isSpinning || isCrashing || isMinesPlaying) return;
+        if (isSpinning || isCrashing || isMinesPlaying || isCaseOpening) return;
         if (currentBalance <= 0) { alert("Выводить нехуй, балик по нулям. Иди депай!"); return; }
         
         hideAllScreens(); topNav.classList.add('hidden');
@@ -224,11 +230,7 @@ btnSubmitWithdraw.addEventListener('click', () => {
     btnCancelWithdraw.classList.add('hidden'); withdrawLoading.classList.remove('hidden');
 
     setTimeout(() => {
-        currentBalance -= amount; updateBalance(); 
-        
-        // Поменяли с "Вывод (ага, щас)" на просто "Вывод"
-        addHistoryRecord(-amount, 'Вывод');
-        
+        currentBalance -= amount; updateBalance(); addHistoryRecord(-amount, 'Вывод');
         audioPay.currentTime = 0; audioPay.play().catch(e => console.log(e));
         
         hideAllScreens();
@@ -254,7 +256,7 @@ function getDynamicOutcomes(bal) {
 
 btnSpin.addEventListener('click', () => {
     if (currentBalance <= 0) { audioAhueli.currentTime = 0; audioAhueli.play(); alert("Балик по нулям! Закинь лавэ."); return; }
-    if (isSpinning || isCrashing || isMinesPlaying) return;
+    if (isSpinning || isCrashing || isMinesPlaying || isCaseOpening) return;
     isSpinning = true; audioSpin.currentTime = 0; audioSpin.play();
 
     let spins = 0; const outcomes = getDynamicOutcomes(currentBalance);
@@ -274,8 +276,7 @@ btnSpin.addEventListener('click', () => {
                 if (currentBalance <= 0) { audioAhueli.currentTime = 0; audioAhueli.play(); } else { audioPizdec.currentTime = 0; audioPizdec.play(); }
                 rouletteResult.style.color = '#e74c3c'; 
             } else { 
-                // Выпал чистый НОЛЬ
-                audioLoh.currentTime = 0; audioLoh.play().catch(e=>console.log(e));
+                audioLoh.currentTime = 0; audioLoh.play();
                 rouletteResult.style.color = '#fff'; 
             }
             isSpinning = false;
@@ -288,7 +289,7 @@ btnCrashStart.addEventListener('click', () => {
     if (currentBalance <= 0) { audioAhueli.currentTime = 0; audioAhueli.play(); alert("Балик по нулям! Хули ты тыкаешь, иди депай!"); return; }
     currentBet = parseInt(crashBetInput.value);
     if (isNaN(currentBet) || currentBet <= 0 || currentBet > currentBalance) { alert("Ставка хуйня!"); return; }
-    if (isSpinning || isCrashing || isMinesPlaying) return;
+    if (isSpinning || isCrashing || isMinesPlaying || isCaseOpening) return;
     
     isCrashing = true; currentBalance -= currentBet; updateBalance();
     btnCrashStart.classList.add('hidden'); btnCrashCashout.classList.remove('hidden');
@@ -331,48 +332,24 @@ function endCrash(win) {
     }
 }
 
-// --- ЛОГИКА МИН (ЧЕСТНАЯ) ---
-let isMinesPlaying = false;
-let minesGridArray =[];
-let currentMinesBet = 0;
-let totalMinesCount = 5;
-let safeClicksCount = 0;
-let currentMinesMult = 1.00;
-
+// --- ЛОГИКА МИН ---
 function initMinesGridEmpty() {
     minesGrid.innerHTML = '';
     for(let i=0; i<25; i++) {
-        let cell = document.createElement('div');
-        cell.classList.add('mine-cell');
-        cell.innerText = '';
-        minesGrid.appendChild(cell);
+        let cell = document.createElement('div'); cell.classList.add('mine-cell'); minesGrid.appendChild(cell);
     }
 }
 
 btnMinesStart.addEventListener('click', () => {
     if (currentBalance <= 0) { audioAhueli.currentTime = 0; audioAhueli.play(); alert("Балик по нулям! Иди депай!"); return; }
+    currentMinesBet = parseInt(minesBetInput.value); totalMinesCount = parseInt(minesCountSelect.value);
+    if (isNaN(currentMinesBet) || currentMinesBet <= 0 || currentMinesBet > currentBalance) { alert("Ставка хуйня!"); return; }
+    if (isSpinning || isCrashing || isMinesPlaying || isCaseOpening) return;
     
-    currentMinesBet = parseInt(minesBetInput.value);
-    totalMinesCount = parseInt(minesCountSelect.value);
-
-    if (isNaN(currentMinesBet) || currentMinesBet <= 0 || currentMinesBet > currentBalance) {
-        alert("Ставка хуйня!"); return;
-    }
-
-    if (isSpinning || isCrashing || isMinesPlaying) return;
-    isMinesPlaying = true;
-
-    currentBalance -= currentMinesBet;
-    updateBalance();
-
-    btnMinesStart.classList.add('hidden');
-    btnMinesCashout.classList.remove('hidden');
-    minesStatusBar.classList.remove('hidden');
+    isMinesPlaying = true; currentBalance -= currentMinesBet; updateBalance();
+    btnMinesStart.classList.add('hidden'); btnMinesCashout.classList.remove('hidden'); minesStatusBar.classList.remove('hidden');
     
-    safeClicksCount = 0;
-    currentMinesMult = 1.00;
-    minesMultText.innerText = '1.00x';
-    minesMultText.style.color = '#2ecc71';
+    safeClicksCount = 0; currentMinesMult = 1.00; minesMultText.innerText = '1.00x'; minesMultText.style.color = '#2ecc71';
 
     minesGridArray = Array(25).fill('💎');
     for(let i=0; i<totalMinesCount; i++) minesGridArray[i] = '💣';
@@ -380,79 +357,119 @@ btnMinesStart.addEventListener('click', () => {
 
     minesGrid.innerHTML = '';
     for(let i=0; i<25; i++) {
-        let cell = document.createElement('div');
-        cell.classList.add('mine-cell');
-        cell.dataset.index = i;
-        cell.addEventListener('click', handleMineClick);
-        minesGrid.appendChild(cell);
+        let cell = document.createElement('div'); cell.classList.add('mine-cell'); cell.dataset.index = i;
+        cell.addEventListener('click', handleMineClick); minesGrid.appendChild(cell);
     }
 });
 
 function handleMineClick(e) {
-    if (!isMinesPlaying) return;
-    let cell = e.target;
-    if (cell.classList.contains('revealed')) return;
-
-    let index = cell.dataset.index;
-    let item = minesGridArray[index];
-    cell.classList.add('revealed');
+    if (!isMinesPlaying) return; let cell = e.target; if (cell.classList.contains('revealed')) return;
+    let index = cell.dataset.index; let item = minesGridArray[index]; cell.classList.add('revealed');
 
     if (item === '💣') {
-        cell.classList.add('boom');
-        cell.innerText = '💣';
-        endMinesGame(false);
+        cell.classList.add('boom'); cell.innerText = '💣'; endMinesGame(false);
     } else {
-        cell.classList.add('safe');
-        cell.innerText = '💎';
-        safeClicksCount++;
-
-        let remainingTotal = 25 - (safeClicksCount - 1);
-        let remainingSafe = (25 - totalMinesCount) - (safeClicksCount - 1);
-        currentMinesMult *= (remainingTotal / remainingSafe);
-        
-        minesMultText.innerText = currentMinesMult.toFixed(2) + 'x';
+        cell.classList.add('safe'); cell.innerText = '💎'; safeClicksCount++;
+        let remainingTotal = 25 - (safeClicksCount - 1); let remainingSafe = (25 - totalMinesCount) - (safeClicksCount - 1);
+        currentMinesMult *= (remainingTotal / remainingSafe); minesMultText.innerText = currentMinesMult.toFixed(2) + 'x';
         audioPay.currentTime = 0; audioPay.volume = 0.5; audioPay.play().catch(e=>{});
 
-        if (safeClicksCount === 25 - totalMinesCount) {
-            endMinesGame(true);
-        }
+        if (safeClicksCount === 25 - totalMinesCount) endMinesGame(true);
     }
 }
 
-btnMinesCashout.addEventListener('click', () => {
-    if (isMinesPlaying && safeClicksCount > 0) {
-        endMinesGame(true);
-    }
-});
+btnMinesCashout.addEventListener('click', () => { if (isMinesPlaying && safeClicksCount > 0) endMinesGame(true); });
 
 function endMinesGame(win) {
-    isMinesPlaying = false;
-    btnMinesCashout.classList.add('hidden');
-    btnMinesStart.classList.remove('hidden');
-
+    isMinesPlaying = false; btnMinesCashout.classList.add('hidden'); btnMinesStart.classList.remove('hidden');
     const cells = minesGrid.querySelectorAll('.mine-cell');
     cells.forEach(cell => {
-        if (!cell.classList.contains('revealed')) {
-            cell.classList.add('revealed', 'dim');
-            cell.innerText = minesGridArray[cell.dataset.index];
-        }
+        if (!cell.classList.contains('revealed')) { cell.classList.add('revealed', 'dim'); cell.innerText = minesGridArray[cell.dataset.index]; }
     });
 
     if (win) {
-        const winAmount = Math.round(currentMinesBet * currentMinesMult);
-        const pureProfit = winAmount - currentMinesBet;
-        currentBalance += winAmount;
-        updateBalance();
-        addHistoryRecord(pureProfit, 'Мины');
+        const winAmount = Math.round(currentMinesBet * currentMinesMult); const pureProfit = winAmount - currentMinesBet;
+        currentBalance += winAmount; updateBalance(); addHistoryRecord(pureProfit, 'Мины');
         audioWin.currentTime = 0; audioWin.play().catch(e=>{});
     } else {
-        minesMultText.style.color = '#e74c3c';
-        addHistoryRecord(-currentMinesBet, 'Мины');
-        if (currentBalance <= 0) { audioAhueli.currentTime = 0; audioAhueli.play(); } 
-        else { audioPizdec.currentTime = 0; audioPizdec.play(); }
+        minesMultText.style.color = '#e74c3c'; addHistoryRecord(-currentMinesBet, 'Мины');
+        if (currentBalance <= 0) { audioAhueli.currentTime = 0; audioAhueli.play(); } else { audioPizdec.currentTime = 0; audioPizdec.play(); }
     }
     audioPay.volume = 1.0;
 }
+
+// --- ЛОГИКА КЕЙСОВ (ЛУТБОКСОВ) ---
+function getRandomCaseItem() {
+    const r = Math.random();
+    if (r < 0.1) return 'item_gold.webp';
+    if (r < 0.3) return 'item_iphone.webp';
+    if (r < 0.6) return 'item_minus.webp';
+    if (r < 0.8) return 'wtf.webp';
+    return 'item_shit.webp';
+}
+
+btnCasesStart.addEventListener('click', () => {
+    if (currentBalance <= 0) { audioAhueli.currentTime = 0; audioAhueli.play(); alert("Балик по нулям! Депай!"); return; }
+    
+    let currentBet = parseInt(casesBetInput.value);
+    if (isNaN(currentBet) || currentBet <= 0 || currentBet > currentBalance) { alert("Ставка хуйня!"); return; }
+    
+    if (isSpinning || isCrashing || isMinesPlaying || isCaseOpening) return;
+    isCaseOpening = true;
+
+    // Списываем бабки за кейс
+    currentBalance -= currentBet;
+    updateBalance();
+
+    audioCaseSpin.currentTime = 0;
+    audioCaseSpin.play();
+
+    closedCaseImg.classList.add('hidden');
+    casesArea.classList.remove('hidden');
+    casesResult.classList.add('hidden');
+
+    let itemsHTML = '';
+    // Генерим 60 призов. 50-й это тот, что нам выпадет. 49-й - наебка (Айфон)
+    for(let i=0; i<60; i++) {
+        let img = getRandomCaseItem();
+        if (i === 49) img = 'item_iphone.webp'; // Жирная приманка
+        if (i === 50) { // То, что реально выпадает
+            const bads =['item_shit.webp', 'item_minus.webp', 'wtf.webp'];
+            img = bads[Math.floor(Math.random() * bads.length)];
+        }
+        itemsHTML += `<div class="case-item"><img src="assets/${img}" alt="Приз"></div>`;
+    }
+    casesRibbon.innerHTML = itemsHTML;
+    
+    // Сбрасываем анимацию в 0
+    casesRibbon.style.transition = 'none';
+    casesRibbon.style.transform = 'translateX(0px)';
+    casesRibbon.offsetHeight; // Заставляем браузер перерисовать кадр
+
+    // ЕБЕЙШАЯ ПОДЛАЯ МАТЕМАТИКА ОСТАНОВКИ:
+    // Ширина 1 ячейки - 100px. Ширина окошка - 300px. Центр на 150px.
+    // Останавливаемся на отметке -4860px. Это значит 49-й (Айфон) уезжает, 
+    // а 50-й (Говно) ЗАЕЗЖАЕТ НА ПОЛОСКУ РОВНО НА 10 ПИКСЕЛЕЙ!
+    casesRibbon.style.transition = 'transform 8.5s cubic-bezier(0.1, 0.8, 0.1, 1)';
+    casesRibbon.style.transform = 'translateX(-4860px)';
+
+    // Звук CS:GO длится 9.5с, мы заканчиваем анимацию через 8.5с
+    setTimeout(() => {
+        isCaseOpening = false;
+        
+        audioLoh.currentTime = 0;
+        audioLoh.play();
+        
+        casesResult.innerText = "Выпало говно! ЛОХ!";
+        casesResult.classList.remove('hidden');
+        
+        addHistoryRecord(-currentBet, 'Кейсы');
+        if (currentBalance <= 0) { 
+            setTimeout(() => { audioAhueli.currentTime = 0; audioAhueli.play(); }, 1200); // Чтобы лох.мп3 доиграл
+        }
+        
+    }, 8500);
+});
 
 // --- ТУЛТИПЫ ---
 infoIcons.forEach(icon => {
