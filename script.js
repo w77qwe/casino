@@ -2,10 +2,31 @@
 const audioPay = new Audio('assets/pay.mp3'); audioPay.volume = 1.0; 
 const audioSpin = new Audio('assets/spin.mp3'); audioSpin.volume = 0.25; audioSpin.loop = false; 
 const audioWin = new Audio('assets/win.mp3'); audioWin.volume = 0.35; 
-const audioPizdec = new Audio('assets/pizdec.mp3'); audioPizdec.volume = 0.30; 
 const audioAhueli = new Audio('assets/you ahueli.mp3'); audioAhueli.volume = 0.20; 
 const audioLoh = new Audio('assets/loh.mp3'); audioLoh.volume = 0.35;
 const audioCaseSpin = new Audio('assets/go-new-gambling.mp3'); audioCaseSpin.volume = 1.0;
+
+// Звуки проеба (рандомизируем)
+const audioPizdec = new Audio('assets/pizdec.mp3'); audioPizdec.volume = 0.30; 
+const audioBlyat = new Audio('assets/blyat.mp3'); audioBlyat.volume = 0.15; // Громкий, глушим
+const audioLooser = new Audio('assets/looser.mp3'); audioLooser.volume = 0.30;
+
+const generalLoseSounds =[audioPizdec, audioBlyat, audioLooser];
+let lastLoseSound = null;
+
+// Функция честного рандома мата без повторов 2 раза подряд
+function playRandomLoseSound() {
+    if (currentBalance <= 0) {
+        audioAhueli.currentTime = 0; 
+        audioAhueli.play().catch(e=>console.log(e));
+        return;
+    }
+    const available = generalLoseSounds.filter(s => s !== lastLoseSound);
+    const chosen = available[Math.floor(Math.random() * available.length)];
+    lastLoseSound = chosen;
+    chosen.currentTime = 0;
+    chosen.play().catch(e=>console.log(e));
+}
 
 // --- ПЕРЕМЕННЫЕ И ЭЛЕМЕНТЫ ---
 let currentBalance = parseInt(localStorage.getItem('kaziksBalance')) || 0;
@@ -189,7 +210,7 @@ btnPay.addEventListener('click', () => {
     }, 2000);
 });
 
-// --- ВЫВОД ---
+// --- ВЫВОД И КРЕДИТНЫЙ ПРИКОЛ ---
 btnGoWithdraws.forEach(btn => {
     btn.addEventListener('click', () => {
         if (isSpinning || isCrashing || isMinesPlaying || isCaseOpening) return;
@@ -267,10 +288,10 @@ btnSpin.addEventListener('click', () => {
                 audioWin.currentTime = 0; audioWin.play(); 
                 rouletteResult.style.color = '#2ecc71'; 
             } else if (finalResult < 0) {
-                if (currentBalance <= 0) { audioAhueli.currentTime = 0; audioAhueli.play(); } else { audioPizdec.currentTime = 0; audioPizdec.play(); }
+                playRandomLoseSound(); // НОВЫЙ РАНДОМНЫЙ ЗВУК
                 rouletteResult.style.color = '#e74c3c'; 
             } else { 
-                audioLoh.currentTime = 0; audioLoh.play().catch(e=>console.log(e));
+                audioLoh.currentTime = 0; audioLoh.play().catch(e=>{});
                 rouletteResult.style.color = '#fff'; 
             }
             isSpinning = false;
@@ -322,7 +343,7 @@ function endCrash(win) {
     } else {
         crashMessage.classList.remove('hidden'); crashMultiplier.style.color = '#e74c3c'; rocket.classList.add('rocket-crashed'); 
         addHistoryRecord(-currentBet, 'Краш'); 
-        if (currentBalance <= 0) { audioAhueli.currentTime = 0; audioAhueli.play(); } else { audioPizdec.currentTime = 0; audioPizdec.play(); }
+        playRandomLoseSound(); // НОВЫЙ РАНДОМНЫЙ ЗВУК
     }
 }
 
@@ -387,15 +408,14 @@ function endMinesGame(win) {
         audioWin.currentTime = 0; audioWin.play().catch(e=>{});
     } else {
         minesMultText.style.color = '#e74c3c'; addHistoryRecord(-currentMinesBet, 'Мины');
-        if (currentBalance <= 0) { audioAhueli.currentTime = 0; audioAhueli.play(); } else { audioPizdec.currentTime = 0; audioPizdec.play(); }
+        playRandomLoseSound(); // НОВЫЙ РАНДОМНЫЙ ЗВУК
     }
     audioPay.volume = 1.0;
 }
 
-// --- ЛОГИКА КЕЙСОВ (ЧЕСТНЫЙ И КРАСИВЫЙ РАНДОМ) ---
+// --- ЛОГИКА КЕЙСОВ ---
 function getRandomCaseItem() {
     const r = Math.random();
-    // 15% Голда, 15% Айфон, 25% Минус, 25% Говно, 20% WTF
     if (r < 0.15) return 'item_gold.webp'; 
     if (r < 0.30) return 'item_iphone.webp'; 
     if (r < 0.55) return 'item_minus.webp'; 
@@ -426,35 +446,36 @@ btnCasesStart.addEventListener('click', () => {
     let itemsArray =[];
     let lastItem = '';
     
-    // Генерим 100 элементов для долгой прокрутки
     for(let i=0; i<100; i++) {
         let img = getRandomCaseItem();
-        
-        // Защита: не даем выпасть 3 одинаковым предметам подряд, чтобы лента была пестрой
         if (i >= 2 && itemsArray[i-1] === img && itemsArray[i-2] === img) {
             img = (img === 'item_shit.webp') ? 'item_iphone.webp' : 'item_gold.webp';
         }
-        
+        lastItem = img;
         itemsArray.push(img);
-        itemsHTML += `<div class="case-item"><img src="assets/${img}" alt="Приз"></div>`;
     }
-    
-    casesRibbon.innerHTML = itemsHTML;
-    
-    // Сброс позиции ленты на старт
-    casesRibbon.style.transition = 'none';
-    casesRibbon.style.transform = 'translateX(0px)';
-    casesRibbon.offsetHeight; // Принудительный рефреш браузера
 
-    // Выбираем индекс победителя в конце ленты (от 80 до 85)
     const targetIndex = 80 + Math.floor(Math.random() * 6); 
     const winningItem = itemsArray[targetIndex];
 
-    // Идеальная центровка элемента (targetIndex * 100 - 100) + легкий джиттер (до +- 35px)
+    if (winningItem !== 'item_gold.webp' && winningItem !== 'item_iphone.webp') {
+        const topItems =['item_gold.webp', 'item_iphone.webp'];
+        itemsArray[targetIndex - 1] = topItems[Math.floor(Math.random() * topItems.length)];
+        itemsArray[targetIndex + 1] = topItems[Math.floor(Math.random() * topItems.length)];
+    }
+
+    for(let i=0; i<100; i++) {
+        itemsHTML += `<div class="case-item"><img src="assets/${itemsArray[i]}" alt="Приз"></div>`;
+    }
+    casesRibbon.innerHTML = itemsHTML;
+    
+    casesRibbon.style.transition = 'none';
+    casesRibbon.style.transform = 'translateX(0px)';
+    casesRibbon.offsetHeight; 
+
     const jitter = Math.floor(Math.random() * 70) - 35; 
     const finalOffset = (targetIndex * 100) - 100 + jitter;
 
-    // Анимация 9.2 секунды под идеальное затухание тиканья рулетки CS:GO
     casesRibbon.style.transition = 'transform 9.2s cubic-bezier(0.1, 0.9, 0.2, 1)';
     casesRibbon.style.transform = `translateX(-${finalOffset}px)`;
 
