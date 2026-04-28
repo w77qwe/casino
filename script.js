@@ -10,7 +10,7 @@ const audioPizdec = new Audio('assets/pizdec.mp3'); audioPizdec.volume = 0.30;
 const audioBlyat = new Audio('assets/blyat.mp3'); audioBlyat.volume = 0.15; 
 const audioLooser = new Audio('assets/looser.mp3'); audioLooser.volume = 0.30;
 
-const generalLoseSounds = [audioPizdec, audioBlyat, audioLooser];
+const generalLoseSounds =[audioPizdec, audioBlyat, audioLooser];
 let lastLoseSound = null;
 
 function playRandomLoseSound() {
@@ -26,9 +26,27 @@ function playRandomLoseSound() {
     chosen.play().catch(e=>console.log(e));
 }
 
-// --- ПЕРЕМЕННЫЕ И ЭЛЕМЕНТЫ ---
-let currentBalance = parseInt(localStorage.getItem('kaziksBalance')) || 0;
-let gameHistory = JSON.parse(localStorage.getItem('kaziksHistory')) ||[];
+// --- ПЕРЕМЕННЫЕ И ЭЛЕМЕНТЫ С БРОНЕБОЙНОЙ ЗАЩИТОЙ ПАМЯТИ ---
+let currentBalance = 0;
+let gameHistory =[];
+
+try {
+    currentBalance = parseInt(localStorage.getItem('kaziksBalance')) || 0;
+} catch(e) {
+    currentBalance = 0;
+}
+
+try {
+    let parsedHistory = JSON.parse(localStorage.getItem('kaziksHistory'));
+    if (Array.isArray(parsedHistory)) {
+        gameHistory = parsedHistory;
+    } else {
+        gameHistory =[];
+    }
+} catch(e) {
+    // Если история битая, просто создаем пустую, чтобы скрипт не умер
+    gameHistory =[];
+}
 
 const topNav = document.getElementById('top-nav');
 const tabRoulette = document.getElementById('tab-roulette');
@@ -120,10 +138,7 @@ const casesResult = document.getElementById('cases-result');
 const casesBetInput = document.getElementById('cases-bet');
 const btnCasesStart = document.getElementById('btn-cases-start');
 
-let isSpinning = false; 
-let isCrashing = false; 
-let isMinesPlaying = false; 
-let isCaseOpening = false;
+let isSpinning = false; let isCrashing = false; let isMinesPlaying = false; let isCaseOpening = false;
 
 // --- ИНИЦИАЛИЗАЦИЯ ---
 updateBalance(); 
@@ -134,15 +149,12 @@ function addHistoryRecord(amount, gameName = '') {
     const text = gameName ? `[${gameName}] ` : '';
     gameHistory.unshift({ val: amount, label: text }); 
     if (gameHistory.length > 15) gameHistory.pop(); 
-    localStorage.setItem('kaziksHistory', JSON.stringify(gameHistory));
+    try { localStorage.setItem('kaziksHistory', JSON.stringify(gameHistory)); } catch(e) {}
     renderHistory();
 }
 
 function renderHistory() {
-    if (gameHistory.length === 0) { 
-        historyBoxes.forEach(box => box.style.display = 'none'); 
-        return; 
-    }
+    if (gameHistory.length === 0) { historyBoxes.forEach(box => box.style.display = 'none'); return; }
     historyBoxes.forEach(box => box.style.display = 'block');
     historyLists.forEach(list => {
         list.innerHTML = '';
@@ -158,27 +170,14 @@ function renderHistory() {
 
 function updateBalance() {
     balanceDisplays.forEach(el => el.innerText = currentBalance);
-    localStorage.setItem('kaziksBalance', currentBalance);
+    try { localStorage.setItem('kaziksBalance', currentBalance); } catch(e) {}
 }
 
-// ЭТО ТА САМАЯ ИСПРАВЛЕННАЯ ФУНКЦИЯ
 function hideAllScreens() {
-    const allScreens =[
-        depositScreen, rouletteScreen, crashScreen, minesScreen, casesScreen, withdrawScreen, loanScreen, adminScreen
-    ];
-    allScreens.forEach(s => {
-        if(s) {
-            s.classList.remove('active'); 
-            s.classList.add('hidden');
-        }
-    });
-    
-    const tabs = [tabRoulette, tabCrash, tabMines, tabCases];
-    tabs.forEach(t => {
-        if(t) {
-            t.classList.remove('active-tab');
-        }
-    });
+    const allScreens =[depositScreen, rouletteScreen, crashScreen, minesScreen, casesScreen, withdrawScreen, loanScreen, adminScreen];
+    allScreens.forEach(s => { if(s) { s.classList.remove('active'); s.classList.add('hidden'); } });
+    const tabs =[tabRoulette, tabCrash, tabMines, tabCases];
+    tabs.forEach(t => { if(t) t.classList.remove('active-tab'); });
 }
 
 // --- АДМИНКА ---
@@ -190,11 +189,7 @@ if (btnOpenAdmin) {
     });
 }
 
-if (btnCloseAdminModal) {
-    btnCloseAdminModal.addEventListener('click', () => { 
-        adminModal.classList.add('hidden'); 
-    });
-}
+if (btnCloseAdminModal) { btnCloseAdminModal.addEventListener('click', () => { adminModal.classList.add('hidden'); }); }
 
 if (btnAdminLogin) {
     btnAdminLogin.addEventListener('click', () => {
@@ -223,9 +218,7 @@ function startAdminPanel() {
     }, 2500);
 }
 
-function updateAdminBalance() { 
-    if(adminBalanceText) adminBalanceText.innerText = adminBalance.toLocaleString('ru-RU'); 
-}
+function updateAdminBalance() { if(adminBalanceText) adminBalanceText.innerText = adminBalance.toLocaleString('ru-RU'); }
 
 function addFakeAdminHistoryRecord(amount) {
     if(!adminHistoryList) return;
@@ -245,15 +238,10 @@ function addFakeAdminHistoryRecord(amount) {
 function generateFakeAdminHistory() {
     if(!adminHistoryList) return;
     adminHistoryList.innerHTML = '';
-    for(let i=0; i<8; i++) { 
-        addFakeAdminHistoryRecord(Math.floor(Math.random() * 500000) + 10000); 
-    }
+    for(let i=0; i<8; i++) { addFakeAdminHistoryRecord(Math.floor(Math.random() * 500000) + 10000); }
 }
 
-if (btnAdminWithdrawMenu) {
-    btnAdminWithdrawMenu.addEventListener('click', () => { adminWithdrawSection.classList.toggle('hidden'); });
-}
-
+if (btnAdminWithdrawMenu) { btnAdminWithdrawMenu.addEventListener('click', () => { adminWithdrawSection.classList.toggle('hidden'); }); }
 adminBanks.forEach(card => {
     card.addEventListener('click', () => {
         adminBanks.forEach(b => b.classList.remove('selected'));
@@ -271,9 +259,7 @@ if (btnAdminConfirmWithdraw) {
     });
 }
 
-fakeAdminBtns.forEach(btn => { 
-    btn.addEventListener('click', () => { alert(btn.dataset.msg); }); 
-});
+fakeAdminBtns.forEach(btn => { btn.addEventListener('click', () => { alert(btn.dataset.msg); }); });
 
 if (btnLeaveAdmin) {
     btnLeaveAdmin.addEventListener('click', () => {
@@ -284,30 +270,12 @@ if (btnLeaveAdmin) {
     });
 }
 
+
 // --- НАВИГАЦИЯ И ДЕПОЗИТ ---
-tabRoulette.addEventListener('click', () => { 
-    if (isSpinning || isCrashing || isMinesPlaying || isCaseOpening) return; 
-    hideAllScreens(); tabRoulette.classList.add('active-tab'); 
-    rouletteScreen.classList.remove('hidden'); rouletteScreen.classList.add('active'); 
-});
-
-tabCrash.addEventListener('click', () => { 
-    if (isSpinning || isCrashing || isMinesPlaying || isCaseOpening) return; 
-    hideAllScreens(); tabCrash.classList.add('active-tab'); 
-    crashScreen.classList.remove('hidden'); crashScreen.classList.add('active'); 
-});
-
-tabMines.addEventListener('click', () => { 
-    if (isSpinning || isCrashing || isMinesPlaying || isCaseOpening) return; 
-    hideAllScreens(); tabMines.classList.add('active-tab'); 
-    minesScreen.classList.remove('hidden'); minesScreen.classList.add('active'); 
-});
-
-tabCases.addEventListener('click', () => { 
-    if (isSpinning || isCrashing || isMinesPlaying || isCaseOpening) return; 
-    hideAllScreens(); tabCases.classList.add('active-tab'); 
-    casesScreen.classList.remove('hidden'); casesScreen.classList.add('active'); 
-});
+tabRoulette.addEventListener('click', () => { if (isSpinning || isCrashing || isMinesPlaying || isCaseOpening) return; hideAllScreens(); tabRoulette.classList.add('active-tab'); rouletteScreen.classList.remove('hidden'); rouletteScreen.classList.add('active'); });
+tabCrash.addEventListener('click', () => { if (isSpinning || isCrashing || isMinesPlaying || isCaseOpening) return; hideAllScreens(); tabCrash.classList.add('active-tab'); crashScreen.classList.remove('hidden'); crashScreen.classList.add('active'); });
+tabMines.addEventListener('click', () => { if (isSpinning || isCrashing || isMinesPlaying || isCaseOpening) return; hideAllScreens(); tabMines.classList.add('active-tab'); minesScreen.classList.remove('hidden'); minesScreen.classList.add('active'); });
+tabCases.addEventListener('click', () => { if (isSpinning || isCrashing || isMinesPlaying || isCaseOpening) return; hideAllScreens(); tabCases.classList.add('active-tab'); casesScreen.classList.remove('hidden'); casesScreen.classList.add('active'); });
 
 btnGoDeposits.forEach(btn => {
     btn.addEventListener('click', () => {
@@ -489,4 +457,71 @@ btnMinesStart.addEventListener('click', () => {
     btnMinesStart.classList.add('hidden'); btnMinesCashout.classList.remove('hidden'); minesStatusBar.classList.remove('hidden');
     safeClicksCount = 0; currentMinesMult = 1.00; minesMultText.innerText = '1.00x'; minesMultText.style.color = '#2ecc71';
 
-    minesGridArray = Array(25).fill('💎'); for(let i=0; i<total
+    minesGridArray = Array(25).fill('💎'); for(let i=0; i<totalMinesCount; i++) minesGridArray[i] = '💣'; minesGridArray.sort(() => Math.random() - 0.5);
+    minesGrid.innerHTML = '';
+    for(let i=0; i<25; i++) { let cell = document.createElement('div'); cell.classList.add('mine-cell'); cell.dataset.index = i; cell.addEventListener('click', handleMineClick); minesGrid.appendChild(cell); }
+});
+
+function handleMineClick(e) {
+    if (!isMinesPlaying) return; let cell = e.target; if (cell.classList.contains('revealed')) return;
+    let item = minesGridArray[cell.dataset.index]; cell.classList.add('revealed');
+    if (item === '💣') { cell.classList.add('boom'); cell.innerText = '💣'; endMinesGame(false); } else {
+        cell.classList.add('safe'); cell.innerText = '💎'; safeClicksCount++;
+        currentMinesMult *= ((25 - (safeClicksCount - 1)) / ((25 - totalMinesCount) - (safeClicksCount - 1)));
+        minesMultText.innerText = currentMinesMult.toFixed(2) + 'x'; audioPay.currentTime = 0; audioPay.volume = 0.5; audioPay.play().catch(e=>{});
+        if (safeClicksCount === 25 - totalMinesCount) endMinesGame(true);
+    }
+}
+btnMinesCashout.addEventListener('click', () => { if (isMinesPlaying && safeClicksCount > 0) endMinesGame(true); });
+function endMinesGame(win) {
+    isMinesPlaying = false; btnMinesCashout.classList.add('hidden'); btnMinesStart.classList.remove('hidden');
+    minesGrid.querySelectorAll('.mine-cell').forEach(cell => { if (!cell.classList.contains('revealed')) { cell.classList.add('revealed', 'dim'); cell.innerText = minesGridArray[cell.dataset.index]; } });
+    if (win) {
+        const winAmount = Math.round(currentMinesBet * currentMinesMult); currentBalance += winAmount; updateBalance(); addHistoryRecord(winAmount - currentMinesBet, 'Мины'); audioWin.currentTime = 0; audioWin.play().catch(e=>{});
+    } else { minesMultText.style.color = '#e74c3c'; addHistoryRecord(-currentMinesBet, 'Мины'); playRandomLoseSound(); } audioPay.volume = 1.0;
+}
+
+// 4. КЕЙСЫ
+function getRandomCaseItem() { const r = Math.random(); if (r < 0.15) return 'item_gold.webp'; if (r < 0.30) return 'item_iphone.webp'; if (r < 0.55) return 'item_minus.webp'; if (r < 0.80) return 'item_shit.webp'; return 'wtf.webp'; }
+
+btnCasesStart.addEventListener('click', () => {
+    if (currentBalance <= 0) { audioAhueli.currentTime = 0; audioAhueli.play(); alert("Балик по нулям! Депай!"); return; }
+    let currentBet = parseInt(casesBetInput.value); if (isNaN(currentBet) || currentBet <= 0 || currentBet > currentBalance) { alert("Ставка хуйня!"); return; }
+    if (isSpinning || isCrashing || isMinesPlaying || isCaseOpening) return;
+    
+    isCaseOpening = true; currentBalance -= currentBet; updateBalance(); audioCaseSpin.currentTime = 0; audioCaseSpin.play();
+    closedCaseImg.classList.add('hidden'); casesArea.classList.remove('hidden'); casesResult.classList.add('hidden');
+
+    let itemsHTML = ''; let itemsArray =[]; let lastItem = '';
+    for(let i=0; i<100; i++) {
+        let img = getRandomCaseItem();
+        if (i >= 2 && itemsArray[i-1] === img && itemsArray[i-2] === img) img = (img === 'item_shit.webp') ? 'item_iphone.webp' : 'item_gold.webp';
+        lastItem = img; itemsArray.push(img);
+    }
+    const targetIndex = 80 + Math.floor(Math.random() * 6); const winningItem = itemsArray[targetIndex];
+    if (winningItem !== 'item_gold.webp' && winningItem !== 'item_iphone.webp') { const topItems =['item_gold.webp', 'item_iphone.webp']; itemsArray[targetIndex - 1] = topItems[Math.floor(Math.random() * topItems.length)]; itemsArray[targetIndex + 1] = topItems[Math.floor(Math.random() * topItems.length)]; }
+    for(let i=0; i<100; i++) itemsHTML += `<div class="case-item"><img src="assets/${itemsArray[i]}" alt="Приз"></div>`;
+    casesRibbon.innerHTML = itemsHTML;
+    
+    casesRibbon.style.transition = 'none'; casesRibbon.style.transform = 'translateX(0px)'; casesRibbon.offsetHeight; 
+    const finalOffset = (targetIndex * 100) - 100 + (Math.floor(Math.random() * 70) - 35);
+    casesRibbon.style.transition = 'transform 9.2s cubic-bezier(0.1, 0.9, 0.2, 1)'; casesRibbon.style.transform = `translateX(-${finalOffset}px)`;
+
+    setTimeout(() => {
+        isCaseOpening = false; let multiplier = 0;
+        if (winningItem === 'item_gold.webp') multiplier = 5; else if (winningItem === 'item_iphone.webp') multiplier = 10;
+        casesResult.classList.remove('hidden');
+        if (multiplier > 0) {
+            const winAmount = currentBet * multiplier; currentBalance += winAmount; updateBalance(); addHistoryRecord(winAmount - currentBet, 'Кейсы');
+            casesResult.innerText = `ЕБАТЬ! Выпал ТОП! Выигрыш: ${winAmount} ₽`; casesResult.style.color = '#2ecc71'; audioWin.currentTime = 0; audioWin.play();
+        } else {
+            addHistoryRecord(-currentBet, 'Кейсы'); casesResult.innerText = "Выпало говно! ЛОХ!"; casesResult.style.color = '#e74c3c'; audioLoh.currentTime = 0; audioLoh.play();
+            if (currentBalance <= 0) setTimeout(() => { audioAhueli.currentTime = 0; audioAhueli.play(); }, 1200);
+        }
+    }, 9200); 
+});
+
+// Тултипы
+const infoIcons = document.querySelectorAll('.info-icon');
+infoIcons.forEach(icon => { icon.addEventListener('click', (e) => { infoIcons.forEach(i => { if (i !== icon) i.classList.remove('show-tooltip'); }); icon.classList.toggle('show-tooltip'); e.stopPropagation(); }); });
+document.addEventListener('click', () => { infoIcons.forEach(icon => icon.classList.remove('show-tooltip')); });
