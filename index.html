@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Сайокин Казикс</title>
-    <link rel="stylesheet" href="style.css?v=6">
+    <!-- Версия 7: Фикс черного экрана и возврат админки! -->
+    <link rel="stylesheet" href="style.css?v=7">
 </head>
 <body>
 
@@ -55,7 +56,7 @@
         </div>
         <div id="loading" class="hidden"><p>Пиздим деньги с карты... ⏳</p></div>
 
-        <!-- СЕКРЕТНАЯ КНОПКА АДМИНА (СДЕЛАЛ ЗАМЕТНЕЕ) -->
+        <!-- СЕКРЕТНАЯ КНОПКА АДМИНА -->
         <div style="margin-top: 40px; padding-bottom: 20px;">
             <span id="btn-open-admin" style="color: #777; font-size: 14px; font-weight: bold; cursor: pointer; border-bottom: 1px dashed #777; padding-bottom: 2px;">💼 Казна казика</span>
         </div>
@@ -102,9 +103,7 @@
 
         <div class="history-box" style="display: block; border-color: #ff9f43; max-height: 200px;">
             <div class="history-title" style="color: #ff9f43;">Лайв-статистика гоев</div>
-            <div id="admin-history-list">
-                <!-- Фейковая история лохов -->
-            </div>
+            <div id="admin-history-list"></div>
         </div>
 
         <button id="btn-leave-admin" class="small-btn" style="margin-top: 20px; color: #e74c3c; border-color: #e74c3c;">Вернуться к лохам</button>
@@ -114,8 +113,13 @@
     <div id="roulette-screen" class="screen hidden">
         <h1>Ебаная Рулетка</h1>
         <div class="balance-display">Балик: <span class="balance-amount">0</span> ₽</div>
-        <div class="roulette-area"><div id="roulette-result" class="result-box">0</div></div>
+        
+        <div class="roulette-area">
+            <div id="roulette-result" class="result-box">0</div>
+        </div>
+        
         <button id="btn-spin" class="spin-btn">въебать баланс</button>
+        
         <div class="action-buttons">
             <button class="small-btn btn-go-deposit">Депнуть еще</button>
             <button class="small-btn btn-go-withdraw" style="color: #f1c40f; border-color: #f1c40f;">Вывод</button>
@@ -127,11 +131,13 @@
     <div id="crash-screen" class="screen hidden">
         <h1>Сайокин Краш 🚀</h1>
         <div class="balance-display">Балик: <span class="balance-amount">0</span> ₽</div>
+        
         <div class="crash-area">
             <div id="crash-multiplier" class="multiplier-box">1.00x</div>
             <div id="rocket" class="rocket">🚀</div>
             <div id="crash-message" class="crash-msg hidden">ПИЗДЕЦ!</div>
         </div>
+        
         <div class="crash-controls">
             <input type="number" id="crash-bet" placeholder="Ставка (₽)">
             <button id="btn-crash-start" class="spin-btn" style="background-color: #9b59b6;">Полетели нахуй</button>
@@ -148,6 +154,7 @@
     <div id="mines-screen" class="screen hidden">
         <h1>Минное поле 💣</h1>
         <div class="balance-display">Балик: <span class="balance-amount">0</span> ₽</div>
+
         <div class="mines-controls">
             <input type="number" id="mines-bet" placeholder="Ставка (₽)">
             <select id="mines-count" class="mines-select">
@@ -157,12 +164,16 @@
                 <option value="20">20 мин (долбоеб)</option>
             </select>
         </div>
+
         <div class="mines-status hidden" id="mines-status-bar">
             Множитель: <span id="mines-multiplier-text" style="color: #2ecc71; font-weight: bold; font-size: 24px;">1.00x</span>
         </div>
+
         <div class="mines-grid" id="mines-grid"></div>
+
         <button id="btn-mines-start" class="spin-btn" style="background-color: #3498db;">Начать саперные работы</button>
         <button id="btn-mines-cashout" class="spin-btn hidden" style="background-color: #2ecc71;">Забрать бабки</button>
+
         <div class="action-buttons">
             <button class="small-btn btn-go-deposit">Депнуть еще</button>
             <button class="small-btn btn-go-withdraw" style="color: #f1c40f; border-color: #f1c40f;">Вывод</button>
@@ -174,6 +185,7 @@
     <div id="cases-screen" class="screen hidden">
         <h1>Лутбоксы 📦</h1>
         <div class="balance-display">Балик: <span class="balance-amount">0</span> ₽</div>
+
         <div class="cases-container">
             <img src="assets/case_closed.webp" id="closed-case-img" alt="Кейс" style="width: 150px; margin: 20px auto; display: block;">
             <div class="cases-area hidden" id="cases-area">
@@ -182,10 +194,12 @@
             </div>
             <div id="cases-result" class="crash-msg hidden" style="position: relative; margin-top: 20px;"></div>
         </div>
+
         <div class="crash-controls">
             <input type="number" id="cases-bet" placeholder="Цена кейса (₽)">
             <button id="btn-cases-start" class="spin-btn" style="background-color: #f39c12;">ОТКРЫТЬ НАХУЙ</button>
         </div>
+
         <div class="action-buttons">
             <button class="small-btn btn-go-deposit">Депнуть еще</button>
             <button class="small-btn btn-go-withdraw" style="color: #f1c40f; border-color: #f1c40f;">Вывод</button>
@@ -231,6 +245,6 @@
         <button id="btn-accept-loan" class="spin-btn" style="margin-top: 20px;">ахуеть спасибо</button>
     </div>
 
-    <script src="script.js?v=6"></script>
+    <script src="script.js?v=7"></script>
 </body>
 </html>
