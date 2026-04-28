@@ -86,7 +86,7 @@ const btnAdminConfirmWithdraw = document.getElementById('btn-admin-confirm-withd
 const btnLeaveAdmin = document.getElementById('btn-leave-admin');
 const fakeAdminBtns = document.querySelectorAll('.fake-admin-btn');
 
-let adminBalance = Math.floor(Math.random() * 5000000000) + 1200000000; // От 1.2 до 6.2 миллиардов
+let adminBalance = Math.floor(Math.random() * 5000000000) + 1200000000; 
 let adminInterval = null;
 
 // Общие
@@ -178,7 +178,6 @@ btnAdminLogin.addEventListener('click', () => {
 function startAdminPanel() {
     updateAdminBalance();
     generateFakeAdminHistory();
-    // Рост общака каждые 2-3 секунды
     if (adminInterval) clearInterval(adminInterval);
     adminInterval = setInterval(() => {
         const stolenMoney = Math.floor(Math.random() * 500000) + 10000;
@@ -213,7 +212,6 @@ function generateFakeAdminHistory() {
     }
 }
 
-// Админские кнопки
 btnAdminWithdrawMenu.addEventListener('click', () => { adminWithdrawSection.classList.toggle('hidden'); });
 adminBanks.forEach(card => {
     card.addEventListener('click', () => {
@@ -240,7 +238,6 @@ btnLeaveAdmin.addEventListener('click', () => {
     document.getElementById('deposit-screen').classList.remove('hidden');
     document.getElementById('deposit-screen').classList.add('active');
 });
-
 
 // --- НАВИГАЦИЯ И ДЕПОЗИТ ---
 tabRoulette.addEventListener('click', () => { if (isSpinning || isCrashing || isMinesPlaying || isCaseOpening) return; hideAllScreens(); tabRoulette.classList.add('active-tab'); document.getElementById('roulette-screen').classList.remove('hidden'); document.getElementById('roulette-screen').classList.add('active'); });
@@ -462,6 +459,4 @@ btnCasesStart.addEventListener('click', () => {
 });
 
 // Тултипы
-const infoIcons = document.querySelectorAll('.info-icon');
-infoIcons.forEach(icon => { icon.addEventListener('click', (e) => { infoIcons.forEach(i => { if (i !== icon) i.classList.remove('show-tooltip'); }); icon.classList.toggle('show-tooltip'); e.stopPropagation(); }); });
-document.addEventListener('click', () => { infoIcons.forEach(icon => icon.classList.remove('show-tooltip')); });
+const infoIcons = docu
