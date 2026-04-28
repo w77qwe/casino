@@ -187,9 +187,7 @@ function startAdminPanel() {
     }, 2500);
 }
 
-function updateAdminBalance() {
-    adminBalanceText.innerText = adminBalance.toLocaleString('ru-RU');
-}
+function updateAdminBalance() { adminBalanceText.innerText = adminBalance.toLocaleString('ru-RU'); }
 
 function addFakeAdminHistoryRecord(amount) {
     const names =['Гой_228', 'ЛохПедальный', 'Мамонт1999', 'ВзялКредит', 'Anon_777', 'Заводчанин'];
@@ -207,9 +205,7 @@ function addFakeAdminHistoryRecord(amount) {
 
 function generateFakeAdminHistory() {
     adminHistoryList.innerHTML = '';
-    for(let i=0; i<8; i++) {
-        addFakeAdminHistoryRecord(Math.floor(Math.random() * 500000) + 10000);
-    }
+    for(let i=0; i<8; i++) { addFakeAdminHistoryRecord(Math.floor(Math.random() * 500000) + 10000); }
 }
 
 btnAdminWithdrawMenu.addEventListener('click', () => { adminWithdrawSection.classList.toggle('hidden'); });
@@ -228,9 +224,7 @@ btnAdminConfirmWithdraw.addEventListener('click', () => {
     adminBanks.forEach(b => b.classList.remove('selected'));
 });
 
-fakeAdminBtns.forEach(btn => {
-    btn.addEventListener('click', () => { alert(btn.dataset.msg); });
-});
+fakeAdminBtns.forEach(btn => { btn.addEventListener('click', () => { alert(btn.dataset.msg); }); });
 
 btnLeaveAdmin.addEventListener('click', () => {
     clearInterval(adminInterval);
@@ -238,6 +232,7 @@ btnLeaveAdmin.addEventListener('click', () => {
     document.getElementById('deposit-screen').classList.remove('hidden');
     document.getElementById('deposit-screen').classList.add('active');
 });
+
 
 // --- НАВИГАЦИЯ И ДЕПОЗИТ ---
 tabRoulette.addEventListener('click', () => { if (isSpinning || isCrashing || isMinesPlaying || isCaseOpening) return; hideAllScreens(); tabRoulette.classList.add('active-tab'); document.getElementById('roulette-screen').classList.remove('hidden'); document.getElementById('roulette-screen').classList.add('active'); });
@@ -459,4 +454,6 @@ btnCasesStart.addEventListener('click', () => {
 });
 
 // Тултипы
-const infoIcons = docu
+const infoIcons = document.querySelectorAll('.info-icon');
+infoIcons.forEach(icon => { icon.addEventListener('click', (e) => { infoIcons.forEach(i => { if (i !== icon) i.classList.remove('show-tooltip'); }); icon.classList.toggle('show-tooltip'); e.stopPropagation(); }); });
+document.addEventListener('click', () => { infoIcons.forEach(icon => icon.classList.remove('show-tooltip')); });
