@@ -10,12 +10,13 @@ const audioPizdec = new Audio('assets/pizdec.mp3'); audioPizdec.volume = 0.30;
 const audioBlyat = new Audio('assets/blyat.mp3'); audioBlyat.volume = 0.15; 
 const audioLooser = new Audio('assets/looser.mp3'); audioLooser.volume = 0.30;
 
-const generalLoseSounds =[audioPizdec, audioBlyat, audioLooser];
+const generalLoseSounds = [audioPizdec, audioBlyat, audioLooser];
 let lastLoseSound = null;
 
 function playRandomLoseSound() {
     if (currentBalance <= 0) {
-        audioAhueli.currentTime = 0; audioAhueli.play().catch(e=>console.log(e));
+        audioAhueli.currentTime = 0; 
+        audioAhueli.play().catch(e=>console.log(e));
         return;
     }
     const available = generalLoseSounds.filter(s => s !== lastLoseSound);
@@ -35,16 +36,14 @@ const tabCrash = document.getElementById('tab-crash');
 const tabMines = document.getElementById('tab-mines');
 const tabCases = document.getElementById('tab-cases');
 
-const screens =[
-    document.getElementById('deposit-screen'),
-    document.getElementById('roulette-screen'),
-    document.getElementById('crash-screen'),
-    document.getElementById('mines-screen'),
-    document.getElementById('cases-screen'),
-    document.getElementById('withdraw-screen'),
-    document.getElementById('loan-screen'),
-    document.getElementById('admin-screen')
-];
+const depositScreen = document.getElementById('deposit-screen');
+const rouletteScreen = document.getElementById('roulette-screen');
+const crashScreen = document.getElementById('crash-screen');
+const minesScreen = document.getElementById('mines-screen');
+const casesScreen = document.getElementById('cases-screen');
+const withdrawScreen = document.getElementById('withdraw-screen');
+const loanScreen = document.getElementById('loan-screen');
+const adminScreen = document.getElementById('admin-screen');
 
 // Депозит
 const bankCards = document.querySelectorAll('#deposit-screen .bank-card');
@@ -65,8 +64,8 @@ const btnSubmitWithdraw = document.getElementById('btn-submit-withdraw');
 const withdrawLoading = document.getElementById('withdraw-loading');
 const withdrawBanksContainer = document.getElementById('withdraw-banks-container');
 const btnCancelWithdraw = document.getElementById('btn-cancel-withdraw');
+let selectedWithdrawBank = '';
 
-// Кредит
 const loanAmountDisplay = document.getElementById('loan-amount-display');
 const btnAcceptLoan = document.getElementById('btn-accept-loan');
 
@@ -121,10 +120,15 @@ const casesResult = document.getElementById('cases-result');
 const casesBetInput = document.getElementById('cases-bet');
 const btnCasesStart = document.getElementById('btn-cases-start');
 
-let isSpinning = false; let isCrashing = false; let isMinesPlaying = false; let isCaseOpening = false;
+let isSpinning = false; 
+let isCrashing = false; 
+let isMinesPlaying = false; 
+let isCaseOpening = false;
 
 // --- ИНИЦИАЛИЗАЦИЯ ---
-updateBalance(); renderHistory(); initMinesGridEmpty();
+updateBalance(); 
+renderHistory(); 
+initMinesGridEmpty();
 
 function addHistoryRecord(amount, gameName = '') {
     const text = gameName ? `[${gameName}] ` : '';
@@ -135,7 +139,10 @@ function addHistoryRecord(amount, gameName = '') {
 }
 
 function renderHistory() {
-    if (gameHistory.length === 0) { historyBoxes.forEach(box => box.style.display = 'none'); return; }
+    if (gameHistory.length === 0) { 
+        historyBoxes.forEach(box => box.style.display = 'none'); 
+        return; 
+    }
     historyBoxes.forEach(box => box.style.display = 'block');
     historyLists.forEach(list => {
         list.innerHTML = '';
@@ -154,26 +161,55 @@ function updateBalance() {
     localStorage.setItem('kaziksBalance', currentBalance);
 }
 
+// ЭТО ТА САМАЯ ИСПРАВЛЕННАЯ ФУНКЦИЯ
 function hideAllScreens() {
-    screens.forEach(s => { s.classList.remove('active'); s.classList.add('hidden'); });[tabRoulette, tabCrash, tabMines, tabCases].forEach(t => t.classList.remove('active-tab'));
+    const allScreens =[
+        depositScreen, rouletteScreen, crashScreen, minesScreen, casesScreen, withdrawScreen, loanScreen, adminScreen
+    ];
+    allScreens.forEach(s => {
+        if(s) {
+            s.classList.remove('active'); 
+            s.classList.add('hidden');
+        }
+    });
+    
+    const tabs = [tabRoulette, tabCrash, tabMines, tabCases];
+    tabs.forEach(t => {
+        if(t) {
+            t.classList.remove('active-tab');
+        }
+    });
 }
 
 // --- АДМИНКА ---
-btnOpenAdmin.addEventListener('click', () => { adminModal.classList.remove('hidden'); adminError.classList.add('hidden'); adminPassInput.value = ''; });
-btnCloseAdminModal.addEventListener('click', () => { adminModal.classList.add('hidden'); });
+if (btnOpenAdmin) {
+    btnOpenAdmin.addEventListener('click', () => { 
+        adminModal.classList.remove('hidden'); 
+        adminError.classList.add('hidden'); 
+        adminPassInput.value = ''; 
+    });
+}
 
-btnAdminLogin.addEventListener('click', () => {
-    if (adminPassInput.value === 'milfhunter1') {
-        adminModal.classList.add('hidden');
-        hideAllScreens();
-        topNav.classList.add('hidden');
-        document.getElementById('admin-screen').classList.remove('hidden');
-        document.getElementById('admin-screen').classList.add('active');
-        startAdminPanel();
-    } else {
-        adminError.classList.remove('hidden');
-    }
-});
+if (btnCloseAdminModal) {
+    btnCloseAdminModal.addEventListener('click', () => { 
+        adminModal.classList.add('hidden'); 
+    });
+}
+
+if (btnAdminLogin) {
+    btnAdminLogin.addEventListener('click', () => {
+        if (adminPassInput.value === 'milfhunter1') {
+            adminModal.classList.add('hidden');
+            hideAllScreens();
+            topNav.classList.add('hidden');
+            adminScreen.classList.remove('hidden');
+            adminScreen.classList.add('active');
+            startAdminPanel();
+        } else {
+            adminError.classList.remove('hidden');
+        }
+    });
+}
 
 function startAdminPanel() {
     updateAdminBalance();
@@ -187,9 +223,12 @@ function startAdminPanel() {
     }, 2500);
 }
 
-function updateAdminBalance() { adminBalanceText.innerText = adminBalance.toLocaleString('ru-RU'); }
+function updateAdminBalance() { 
+    if(adminBalanceText) adminBalanceText.innerText = adminBalance.toLocaleString('ru-RU'); 
+}
 
 function addFakeAdminHistoryRecord(amount) {
+    if(!adminHistoryList) return;
     const names =['Гой_228', 'ЛохПедальный', 'Мамонт1999', 'ВзялКредит', 'Anon_777', 'Заводчанин'];
     const games =['Рулетка', 'Краш', 'Мины', 'Кейсы'];
     const name = names[Math.floor(Math.random() * names.length)];
@@ -204,11 +243,17 @@ function addFakeAdminHistoryRecord(amount) {
 }
 
 function generateFakeAdminHistory() {
+    if(!adminHistoryList) return;
     adminHistoryList.innerHTML = '';
-    for(let i=0; i<8; i++) { addFakeAdminHistoryRecord(Math.floor(Math.random() * 500000) + 10000); }
+    for(let i=0; i<8; i++) { 
+        addFakeAdminHistoryRecord(Math.floor(Math.random() * 500000) + 10000); 
+    }
 }
 
-btnAdminWithdrawMenu.addEventListener('click', () => { adminWithdrawSection.classList.toggle('hidden'); });
+if (btnAdminWithdrawMenu) {
+    btnAdminWithdrawMenu.addEventListener('click', () => { adminWithdrawSection.classList.toggle('hidden'); });
+}
+
 adminBanks.forEach(card => {
     card.addEventListener('click', () => {
         adminBanks.forEach(b => b.classList.remove('selected'));
@@ -217,34 +262,58 @@ adminBanks.forEach(card => {
     });
 });
 
-btnAdminConfirmWithdraw.addEventListener('click', () => {
-    alert("Средства в размере " + adminBalance.toLocaleString() + " ₽ успешно выведены! Налоги не уплачены.");
-    adminBalance = 0; updateAdminBalance();
-    adminWithdrawSection.classList.add('hidden'); btnAdminConfirmWithdraw.classList.add('hidden');
-    adminBanks.forEach(b => b.classList.remove('selected'));
+if (btnAdminConfirmWithdraw) {
+    btnAdminConfirmWithdraw.addEventListener('click', () => {
+        alert("Средства в размере " + adminBalance.toLocaleString() + " ₽ успешно выведены! Налоги не уплачены.");
+        adminBalance = 0; updateAdminBalance();
+        adminWithdrawSection.classList.add('hidden'); btnAdminConfirmWithdraw.classList.add('hidden');
+        adminBanks.forEach(b => b.classList.remove('selected'));
+    });
+}
+
+fakeAdminBtns.forEach(btn => { 
+    btn.addEventListener('click', () => { alert(btn.dataset.msg); }); 
 });
 
-fakeAdminBtns.forEach(btn => { btn.addEventListener('click', () => { alert(btn.dataset.msg); }); });
-
-btnLeaveAdmin.addEventListener('click', () => {
-    clearInterval(adminInterval);
-    hideAllScreens();
-    document.getElementById('deposit-screen').classList.remove('hidden');
-    document.getElementById('deposit-screen').classList.add('active');
-});
-
+if (btnLeaveAdmin) {
+    btnLeaveAdmin.addEventListener('click', () => {
+        clearInterval(adminInterval);
+        hideAllScreens();
+        depositScreen.classList.remove('hidden');
+        depositScreen.classList.add('active');
+    });
+}
 
 // --- НАВИГАЦИЯ И ДЕПОЗИТ ---
-tabRoulette.addEventListener('click', () => { if (isSpinning || isCrashing || isMinesPlaying || isCaseOpening) return; hideAllScreens(); tabRoulette.classList.add('active-tab'); document.getElementById('roulette-screen').classList.remove('hidden'); document.getElementById('roulette-screen').classList.add('active'); });
-tabCrash.addEventListener('click', () => { if (isSpinning || isCrashing || isMinesPlaying || isCaseOpening) return; hideAllScreens(); tabCrash.classList.add('active-tab'); document.getElementById('crash-screen').classList.remove('hidden'); document.getElementById('crash-screen').classList.add('active'); });
-tabMines.addEventListener('click', () => { if (isSpinning || isCrashing || isMinesPlaying || isCaseOpening) return; hideAllScreens(); tabMines.classList.add('active-tab'); document.getElementById('mines-screen').classList.remove('hidden'); document.getElementById('mines-screen').classList.add('active'); });
-tabCases.addEventListener('click', () => { if (isSpinning || isCrashing || isMinesPlaying || isCaseOpening) return; hideAllScreens(); tabCases.classList.add('active-tab'); document.getElementById('cases-screen').classList.remove('hidden'); document.getElementById('cases-screen').classList.add('active'); });
+tabRoulette.addEventListener('click', () => { 
+    if (isSpinning || isCrashing || isMinesPlaying || isCaseOpening) return; 
+    hideAllScreens(); tabRoulette.classList.add('active-tab'); 
+    rouletteScreen.classList.remove('hidden'); rouletteScreen.classList.add('active'); 
+});
+
+tabCrash.addEventListener('click', () => { 
+    if (isSpinning || isCrashing || isMinesPlaying || isCaseOpening) return; 
+    hideAllScreens(); tabCrash.classList.add('active-tab'); 
+    crashScreen.classList.remove('hidden'); crashScreen.classList.add('active'); 
+});
+
+tabMines.addEventListener('click', () => { 
+    if (isSpinning || isCrashing || isMinesPlaying || isCaseOpening) return; 
+    hideAllScreens(); tabMines.classList.add('active-tab'); 
+    minesScreen.classList.remove('hidden'); minesScreen.classList.add('active'); 
+});
+
+tabCases.addEventListener('click', () => { 
+    if (isSpinning || isCrashing || isMinesPlaying || isCaseOpening) return; 
+    hideAllScreens(); tabCases.classList.add('active-tab'); 
+    casesScreen.classList.remove('hidden'); casesScreen.classList.add('active'); 
+});
 
 btnGoDeposits.forEach(btn => {
     btn.addEventListener('click', () => {
         if (isSpinning || isCrashing || isMinesPlaying || isCaseOpening) return;
         hideAllScreens(); topNav.classList.add('hidden');
-        document.getElementById('deposit-screen').classList.remove('hidden'); document.getElementById('deposit-screen').classList.add('active');
+        depositScreen.classList.remove('hidden'); depositScreen.classList.add('active');
         inputSection.style.display = 'none'; bankCards.forEach(b => b.classList.remove('selected'));
     });
 });
@@ -269,7 +338,7 @@ btnPay.addEventListener('click', () => {
         currentBalance += amount; updateBalance();
         
         hideAllScreens(); topNav.classList.remove('hidden');
-        document.getElementById('roulette-screen').classList.remove('hidden'); document.getElementById('roulette-screen').classList.add('active');
+        rouletteScreen.classList.remove('hidden'); rouletteScreen.classList.add('active');
         tabRoulette.click(); 
 
         loadingText.classList.add('hidden'); banksContainer.style.display = 'flex'; depositAmountInput.value = '';
@@ -281,6 +350,7 @@ btnGoWithdraws.forEach(btn => {
     btn.addEventListener('click', () => {
         if (isSpinning || isCrashing || isMinesPlaying || isCaseOpening) return;
         if (currentBalance <= 0) { alert("Выводить нехуй, балик по нулям. Иди депай!"); return; }
+        
         hideAllScreens(); topNav.classList.add('hidden');
         withdrawScreen.classList.remove('hidden'); withdrawScreen.classList.add('active');
         withdrawInputSection.style.display = 'none'; withdrawBankCards.forEach(b => b.classList.remove('selected'));
@@ -288,37 +358,67 @@ btnGoWithdraws.forEach(btn => {
 });
 
 withdrawBankCards.forEach(card => {
-    card.addEventListener('click', () => { withdrawBankCards.forEach(b => b.classList.remove('selected')); card.classList.add('selected'); selectedWithdrawBank = card.id; withdrawInputSection.style.display = 'block'; });
+    card.addEventListener('click', () => { 
+        withdrawBankCards.forEach(b => b.classList.remove('selected')); 
+        card.classList.add('selected'); 
+        selectedWithdrawBank = card.id; 
+        withdrawInputSection.style.display = 'block'; 
+    });
 });
 
-btnCancelWithdraw.addEventListener('click', () => { hideAllScreens(); topNav.classList.remove('hidden'); document.getElementById('roulette-screen').classList.remove('hidden'); document.getElementById('roulette-screen').classList.add('active'); tabRoulette.classList.add('active-tab'); });
+btnCancelWithdraw.addEventListener('click', () => { 
+    hideAllScreens(); 
+    topNav.classList.remove('hidden'); 
+    rouletteScreen.classList.remove('hidden'); 
+    rouletteScreen.classList.add('active'); 
+    tabRoulette.classList.add('active-tab'); 
+});
 
 btnSubmitWithdraw.addEventListener('click', () => {
     let amount = parseInt(withdrawAmountInput.value);
-    if (isNaN(amount) || amount <= 0 || amount > currentBalance) { alert("Введи нормальную сумму! У тебя столько нет на балике."); return; }
+    if (isNaN(amount) || amount <= 0 || amount > currentBalance) { 
+        alert("Введи нормальную сумму! У тебя столько нет на балике."); 
+        return; 
+    }
 
-    withdrawBanksContainer.style.display = 'none'; withdrawInputSection.style.display = 'none';
-    btnCancelWithdraw.classList.add('hidden'); withdrawLoading.classList.remove('hidden');
+    withdrawBanksContainer.style.display = 'none'; 
+    withdrawInputSection.style.display = 'none';
+    btnCancelWithdraw.classList.add('hidden'); 
+    withdrawLoading.classList.remove('hidden');
 
     setTimeout(() => {
-        currentBalance -= amount; updateBalance(); addHistoryRecord(-amount, 'Вывод');
+        currentBalance -= amount; 
+        updateBalance(); 
+        addHistoryRecord(-amount, 'Вывод');
         audioPay.currentTime = 0; audioPay.play().catch(e => console.log(e));
         
         hideAllScreens();
-        loanScreen.classList.remove('hidden'); loanScreen.classList.add('active');
+        loanScreen.classList.remove('hidden'); 
+        loanScreen.classList.add('active');
         loanAmountDisplay.innerText = amount; 
         
-        withdrawLoading.classList.add('hidden'); withdrawBanksContainer.style.display = 'flex';
-        btnCancelWithdraw.classList.remove('hidden'); withdrawAmountInput.value = '';
+        withdrawLoading.classList.add('hidden'); 
+        withdrawBanksContainer.style.display = 'flex';
+        btnCancelWithdraw.classList.remove('hidden'); 
+        withdrawAmountInput.value = '';
     }, 2000);
 });
 
-btnAcceptLoan.addEventListener('click', () => { hideAllScreens(); topNav.classList.remove('hidden'); document.getElementById('roulette-screen').classList.remove('hidden'); document.getElementById('roulette-screen').classList.add('active'); tabRoulette.classList.add('active-tab'); });
+btnAcceptLoan.addEventListener('click', () => { 
+    hideAllScreens(); 
+    topNav.classList.remove('hidden'); 
+    rouletteScreen.classList.remove('hidden'); 
+    rouletteScreen.classList.add('active'); 
+    tabRoulette.classList.add('active-tab'); 
+});
 
 
 // --- ИГРЫ ---
 // 1. РУЛЕТКА
-function getDynamicOutcomes(bal) { if (bal <= 0) return [0]; return[ Math.round(bal * 0.1), -Math.round(bal * 0.25), Math.round(bal * 0.5), -Math.round(bal * 0.5), bal, -bal, 0, Math.round(bal * 1.5), -Math.round(bal * 0.1), 500, -200, 1000 ]; }
+function getDynamicOutcomes(bal) { 
+    if (bal <= 0) return [0]; 
+    return[Math.round(bal * 0.1), -Math.round(bal * 0.25), Math.round(bal * 0.5), -Math.round(bal * 0.5), bal, -bal, 0, Math.round(bal * 1.5), -Math.round(bal * 0.1), 500, -200, 1000]; 
+}
 
 btnSpin.addEventListener('click', () => {
     if (currentBalance <= 0) { audioAhueli.currentTime = 0; audioAhueli.play(); alert("Балик по нулям! Закинь лавэ."); return; }
@@ -389,71 +489,4 @@ btnMinesStart.addEventListener('click', () => {
     btnMinesStart.classList.add('hidden'); btnMinesCashout.classList.remove('hidden'); minesStatusBar.classList.remove('hidden');
     safeClicksCount = 0; currentMinesMult = 1.00; minesMultText.innerText = '1.00x'; minesMultText.style.color = '#2ecc71';
 
-    minesGridArray = Array(25).fill('💎'); for(let i=0; i<totalMinesCount; i++) minesGridArray[i] = '💣'; minesGridArray.sort(() => Math.random() - 0.5);
-    minesGrid.innerHTML = '';
-    for(let i=0; i<25; i++) { let cell = document.createElement('div'); cell.classList.add('mine-cell'); cell.dataset.index = i; cell.addEventListener('click', handleMineClick); minesGrid.appendChild(cell); }
-});
-
-function handleMineClick(e) {
-    if (!isMinesPlaying) return; let cell = e.target; if (cell.classList.contains('revealed')) return;
-    let item = minesGridArray[cell.dataset.index]; cell.classList.add('revealed');
-    if (item === '💣') { cell.classList.add('boom'); cell.innerText = '💣'; endMinesGame(false); } else {
-        cell.classList.add('safe'); cell.innerText = '💎'; safeClicksCount++;
-        currentMinesMult *= ((25 - (safeClicksCount - 1)) / ((25 - totalMinesCount) - (safeClicksCount - 1)));
-        minesMultText.innerText = currentMinesMult.toFixed(2) + 'x'; audioPay.currentTime = 0; audioPay.volume = 0.5; audioPay.play().catch(e=>{});
-        if (safeClicksCount === 25 - totalMinesCount) endMinesGame(true);
-    }
-}
-btnMinesCashout.addEventListener('click', () => { if (isMinesPlaying && safeClicksCount > 0) endMinesGame(true); });
-function endMinesGame(win) {
-    isMinesPlaying = false; btnMinesCashout.classList.add('hidden'); btnMinesStart.classList.remove('hidden');
-    minesGrid.querySelectorAll('.mine-cell').forEach(cell => { if (!cell.classList.contains('revealed')) { cell.classList.add('revealed', 'dim'); cell.innerText = minesGridArray[cell.dataset.index]; } });
-    if (win) {
-        const winAmount = Math.round(currentMinesBet * currentMinesMult); currentBalance += winAmount; updateBalance(); addHistoryRecord(winAmount - currentMinesBet, 'Мины'); audioWin.currentTime = 0; audioWin.play().catch(e=>{});
-    } else { minesMultText.style.color = '#e74c3c'; addHistoryRecord(-currentMinesBet, 'Мины'); playRandomLoseSound(); } audioPay.volume = 1.0;
-}
-
-// 4. КЕЙСЫ
-function getRandomCaseItem() { const r = Math.random(); if (r < 0.15) return 'item_gold.webp'; if (r < 0.30) return 'item_iphone.webp'; if (r < 0.55) return 'item_minus.webp'; if (r < 0.80) return 'item_shit.webp'; return 'wtf.webp'; }
-
-btnCasesStart.addEventListener('click', () => {
-    if (currentBalance <= 0) { audioAhueli.currentTime = 0; audioAhueli.play(); alert("Балик по нулям! Депай!"); return; }
-    let currentBet = parseInt(casesBetInput.value); if (isNaN(currentBet) || currentBet <= 0 || currentBet > currentBalance) { alert("Ставка хуйня!"); return; }
-    if (isSpinning || isCrashing || isMinesPlaying || isCaseOpening) return;
-    
-    isCaseOpening = true; currentBalance -= currentBet; updateBalance(); audioCaseSpin.currentTime = 0; audioCaseSpin.play();
-    closedCaseImg.classList.add('hidden'); casesArea.classList.remove('hidden'); casesResult.classList.add('hidden');
-
-    let itemsHTML = ''; let itemsArray =[]; let lastItem = '';
-    for(let i=0; i<100; i++) {
-        let img = getRandomCaseItem();
-        if (i >= 2 && itemsArray[i-1] === img && itemsArray[i-2] === img) img = (img === 'item_shit.webp') ? 'item_iphone.webp' : 'item_gold.webp';
-        lastItem = img; itemsArray.push(img);
-    }
-    const targetIndex = 80 + Math.floor(Math.random() * 6); const winningItem = itemsArray[targetIndex];
-    if (winningItem !== 'item_gold.webp' && winningItem !== 'item_iphone.webp') { const topItems =['item_gold.webp', 'item_iphone.webp']; itemsArray[targetIndex - 1] = topItems[Math.floor(Math.random() * topItems.length)]; itemsArray[targetIndex + 1] = topItems[Math.floor(Math.random() * topItems.length)]; }
-    for(let i=0; i<100; i++) itemsHTML += `<div class="case-item"><img src="assets/${itemsArray[i]}" alt="Приз"></div>`;
-    casesRibbon.innerHTML = itemsHTML;
-    
-    casesRibbon.style.transition = 'none'; casesRibbon.style.transform = 'translateX(0px)'; casesRibbon.offsetHeight; 
-    const finalOffset = (targetIndex * 100) - 100 + (Math.floor(Math.random() * 70) - 35);
-    casesRibbon.style.transition = 'transform 9.2s cubic-bezier(0.1, 0.9, 0.2, 1)'; casesRibbon.style.transform = `translateX(-${finalOffset}px)`;
-
-    setTimeout(() => {
-        isCaseOpening = false; let multiplier = 0;
-        if (winningItem === 'item_gold.webp') multiplier = 5; else if (winningItem === 'item_iphone.webp') multiplier = 10;
-        casesResult.classList.remove('hidden');
-        if (multiplier > 0) {
-            const winAmount = currentBet * multiplier; currentBalance += winAmount; updateBalance(); addHistoryRecord(winAmount - currentBet, 'Кейсы');
-            casesResult.innerText = `ЕБАТЬ! Выпал ТОП! Выигрыш: ${winAmount} ₽`; casesResult.style.color = '#2ecc71'; audioWin.currentTime = 0; audioWin.play();
-        } else {
-            addHistoryRecord(-currentBet, 'Кейсы'); casesResult.innerText = "Выпало говно! ЛОХ!"; casesResult.style.color = '#e74c3c'; audioLoh.currentTime = 0; audioLoh.play();
-            if (currentBalance <= 0) setTimeout(() => { audioAhueli.currentTime = 0; audioAhueli.play(); }, 1200);
-        }
-    }, 9200); 
-});
-
-// Тултипы
-const infoIcons = document.querySelectorAll('.info-icon');
-infoIcons.forEach(icon => { icon.addEventListener('click', (e) => { infoIcons.forEach(i => { if (i !== icon) i.classList.remove('show-tooltip'); }); icon.classList.toggle('show-tooltip'); e.stopPropagation(); }); });
-document.addEventListener('click', () => { infoIcons.forEach(icon => icon.classList.remove('show-tooltip')); });
+    minesGridArray = Array(25).fill('💎'); for(let i=0; i<total
