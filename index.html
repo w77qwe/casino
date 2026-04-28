@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Сайокин Казикс</title>
-    <!-- Версия 6, сделали кнопку админки огромной и байтящей -->
     <link rel="stylesheet" href="style.css?v=6">
 </head>
 <body>
@@ -27,7 +26,7 @@
         </div>
     </div>
 
-    <!-- ЭКРАН 1: ДЕПОЗИТ (ОБЫЧНЫЙ) -->
+    <!-- ЭКРАН 1: ДЕПОЗИТ -->
     <div id="deposit-screen" class="screen active">
         <h1>Касса</h1>
         <p style="color: #aaa; margin-bottom: 20px;">Выбери способ пополнения балика:</p>
@@ -56,9 +55,9 @@
         </div>
         <div id="loading" class="hidden"><p>Пиздим деньги с карты... ⏳</p></div>
 
-        <!-- ЯРКАЯ КНОПКА АДМИНА -->
-        <div style="margin-top: 40px; display: flex; justify-content: center;">
-            <button id="btn-open-admin" class="admin-entrance-btn">👑 Вход в Казну 👑</button>
+        <!-- СЕКРЕТНАЯ КНОПКА АДМИНА (СДЕЛАЛ ЗАМЕТНЕЕ) -->
+        <div style="margin-top: 40px; padding-bottom: 20px;">
+            <span id="btn-open-admin" style="color: #777; font-size: 14px; font-weight: bold; cursor: pointer; border-bottom: 1px dashed #777; padding-bottom: 2px;">💼 Казна казика</span>
         </div>
     </div>
 
