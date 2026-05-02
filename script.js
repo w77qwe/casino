@@ -26,27 +26,15 @@ function playRandomLoseSound() {
     chosen.play().catch(e=>console.log(e));
 }
 
-// --- ПЕРЕМЕННЫЕ И ЭЛЕМЕНТЫ С БРОНЕБОЙНОЙ ЗАЩИТОЙ ПАМЯТИ ---
+// --- ПЕРЕМЕННЫЕ И ЭЛЕМЕНТЫ ---
 let currentBalance = 0;
 let gameHistory =[];
 
-try {
-    currentBalance = parseInt(localStorage.getItem('kaziksBalance')) || 0;
-} catch(e) {
-    currentBalance = 0;
-}
-
-try {
+try { currentBalance = parseInt(localStorage.getItem('kaziksBalance')) || 0; } catch(e) { currentBalance = 0; }
+try { 
     let parsedHistory = JSON.parse(localStorage.getItem('kaziksHistory'));
-    if (Array.isArray(parsedHistory)) {
-        gameHistory = parsedHistory;
-    } else {
-        gameHistory =[];
-    }
-} catch(e) {
-    // Если история битая, просто создаем пустую, чтобы скрипт не умер
-    gameHistory =[];
-}
+    if (Array.isArray(parsedHistory)) gameHistory = parsedHistory;
+} catch(e) {}
 
 const topNav = document.getElementById('top-nav');
 const tabRoulette = document.getElementById('tab-roulette');
@@ -72,6 +60,10 @@ const loadingText = document.getElementById('loading');
 const banksContainer = document.querySelector('#deposit-screen .banks-container');
 const bonusAlert = document.getElementById('bonus-alert');
 let selectedBank = ''; 
+
+// Кнопка "Продолжить" (Новая)
+const btnContinue = document.getElementById('btn-continue');
+const continueBalance = document.getElementById('continue-balance');
 
 // Вывод средств
 const btnGoWithdraws = document.querySelectorAll('.btn-go-withdraw');
@@ -112,17 +104,15 @@ const btnGoDeposits = document.querySelectorAll('.btn-go-deposit');
 const historyBoxes = document.querySelectorAll('.history-box');
 const historyLists = document.querySelectorAll('.history-list');
 
-// Игры:
+// Игры
 const rouletteResult = document.getElementById('roulette-result');
 const btnSpin = document.getElementById('btn-spin');
-
 const crashMultiplier = document.getElementById('crash-multiplier');
 const crashMessage = document.getElementById('crash-message');
 const crashBetInput = document.getElementById('crash-bet');
 const btnCrashStart = document.getElementById('btn-crash-start');
 const btnCrashCashout = document.getElementById('btn-crash-cashout');
 const rocket = document.getElementById('rocket');
-
 const minesGrid = document.getElementById('mines-grid');
 const minesBetInput = document.getElementById('mines-bet');
 const minesCountSelect = document.getElementById('mines-count');
@@ -130,7 +120,6 @@ const btnMinesStart = document.getElementById('btn-mines-start');
 const btnMinesCashout = document.getElementById('btn-mines-cashout');
 const minesStatusBar = document.getElementById('mines-status-bar');
 const minesMultText = document.getElementById('mines-multiplier-text');
-
 const casesRibbon = document.getElementById('cases-ribbon');
 const closedCaseImg = document.getElementById('closed-case-img');
 const casesArea = document.getElementById('cases-area');
@@ -171,6 +160,13 @@ function renderHistory() {
 function updateBalance() {
     balanceDisplays.forEach(el => el.innerText = currentBalance);
     try { localStorage.setItem('kaziksBalance', currentBalance); } catch(e) {}
+    
+    // Логика кнопки "Продолжить"
+    if (continueBalance) {
+        continueBalance.innerText = currentBalance;
+        if (currentBalance > 0) btnContinue.classList.remove('hidden');
+        else btnContinue.classList.add('hidden');
+    }
 }
 
 function hideAllScreens() {
@@ -178,6 +174,17 @@ function hideAllScreens() {
     allScreens.forEach(s => { if(s) { s.classList.remove('active'); s.classList.add('hidden'); } });
     const tabs =[tabRoulette, tabCrash, tabMines, tabCases];
     tabs.forEach(t => { if(t) t.classList.remove('active-tab'); });
+}
+
+// --- КНОПКА ПРОДОЛЖИТЬ ---
+if (btnContinue) {
+    btnContinue.addEventListener('click', () => {
+        hideAllScreens();
+        topNav.classList.remove('hidden');
+        rouletteScreen.classList.remove('hidden');
+        rouletteScreen.classList.add('active');
+        tabRoulette.classList.add('active-tab');
+    });
 }
 
 // --- АДМИНКА ---
@@ -299,6 +306,7 @@ btnPay.addEventListener('click', () => {
     if (isNaN(amount) || amount <= 0) { alert("Братик, введи нормальную сумму!"); return; }
 
     banksContainer.style.display = 'none'; inputSection.style.display = 'none'; loadingText.classList.remove('hidden');
+    btnContinue.classList.add('hidden');
 
     setTimeout(() => {
         audioPay.currentTime = 0; audioPay.play().catch(e => console.log(e));
@@ -318,7 +326,6 @@ btnGoWithdraws.forEach(btn => {
     btn.addEventListener('click', () => {
         if (isSpinning || isCrashing || isMinesPlaying || isCaseOpening) return;
         if (currentBalance <= 0) { alert("Выводить нехуй, балик по нулям. Иди депай!"); return; }
-        
         hideAllScreens(); topNav.classList.add('hidden');
         withdrawScreen.classList.remove('hidden'); withdrawScreen.classList.add('active');
         withdrawInputSection.style.display = 'none'; withdrawBankCards.forEach(b => b.classList.remove('selected'));
@@ -335,50 +342,30 @@ withdrawBankCards.forEach(card => {
 });
 
 btnCancelWithdraw.addEventListener('click', () => { 
-    hideAllScreens(); 
-    topNav.classList.remove('hidden'); 
-    rouletteScreen.classList.remove('hidden'); 
-    rouletteScreen.classList.add('active'); 
-    tabRoulette.classList.add('active-tab'); 
+    hideAllScreens(); topNav.classList.remove('hidden'); rouletteScreen.classList.remove('hidden'); rouletteScreen.classList.add('active'); tabRoulette.classList.add('active-tab'); 
 });
 
 btnSubmitWithdraw.addEventListener('click', () => {
     let amount = parseInt(withdrawAmountInput.value);
-    if (isNaN(amount) || amount <= 0 || amount > currentBalance) { 
-        alert("Введи нормальную сумму! У тебя столько нет на балике."); 
-        return; 
-    }
+    if (isNaN(amount) || amount <= 0 || amount > currentBalance) { alert("Введи нормальную сумму! У тебя столько нет на балике."); return; }
 
-    withdrawBanksContainer.style.display = 'none'; 
-    withdrawInputSection.style.display = 'none';
-    btnCancelWithdraw.classList.add('hidden'); 
-    withdrawLoading.classList.remove('hidden');
+    withdrawBanksContainer.style.display = 'none'; withdrawInputSection.style.display = 'none';
+    btnCancelWithdraw.classList.add('hidden'); withdrawLoading.classList.remove('hidden');
 
     setTimeout(() => {
-        currentBalance -= amount; 
-        updateBalance(); 
-        addHistoryRecord(-amount, 'Вывод');
+        currentBalance -= amount; updateBalance(); addHistoryRecord(-amount, 'Вывод');
         audioPay.currentTime = 0; audioPay.play().catch(e => console.log(e));
         
         hideAllScreens();
-        loanScreen.classList.remove('hidden'); 
-        loanScreen.classList.add('active');
+        loanScreen.classList.remove('hidden'); loanScreen.classList.add('active');
         loanAmountDisplay.innerText = amount; 
         
-        withdrawLoading.classList.add('hidden'); 
-        withdrawBanksContainer.style.display = 'flex';
-        btnCancelWithdraw.classList.remove('hidden'); 
-        withdrawAmountInput.value = '';
+        withdrawLoading.classList.add('hidden'); withdrawBanksContainer.style.display = 'flex';
+        btnCancelWithdraw.classList.remove('hidden'); withdrawAmountInput.value = '';
     }, 2000);
 });
 
-btnAcceptLoan.addEventListener('click', () => { 
-    hideAllScreens(); 
-    topNav.classList.remove('hidden'); 
-    rouletteScreen.classList.remove('hidden'); 
-    rouletteScreen.classList.add('active'); 
-    tabRoulette.classList.add('active-tab'); 
-});
+btnAcceptLoan.addEventListener('click', () => { hideAllScreens(); topNav.classList.remove('hidden'); rouletteScreen.classList.remove('hidden'); rouletteScreen.classList.add('active'); tabRoulette.classList.add('active-tab'); });
 
 
 // --- ИГРЫ ---
