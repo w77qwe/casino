@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Сайокин Казикс</title>
-    <!-- Версия 8: Бронебойная защита от крашей памяти -->
-    <link rel="stylesheet" href="style.css?v=8">
+    <title>ООО «Тмыв денег»</title>
+    <link rel="stylesheet" href="style.css?v=9">
 </head>
 <body>
 
@@ -27,9 +26,25 @@
         </div>
     </div>
 
-    <!-- ЭКРАН 1: ДЕПОЗИТ -->
+    <!-- ЭКРАН 1: ДЕПОЗИТ (ГЛАВНАЯ) -->
     <div id="deposit-screen" class="screen active">
-        <h1>Касса</h1>
+        
+        <!-- НОВОСТНОЙ БЛОК И ВИДЕООБРАЩЕНИЕ -->
+        <div class="news-banner">
+            <h2 style="color: #e74c3c; margin-bottom: 5px;">⚠️ ВАЖНОЕ ЗАЯВЛЕНИЕ ⚠️</h2>
+            <p style="font-size: 14px; font-weight: bold;">"Сайокин Казикс" официально переименован в ООО «Тмыв денег» из-за исков.</p>
+            <p style="font-size: 12px; color: #aaa; margin-top: 5px;">Официальный комментарий Генерального Директора:</p>
+            <!-- Видео (файл news.webm должен лежать в папке assets) -->
+            <video src="assets/news.webm" controls playsinline preload="metadata" style="width: 100%; border-radius: 8px; margin-top: 10px; border: 2px solid #333;"></video>
+        </div>
+
+        <h1>Касса ООО «Тмыв денег»</h1>
+        
+        <!-- КНОПКА "ПРОДОЛЖИТЬ" (Появляется только если есть бабки) -->
+        <button id="btn-continue" class="spin-btn hidden" style="background-color: #34495e; margin-bottom: 25px; border: 2px solid #f1c40f; box-shadow: 0 0 15px rgba(241,196,15,0.2);">
+            Продолжить игру <br><span style="font-size: 14px; color: #2ecc71;">(Балик: <span id="continue-balance">0</span> ₽)</span>
+        </button>
+
         <p style="color: #aaa; margin-bottom: 20px;">Выбери способ пополнения балика:</p>
         
         <div class="banks-container">
@@ -54,11 +69,11 @@
             <input type="number" id="deposit-amount" placeholder="Введите сумму (₽)">
             <button id="btn-pay">Оплатить нахуй</button>
         </div>
-        <div id="loading" class="hidden"><p>Пиздим деньги с карты... ⏳</p></div>
+        <div id="loading" class="hidden"><p>Отмываем деньги... ⏳</p></div>
 
         <!-- СЕКРЕТНАЯ КНОПКА АДМИНА -->
         <div style="margin-top: 40px; padding-bottom: 20px;">
-            <span id="btn-open-admin" style="color: #777; font-size: 14px; font-weight: bold; cursor: pointer; border-bottom: 1px dashed #777; padding-bottom: 2px;">💼 Казна казика</span>
+            <span id="btn-open-admin" style="color: #777; font-size: 14px; font-weight: bold; cursor: pointer; border-bottom: 1px dashed #777; padding-bottom: 2px;">💼 Казна ООО «Тмыв денег»</span>
         </div>
     </div>
 
@@ -76,7 +91,7 @@
 
     <!-- ЭКРАН 8: КАЗНА КАЗИКА (АДМИНКА) -->
     <div id="admin-screen" class="screen hidden">
-        <h1 style="color: #ff9f43; text-shadow: 0 0 10px rgba(255,159,67,0.5);">👑 КАЗНА КАЗИКА 👑</h1>
+        <h1 style="color: #ff9f43; text-shadow: 0 0 10px rgba(255,159,67,0.5);">👑 КАЗНА ТМЫВ ДЕНЕГ 👑</h1>
         
         <div class="balance-display" style="border-color: #ff9f43; background: #2d1804;">
             Общак: <br><span id="admin-balance" style="color: #ff9f43; font-size: 32px;">0</span> ₽
@@ -88,7 +103,6 @@
             <button class="small-btn fake-admin-btn" data-msg="Базы данных ФНС успешно подменены.">Зачистить логи налоговой</button>
         </div>
 
-        <!-- Меню вывода из казны -->
         <div id="admin-withdraw-section" class="hidden" style="background: #1a1a1a; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #ff9f43;">
             <p style="color: #ccc; margin-bottom: 10px;">Куда выводим транш, босс?</p>
             <div class="banks-container" style="gap: 10px;">
@@ -111,7 +125,7 @@
 
     <!-- ЭКРАН 2: РУЛЕТКА -->
     <div id="roulette-screen" class="screen hidden">
-        <h1>Ебаная Рулетка</h1>
+        <h1>ООО «Тмыв денег»</h1>
         <div class="balance-display">Балик: <span class="balance-amount">0</span> ₽</div>
         <div class="roulette-area"><div id="roulette-result" class="result-box">0</div></div>
         <button id="btn-spin" class="spin-btn">въебать баланс</button>
@@ -124,7 +138,7 @@
 
     <!-- ЭКРАН 3: КРАШ -->
     <div id="crash-screen" class="screen hidden">
-        <h1>Сайокин Краш 🚀</h1>
+        <h1>Тмыв-Краш 🚀</h1>
         <div class="balance-display">Балик: <span class="balance-amount">0</span> ₽</div>
         <div class="crash-area">
             <div id="crash-multiplier" class="multiplier-box">1.00x</div>
@@ -210,26 +224,35 @@
             <button id="btn-submit-withdraw" style="background-color: #e74c3c;">Подтвердить вывод</button>
         </div>
         <div id="withdraw-loading" class="hidden"><p>Связь с банком... Обработка транзакции ⏳</p></div>
-        <button id="btn-cancel-withdraw" class="small-btn" style="margin-top: 20px;">Вернуться в казик</button>
+        <button id="btn-cancel-withdraw" class="small-btn" style="margin-top: 20px;">Вернуться в прачечную</button>
     </div>
 
-    <!-- ЭКРАН 7: КРЕДИТ -->
+    <!-- ЭКРАН 7: КРЕДИТ (ТЕПЕРЬ ДВА ПАРТНЕРА) -->
     <div id="loan-screen" class="screen hidden">
         <h1 style="color: #e74c3c; font-size: 36px; animation: shake-text 0.5s infinite;">⚠️ ОДОБРЕНО! ⚠️</h1>
         <div class="loan-box">
             <p style="font-size: 20px; margin-bottom: 15px;">Поздравляем!</p>
-            <p style="font-size: 18px; margin-bottom: 10px;">Вам успешно оформлен кредит на сумму:</p>
+            <p style="font-size: 18px; margin-bottom: 10px;">Вам успешно оформлен микрозайм на сумму:</p>
             <div class="loan-amount-text"><span id="loan-amount-display">0</span> ₽</div>
             <p style="color: #aaa; font-size: 12px; margin-bottom: 20px;">*Средства уже зачислены на ваш счет. Процентная ставка: 365% годовых. При просрочке платежа мы заберем вашу почку.</p>
-            <div class="shylily-partner">
-                <p style="font-size: 12px; color: #777; margin-bottom: 10px;">Финансовый партнер операции:</p>
-                <img src="assets/wtf.webp" alt="Troll Bank" height="60">
-                <h3 style="color: #e74c3c; margin-top: 5px;">WTF Bank</h3>
+            
+            <p style="font-size: 12px; color: #777; margin-bottom: 10px;">Синдикат кредитования:</p>
+            <div class="partners-container">
+                <div class="partner-item">
+                    <img src="assets/wtf.webp" alt="WTF Bank" height="45">
+                    <h3 style="color: #e74c3c; margin-top: 5px; font-size: 14px;">WTF Bank</h3>
+                </div>
+                <div class="partner-divider"></div>
+                <div class="partner-item">
+                    <!-- Теперь тут и Шайлили -->
+                    <img src="assets/shylily_bank.png" alt="Shylily Bank" height="45">
+                </div>
             </div>
+
         </div>
         <button id="btn-accept-loan" class="spin-btn" style="margin-top: 20px;">ахуеть спасибо</button>
     </div>
 
-    <script src="script.js?v=8"></script>
+    <script src="script.js?v=9"></script>
 </body>
 </html>
