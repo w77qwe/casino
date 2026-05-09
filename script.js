@@ -51,7 +51,6 @@ const withdrawScreen = document.getElementById('withdraw-screen');
 const loanScreen = document.getElementById('loan-screen');
 const adminScreen = document.getElementById('admin-screen');
 
-// Депозит
 const bankCards = document.querySelectorAll('#deposit-screen .bank-card');
 const inputSection = document.getElementById('input-section');
 const depositAmountInput = document.getElementById('deposit-amount');
@@ -61,11 +60,9 @@ const banksContainer = document.querySelector('#deposit-screen .banks-container'
 const bonusAlert = document.getElementById('bonus-alert');
 let selectedBank = ''; 
 
-// Кнопка "Продолжить" (Новая)
 const btnContinue = document.getElementById('btn-continue');
 const continueBalance = document.getElementById('continue-balance');
 
-// Вывод средств
 const btnGoWithdraws = document.querySelectorAll('.btn-go-withdraw');
 const withdrawBankCards = document.querySelectorAll('.withdraw-bank');
 const withdrawInputSection = document.getElementById('withdraw-input-section');
@@ -98,21 +95,21 @@ const fakeAdminBtns = document.querySelectorAll('.fake-admin-btn');
 let adminBalance = Math.floor(Math.random() * 5000000000) + 1200000000; 
 let adminInterval = null;
 
-// Общие
 const balanceDisplays = document.querySelectorAll('.balance-amount');
 const btnGoDeposits = document.querySelectorAll('.btn-go-deposit');
 const historyBoxes = document.querySelectorAll('.history-box');
 const historyLists = document.querySelectorAll('.history-list');
 
-// Игры
 const rouletteResult = document.getElementById('roulette-result');
 const btnSpin = document.getElementById('btn-spin');
+
 const crashMultiplier = document.getElementById('crash-multiplier');
 const crashMessage = document.getElementById('crash-message');
 const crashBetInput = document.getElementById('crash-bet');
 const btnCrashStart = document.getElementById('btn-crash-start');
 const btnCrashCashout = document.getElementById('btn-crash-cashout');
 const rocket = document.getElementById('rocket');
+
 const minesGrid = document.getElementById('mines-grid');
 const minesBetInput = document.getElementById('mines-bet');
 const minesCountSelect = document.getElementById('mines-count');
@@ -120,6 +117,7 @@ const btnMinesStart = document.getElementById('btn-mines-start');
 const btnMinesCashout = document.getElementById('btn-mines-cashout');
 const minesStatusBar = document.getElementById('mines-status-bar');
 const minesMultText = document.getElementById('mines-multiplier-text');
+
 const casesRibbon = document.getElementById('cases-ribbon');
 const closedCaseImg = document.getElementById('closed-case-img');
 const casesArea = document.getElementById('cases-area');
@@ -160,9 +158,7 @@ function renderHistory() {
 function updateBalance() {
     balanceDisplays.forEach(el => el.innerText = currentBalance);
     try { localStorage.setItem('kaziksBalance', currentBalance); } catch(e) {}
-    
-    // Логика кнопки "Продолжить"
-    if (continueBalance) {
+    if (btnContinue && continueBalance) {
         continueBalance.innerText = currentBalance;
         if (currentBalance > 0) btnContinue.classList.remove('hidden');
         else btnContinue.classList.add('hidden');
@@ -176,52 +172,32 @@ function hideAllScreens() {
     tabs.forEach(t => { if(t) t.classList.remove('active-tab'); });
 }
 
-// --- КНОПКА ПРОДОЛЖИТЬ ---
 if (btnContinue) {
     btnContinue.addEventListener('click', () => {
-        hideAllScreens();
-        topNav.classList.remove('hidden');
-        rouletteScreen.classList.remove('hidden');
-        rouletteScreen.classList.add('active');
+        hideAllScreens(); topNav.classList.remove('hidden');
+        rouletteScreen.classList.remove('hidden'); rouletteScreen.classList.add('active');
         tabRoulette.classList.add('active-tab');
     });
 }
 
 // --- АДМИНКА ---
-if (btnOpenAdmin) {
-    btnOpenAdmin.addEventListener('click', () => { 
-        adminModal.classList.remove('hidden'); 
-        adminError.classList.add('hidden'); 
-        adminPassInput.value = ''; 
-    });
-}
-
+if (btnOpenAdmin) { btnOpenAdmin.addEventListener('click', () => { adminModal.classList.remove('hidden'); adminError.classList.add('hidden'); adminPassInput.value = ''; }); }
 if (btnCloseAdminModal) { btnCloseAdminModal.addEventListener('click', () => { adminModal.classList.add('hidden'); }); }
-
 if (btnAdminLogin) {
     btnAdminLogin.addEventListener('click', () => {
         if (adminPassInput.value === 'milfhunter1') {
-            adminModal.classList.add('hidden');
-            hideAllScreens();
-            topNav.classList.add('hidden');
-            adminScreen.classList.remove('hidden');
-            adminScreen.classList.add('active');
-            startAdminPanel();
-        } else {
-            adminError.classList.remove('hidden');
-        }
+            adminModal.classList.add('hidden'); hideAllScreens(); topNav.classList.add('hidden');
+            adminScreen.classList.remove('hidden'); adminScreen.classList.add('active'); startAdminPanel();
+        } else { adminError.classList.remove('hidden'); }
     });
 }
 
 function startAdminPanel() {
-    updateAdminBalance();
-    generateFakeAdminHistory();
+    updateAdminBalance(); generateFakeAdminHistory();
     if (adminInterval) clearInterval(adminInterval);
     adminInterval = setInterval(() => {
         const stolenMoney = Math.floor(Math.random() * 500000) + 10000;
-        adminBalance += stolenMoney;
-        updateAdminBalance();
-        addFakeAdminHistoryRecord(stolenMoney);
+        adminBalance += stolenMoney; updateAdminBalance(); addFakeAdminHistoryRecord(stolenMoney);
     }, 2500);
 }
 
@@ -231,51 +207,24 @@ function addFakeAdminHistoryRecord(amount) {
     if(!adminHistoryList) return;
     const names =['Гой_228', 'ЛохПедальный', 'Мамонт1999', 'ВзялКредит', 'Anon_777', 'Заводчанин'];
     const games =['Рулетка', 'Краш', 'Мины', 'Кейсы'];
-    const name = names[Math.floor(Math.random() * names.length)];
-    const game = games[Math.floor(Math.random() * games.length)];
-    
-    let div = document.createElement('div');
-    div.classList.add('history-item');
-    div.innerHTML = `<span style="color:#aaa;">${name} [${game}]</span> <span class="hist-win">+${amount.toLocaleString()} ₽ в казну</span>`;
-    
-    adminHistoryList.prepend(div);
-    if (adminHistoryList.children.length > 8) adminHistoryList.lastChild.remove();
+    let div = document.createElement('div'); div.classList.add('history-item');
+    div.innerHTML = `<span style="color:#aaa;">${names[Math.floor(Math.random() * names.length)]} [${games[Math.floor(Math.random() * games.length)]}]</span> <span class="hist-win">+${amount.toLocaleString()} ₽ в казну</span>`;
+    adminHistoryList.prepend(div); if (adminHistoryList.children.length > 8) adminHistoryList.lastChild.remove();
 }
 
-function generateFakeAdminHistory() {
-    if(!adminHistoryList) return;
-    adminHistoryList.innerHTML = '';
-    for(let i=0; i<8; i++) { addFakeAdminHistoryRecord(Math.floor(Math.random() * 500000) + 10000); }
-}
+function generateFakeAdminHistory() { if(!adminHistoryList) return; adminHistoryList.innerHTML = ''; for(let i=0; i<8; i++) addFakeAdminHistoryRecord(Math.floor(Math.random() * 500000) + 10000); }
 
 if (btnAdminWithdrawMenu) { btnAdminWithdrawMenu.addEventListener('click', () => { adminWithdrawSection.classList.toggle('hidden'); }); }
-adminBanks.forEach(card => {
-    card.addEventListener('click', () => {
-        adminBanks.forEach(b => b.classList.remove('selected'));
-        card.classList.add('selected');
-        btnAdminConfirmWithdraw.classList.remove('hidden');
-    });
-});
-
+adminBanks.forEach(card => { card.addEventListener('click', () => { adminBanks.forEach(b => b.classList.remove('selected')); card.classList.add('selected'); btnAdminConfirmWithdraw.classList.remove('hidden'); }); });
 if (btnAdminConfirmWithdraw) {
     btnAdminConfirmWithdraw.addEventListener('click', () => {
         alert("Средства в размере " + adminBalance.toLocaleString() + " ₽ успешно выведены! Налоги не уплачены.");
-        adminBalance = 0; updateAdminBalance();
-        adminWithdrawSection.classList.add('hidden'); btnAdminConfirmWithdraw.classList.add('hidden');
-        adminBanks.forEach(b => b.classList.remove('selected'));
+        adminBalance = 0; updateAdminBalance(); adminWithdrawSection.classList.add('hidden'); btnAdminConfirmWithdraw.classList.add('hidden'); adminBanks.forEach(b => b.classList.remove('selected'));
     });
 }
 
 fakeAdminBtns.forEach(btn => { btn.addEventListener('click', () => { alert(btn.dataset.msg); }); });
-
-if (btnLeaveAdmin) {
-    btnLeaveAdmin.addEventListener('click', () => {
-        clearInterval(adminInterval);
-        hideAllScreens();
-        depositScreen.classList.remove('hidden');
-        depositScreen.classList.add('active');
-    });
-}
+if (btnLeaveAdmin) { btnLeaveAdmin.addEventListener('click', () => { clearInterval(adminInterval); hideAllScreens(); depositScreen.classList.remove('hidden'); depositScreen.classList.add('active'); }); }
 
 
 // --- НАВИГАЦИЯ И ДЕПОЗИТ ---
@@ -286,17 +235,14 @@ tabCases.addEventListener('click', () => { if (isSpinning || isCrashing || isMin
 
 btnGoDeposits.forEach(btn => {
     btn.addEventListener('click', () => {
-        if (isSpinning || isCrashing || isMinesPlaying || isCaseOpening) return;
-        hideAllScreens(); topNav.classList.add('hidden');
-        depositScreen.classList.remove('hidden'); depositScreen.classList.add('active');
-        inputSection.style.display = 'none'; bankCards.forEach(b => b.classList.remove('selected'));
+        if (isSpinning || isCrashing || isMinesPlaying || isCaseOpening) return; hideAllScreens(); topNav.classList.add('hidden');
+        depositScreen.classList.remove('hidden'); depositScreen.classList.add('active'); inputSection.style.display = 'none'; bankCards.forEach(b => b.classList.remove('selected'));
     });
 });
 
 bankCards.forEach(card => {
     card.addEventListener('click', () => {
-        bankCards.forEach(b => b.classList.remove('selected')); card.classList.add('selected'); selectedBank = card.id;
-        inputSection.style.display = 'block';
+        bankCards.forEach(b => b.classList.remove('selected')); card.classList.add('selected'); selectedBank = card.id; inputSection.style.display = 'block';
         if (selectedBank === 'btn-sayokin') bonusAlert.classList.remove('hidden'); else bonusAlert.classList.add('hidden');
     });
 });
@@ -305,8 +251,7 @@ btnPay.addEventListener('click', () => {
     let amount = parseInt(depositAmountInput.value);
     if (isNaN(amount) || amount <= 0) { alert("Братик, введи нормальную сумму!"); return; }
 
-    banksContainer.style.display = 'none'; inputSection.style.display = 'none'; loadingText.classList.remove('hidden');
-    btnContinue.classList.add('hidden');
+    banksContainer.style.display = 'none'; inputSection.style.display = 'none'; loadingText.classList.remove('hidden'); btnContinue.classList.add('hidden');
 
     setTimeout(() => {
         audioPay.currentTime = 0; audioPay.play().catch(e => console.log(e));
@@ -314,9 +259,7 @@ btnPay.addEventListener('click', () => {
         currentBalance += amount; updateBalance();
         
         hideAllScreens(); topNav.classList.remove('hidden');
-        rouletteScreen.classList.remove('hidden'); rouletteScreen.classList.add('active');
-        tabRoulette.click(); 
-
+        rouletteScreen.classList.remove('hidden'); rouletteScreen.classList.add('active'); tabRoulette.click(); 
         loadingText.classList.add('hidden'); banksContainer.style.display = 'flex'; depositAmountInput.value = '';
     }, 2000);
 });
@@ -326,54 +269,31 @@ btnGoWithdraws.forEach(btn => {
     btn.addEventListener('click', () => {
         if (isSpinning || isCrashing || isMinesPlaying || isCaseOpening) return;
         if (currentBalance <= 0) { alert("Выводить нехуй, балик по нулям. Иди депай!"); return; }
-        hideAllScreens(); topNav.classList.add('hidden');
-        withdrawScreen.classList.remove('hidden'); withdrawScreen.classList.add('active');
-        withdrawInputSection.style.display = 'none'; withdrawBankCards.forEach(b => b.classList.remove('selected'));
+        hideAllScreens(); topNav.classList.add('hidden'); withdrawScreen.classList.remove('hidden'); withdrawScreen.classList.add('active'); withdrawInputSection.style.display = 'none'; withdrawBankCards.forEach(b => b.classList.remove('selected'));
     });
 });
 
-withdrawBankCards.forEach(card => {
-    card.addEventListener('click', () => { 
-        withdrawBankCards.forEach(b => b.classList.remove('selected')); 
-        card.classList.add('selected'); 
-        selectedWithdrawBank = card.id; 
-        withdrawInputSection.style.display = 'block'; 
-    });
-});
-
-btnCancelWithdraw.addEventListener('click', () => { 
-    hideAllScreens(); topNav.classList.remove('hidden'); rouletteScreen.classList.remove('hidden'); rouletteScreen.classList.add('active'); tabRoulette.classList.add('active-tab'); 
-});
+withdrawBankCards.forEach(card => { card.addEventListener('click', () => { withdrawBankCards.forEach(b => b.classList.remove('selected')); card.classList.add('selected'); selectedWithdrawBank = card.id; withdrawInputSection.style.display = 'block'; }); });
+btnCancelWithdraw.addEventListener('click', () => { hideAllScreens(); topNav.classList.remove('hidden'); rouletteScreen.classList.remove('hidden'); rouletteScreen.classList.add('active'); tabRoulette.classList.add('active-tab'); });
 
 btnSubmitWithdraw.addEventListener('click', () => {
     let amount = parseInt(withdrawAmountInput.value);
     if (isNaN(amount) || amount <= 0 || amount > currentBalance) { alert("Введи нормальную сумму! У тебя столько нет на балике."); return; }
 
-    withdrawBanksContainer.style.display = 'none'; withdrawInputSection.style.display = 'none';
-    btnCancelWithdraw.classList.add('hidden'); withdrawLoading.classList.remove('hidden');
+    withdrawBanksContainer.style.display = 'none'; withdrawInputSection.style.display = 'none'; btnCancelWithdraw.classList.add('hidden'); withdrawLoading.classList.remove('hidden');
 
     setTimeout(() => {
         currentBalance -= amount; updateBalance(); addHistoryRecord(-amount, 'Вывод');
         audioPay.currentTime = 0; audioPay.play().catch(e => console.log(e));
-        
-        hideAllScreens();
-        loanScreen.classList.remove('hidden'); loanScreen.classList.add('active');
-        loanAmountDisplay.innerText = amount; 
-        
-        withdrawLoading.classList.add('hidden'); withdrawBanksContainer.style.display = 'flex';
-        btnCancelWithdraw.classList.remove('hidden'); withdrawAmountInput.value = '';
+        hideAllScreens(); loanScreen.classList.remove('hidden'); loanScreen.classList.add('active'); loanAmountDisplay.innerText = amount; 
+        withdrawLoading.classList.add('hidden'); withdrawBanksContainer.style.display = 'flex'; btnCancelWithdraw.classList.remove('hidden'); withdrawAmountInput.value = '';
     }, 2000);
 });
-
 btnAcceptLoan.addEventListener('click', () => { hideAllScreens(); topNav.classList.remove('hidden'); rouletteScreen.classList.remove('hidden'); rouletteScreen.classList.add('active'); tabRoulette.classList.add('active-tab'); });
-
 
 // --- ИГРЫ ---
 // 1. РУЛЕТКА
-function getDynamicOutcomes(bal) { 
-    if (bal <= 0) return [0]; 
-    return[Math.round(bal * 0.1), -Math.round(bal * 0.25), Math.round(bal * 0.5), -Math.round(bal * 0.5), bal, -bal, 0, Math.round(bal * 1.5), -Math.round(bal * 0.1), 500, -200, 1000]; 
-}
+function getDynamicOutcomes(bal) { if (bal <= 0) return [0]; return[Math.round(bal * 0.1), -Math.round(bal * 0.25), Math.round(bal * 0.5), -Math.round(bal * 0.5), bal, -bal, 0, Math.round(bal * 1.5), -Math.round(bal * 0.1), 500, -200, 1000]; }
 
 btnSpin.addEventListener('click', () => {
     if (currentBalance <= 0) { audioAhueli.currentTime = 0; audioAhueli.play(); alert("Балик по нулям! Закинь лавэ."); return; }
@@ -386,9 +306,7 @@ btnSpin.addEventListener('click', () => {
         if (spins >= 78) {
             clearInterval(rouletteTimer); const finalResult = outcomes[Math.floor(Math.random() * outcomes.length)];
             rouletteResult.innerText = finalResult > 0 ? `+${finalResult}` : finalResult;
-            currentBalance += finalResult; if (currentBalance < 0) currentBalance = 0; 
-            updateBalance(); addHistoryRecord(finalResult, 'Рулетка'); 
-            
+            currentBalance += finalResult; if (currentBalance < 0) currentBalance = 0; updateBalance(); addHistoryRecord(finalResult, 'Рулетка'); 
             if (finalResult > 0) { audioWin.currentTime = 0; audioWin.play(); rouletteResult.style.color = '#2ecc71'; } 
             else if (finalResult < 0) { playRandomLoseSound(); rouletteResult.style.color = '#e74c3c'; } 
             else { audioLoh.currentTime = 0; audioLoh.play(); rouletteResult.style.color = '#fff'; }
@@ -397,7 +315,8 @@ btnSpin.addEventListener('click', () => {
     }, 100);
 });
 
-// 2. КРАШ
+// 2. КРАШ (ОПТИМИЗАЦИЯ ДЛЯ ШИРОКИХ ЭКРАНОВ)
+const cArea = document.querySelector('.crash-area');
 btnCrashStart.addEventListener('click', () => {
     if (currentBalance <= 0) { audioAhueli.currentTime = 0; audioAhueli.play(); alert("Балик по нулям! Хули ты тыкаешь, иди депай!"); return; }
     currentBet = parseInt(crashBetInput.value);
@@ -411,9 +330,13 @@ btnCrashStart.addEventListener('click', () => {
     let targetCrashPoint = 1.00; const r = Math.random();
     if (r < 0.20) targetCrashPoint = 1.00; else if (r < 0.60) targetCrashPoint = 1.01 + Math.random() * 1.5; else if (r < 0.85) targetCrashPoint = 2.00 + Math.random() * 5.0; else targetCrashPoint = 5.00 + Math.random() * 20.0; 
 
+    // Динамические границы экрана для ПК
+    const maxX = cArea.clientWidth - 70;
+    const maxY = cArea.clientHeight - 70;
+
     crashTimer = setInterval(() => {
-        if (currentMultiplier < 3.00) { currentMultiplier += 0.01; rocketX += 0.8; rocketY += 0.5; } else if (currentMultiplier < 10.00) { currentMultiplier += 0.05; rocketX += 1.5; rocketY += 1.0; } else { currentMultiplier += 0.15; rocketX += 2; rocketY += 1.5; }
-        if (rocketX > 250) rocketX = 250; if (rocketY > 150) rocketY = 150;
+        if (currentMultiplier < 3.00) { currentMultiplier += 0.01; rocketX += 0.8; rocketY += 0.5; } else if (currentMultiplier < 10.00) { currentMultiplier += 0.05; rocketX += 1.5; rocketY += 1.0; } else { currentMultiplier += 0.15; rocketX += 3; rocketY += 2.0; }
+        if (rocketX > maxX) rocketX = maxX; if (rocketY > maxY) rocketY = maxY;
         rocket.style.left = rocketX + 'px'; rocket.style.bottom = rocketY + 'px';
         if (currentMultiplier >= targetCrashPoint) { currentMultiplier = targetCrashPoint; endCrash(false); } else { crashMultiplier.innerText = currentMultiplier.toFixed(2) + 'x'; }
     }, 50); 
@@ -423,12 +346,8 @@ btnCrashCashout.addEventListener('click', () => { if (isCrashing) endCrash(true)
 function endCrash(win) {
     clearInterval(crashTimer); isCrashing = false;
     btnCrashCashout.classList.add('hidden'); btnCrashStart.classList.remove('hidden'); crashMultiplier.innerText = currentMultiplier.toFixed(2) + 'x'; rocket.classList.remove('rocket-flying');
-    if (win) {
-        const winAmount = Math.round(currentBet * currentMultiplier); currentBalance += winAmount; updateBalance(); addHistoryRecord(winAmount - currentBet, 'Краш'); 
-        crashMultiplier.style.color = '#2ecc71'; audioWin.currentTime = 0; audioWin.play();
-    } else {
-        crashMessage.classList.remove('hidden'); crashMultiplier.style.color = '#e74c3c'; rocket.classList.add('rocket-crashed'); addHistoryRecord(-currentBet, 'Краш'); playRandomLoseSound();
-    }
+    if (win) { const winAmount = Math.round(currentBet * currentMultiplier); currentBalance += winAmount; updateBalance(); addHistoryRecord(winAmount - currentBet, 'Краш'); crashMultiplier.style.color = '#2ecc71'; audioWin.currentTime = 0; audioWin.play(); } 
+    else { crashMessage.classList.remove('hidden'); crashMultiplier.style.color = '#e74c3c'; rocket.classList.add('rocket-crashed'); addHistoryRecord(-currentBet, 'Краш'); playRandomLoseSound(); }
 }
 
 // 3. МИНЫ
@@ -463,12 +382,11 @@ btnMinesCashout.addEventListener('click', () => { if (isMinesPlaying && safeClic
 function endMinesGame(win) {
     isMinesPlaying = false; btnMinesCashout.classList.add('hidden'); btnMinesStart.classList.remove('hidden');
     minesGrid.querySelectorAll('.mine-cell').forEach(cell => { if (!cell.classList.contains('revealed')) { cell.classList.add('revealed', 'dim'); cell.innerText = minesGridArray[cell.dataset.index]; } });
-    if (win) {
-        const winAmount = Math.round(currentMinesBet * currentMinesMult); currentBalance += winAmount; updateBalance(); addHistoryRecord(winAmount - currentMinesBet, 'Мины'); audioWin.currentTime = 0; audioWin.play().catch(e=>{});
-    } else { minesMultText.style.color = '#e74c3c'; addHistoryRecord(-currentMinesBet, 'Мины'); playRandomLoseSound(); } audioPay.volume = 1.0;
+    if (win) { const winAmount = Math.round(currentMinesBet * currentMinesMult); currentBalance += winAmount; updateBalance(); addHistoryRecord(winAmount - currentMinesBet, 'Мины'); audioWin.currentTime = 0; audioWin.play().catch(e=>{}); } 
+    else { minesMultText.style.color = '#e74c3c'; addHistoryRecord(-currentMinesBet, 'Мины'); playRandomLoseSound(); } audioPay.volume = 1.0;
 }
 
-// 4. КЕЙСЫ
+// 4. КЕЙСЫ (ДИНАМИЧЕСКИЙ ОФФСЕТ ДЛЯ ПК)
 function getRandomCaseItem() { const r = Math.random(); if (r < 0.15) return 'item_gold.webp'; if (r < 0.30) return 'item_iphone.webp'; if (r < 0.55) return 'item_minus.webp'; if (r < 0.80) return 'item_shit.webp'; return 'wtf.webp'; }
 
 btnCasesStart.addEventListener('click', () => {
@@ -491,7 +409,13 @@ btnCasesStart.addEventListener('click', () => {
     casesRibbon.innerHTML = itemsHTML;
     
     casesRibbon.style.transition = 'none'; casesRibbon.style.transform = 'translateX(0px)'; casesRibbon.offsetHeight; 
-    const finalOffset = (targetIndex * 100) - 100 + (Math.floor(Math.random() * 70) - 35);
+    
+    // Динамический расчет ширины ячейки для ПК и мобилок
+    const itemWidth = casesRibbon.children[0].offsetWidth;
+    const areaWidth = casesArea.offsetWidth;
+    const jitter = Math.floor(Math.random() * (itemWidth * 0.7)) - (itemWidth * 0.35); 
+    const finalOffset = (targetIndex * itemWidth) - (areaWidth / 2) + (itemWidth / 2) + jitter;
+
     casesRibbon.style.transition = 'transform 9.2s cubic-bezier(0.1, 0.9, 0.2, 1)'; casesRibbon.style.transform = `translateX(-${finalOffset}px)`;
 
     setTimeout(() => {
@@ -509,6 +433,5 @@ btnCasesStart.addEventListener('click', () => {
 });
 
 // Тултипы
-const infoIcons = document.querySelectorAll('.info-icon');
 infoIcons.forEach(icon => { icon.addEventListener('click', (e) => { infoIcons.forEach(i => { if (i !== icon) i.classList.remove('show-tooltip'); }); icon.classList.toggle('show-tooltip'); e.stopPropagation(); }); });
 document.addEventListener('click', () => { infoIcons.forEach(icon => icon.classList.remove('show-tooltip')); });
