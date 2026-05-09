@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ООО «Тмыв денег»</title>
-    <link rel="stylesheet" href="style.css?v=9">
+    <!-- Юбилейная версия 10: ПК-Оптимизация -->
+    <link rel="stylesheet" href="style.css?v=10">
 </head>
 <body>
 
@@ -29,18 +30,15 @@
     <!-- ЭКРАН 1: ДЕПОЗИТ (ГЛАВНАЯ) -->
     <div id="deposit-screen" class="screen active">
         
-        <!-- НОВОСТНОЙ БЛОК И ВИДЕООБРАЩЕНИЕ -->
         <div class="news-banner">
             <h2 style="color: #e74c3c; margin-bottom: 5px;">⚠️ ВАЖНОЕ ЗАЯВЛЕНИЕ ⚠️</h2>
             <p style="font-size: 14px; font-weight: bold;">"Сайокин Казикс" официально переименован в ООО «Тмыв денег» из-за исков.</p>
             <p style="font-size: 12px; color: #aaa; margin-top: 5px;">Официальный комментарий Генерального Директора:</p>
-            <!-- Видео (файл news.webm должен лежать в папке assets) -->
-            <video src="assets/news.webm" controls playsinline preload="metadata" style="width: 100%; border-radius: 8px; margin-top: 10px; border: 2px solid #333;"></video>
+            <video src="assets/news.webm" controls playsinline preload="metadata" style="width: 100%; max-width: 500px; border-radius: 8px; margin-top: 10px; border: 2px solid #333;"></video>
         </div>
 
         <h1>Касса ООО «Тмыв денег»</h1>
         
-        <!-- КНОПКА "ПРОДОЛЖИТЬ" (Появляется только если есть бабки) -->
         <button id="btn-continue" class="spin-btn hidden" style="background-color: #34495e; margin-bottom: 25px; border: 2px solid #f1c40f; box-shadow: 0 0 15px rgba(241,196,15,0.2);">
             Продолжить игру <br><span style="font-size: 14px; color: #2ecc71;">(Балик: <span id="continue-balance">0</span> ₽)</span>
         </button>
@@ -81,7 +79,7 @@
     <div id="admin-modal" class="modal hidden">
         <div class="modal-content">
             <h2 style="color: #f1c40f; margin-bottom: 10px;">Вход в Казну</h2>
-            <p style="font-size: 14px; margin-bottom: 15px;">Раздел управления всей прибылью казика доступен только администраторам. Если ты один из них, введи пароль:</p>
+            <p style="font-size: 14px; margin-bottom: 15px;">Раздел управления прибылью доступен только администраторам. Введи пароль:</p>
             <input type="password" id="admin-password" placeholder="Пароль" style="width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 5px; border: none; text-align: center;">
             <button id="btn-admin-login" class="spin-btn" style="background-color: #e67e22;">Войти</button>
             <p id="admin-error" class="hidden" style="color: #e74c3c; margin-top: 10px; font-weight: bold;">ты кого наебать пытаешься?</p>
@@ -97,25 +95,25 @@
             Общак: <br><span id="admin-balance" style="color: #ff9f43; font-size: 32px;">0</span> ₽
         </div>
 
-        <div class="admin-controls" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">
+        <div class="admin-controls" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; max-width: 500px; margin-left: auto; margin-right: auto;">
             <button id="btn-admin-withdraw-menu" class="spin-btn" style="background-color: #27ae60;">💸 Вывести бабки</button>
             <button class="small-btn fake-admin-btn" data-msg="Успешно! Шанс выигрыша игроков снижен до 0.01%">Подкрутить отдачу (сбрить мамонтов)</button>
             <button class="small-btn fake-admin-btn" data-msg="Базы данных ФНС успешно подменены.">Зачистить логи налоговой</button>
         </div>
 
-        <div id="admin-withdraw-section" class="hidden" style="background: #1a1a1a; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #ff9f43;">
+        <div id="admin-withdraw-section" class="hidden" style="background: #1a1a1a; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #ff9f43; max-width: 900px; margin-left: auto; margin-right: auto;">
             <p style="color: #ccc; margin-bottom: 10px;">Куда выводим транш, босс?</p>
-            <div class="banks-container" style="gap: 10px;">
+            <div class="banks-container admin-banks-grid" style="gap: 10px;">
                 <div class="bank-card admin-bank" id="ab-sber"><img src="assets/Logo_Sberbank.svg" height="25"></div>
                 <div class="bank-card admin-bank" id="ab-tinkoff"><img src="assets/Tinkoff_logo_2024.svg" height="25"></div>
                 <div class="bank-card admin-bank" id="ab-alfa"><img src="assets/Alfa_Bank_RU_logo.svg" height="25"></div>
                 <div class="bank-card admin-bank" id="ab-sayokin"><img src="assets/sayokin_bank.svg" height="30"></div>
                 <div class="bank-card admin-bank" id="ab-offshore" style="background: #27ae60; border-color: #2ecc71;">🏝️ Офшоры (Каймановы о-ва)</div>
             </div>
-            <button id="btn-admin-confirm-withdraw" class="spin-btn hidden" style="background-color: #ff9f43; margin-top: 15px;">Подтвердить перевод</button>
+            <button id="btn-admin-confirm-withdraw" class="spin-btn hidden" style="background-color: #ff9f43; margin-top: 15px; max-width: 400px; margin-left: auto; margin-right: auto;">Подтвердить перевод</button>
         </div>
 
-        <div class="history-box" style="display: block; border-color: #ff9f43; max-height: 200px;">
+        <div class="history-box" style="display: block; border-color: #ff9f43; max-height: 250px; max-width: 500px;">
             <div class="history-title" style="color: #ff9f43;">Лайв-статистика гоев</div>
             <div id="admin-history-list"></div>
         </div>
@@ -227,7 +225,7 @@
         <button id="btn-cancel-withdraw" class="small-btn" style="margin-top: 20px;">Вернуться в прачечную</button>
     </div>
 
-    <!-- ЭКРАН 7: КРЕДИТ (ТЕПЕРЬ ДВА ПАРТНЕРА) -->
+    <!-- ЭКРАН 7: КРЕДИТ -->
     <div id="loan-screen" class="screen hidden">
         <h1 style="color: #e74c3c; font-size: 36px; animation: shake-text 0.5s infinite;">⚠️ ОДОБРЕНО! ⚠️</h1>
         <div class="loan-box">
@@ -244,7 +242,6 @@
                 </div>
                 <div class="partner-divider"></div>
                 <div class="partner-item">
-                    <!-- Теперь тут и Шайлили -->
                     <img src="assets/shylily_bank.png" alt="Shylily Bank" height="45">
                 </div>
             </div>
@@ -253,6 +250,6 @@
         <button id="btn-accept-loan" class="spin-btn" style="margin-top: 20px;">ахуеть спасибо</button>
     </div>
 
-    <script src="script.js?v=9"></script>
+    <script src="script.js?v=10"></script>
 </body>
 </html>
