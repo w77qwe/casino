@@ -10,20 +10,35 @@ const audioPizdec = new Audio('assets/pizdec.mp3'); audioPizdec.volume = 0.30;
 const audioBlyat = new Audio('assets/blyat.mp3'); audioBlyat.volume = 0.15; 
 const audioLooser = new Audio('assets/looser.mp3'); audioLooser.volume = 0.30;
 
+// МЕМЫ МЕЛЛСТРОЯ (ГИФКИ + ЗВУКИ)
+const mellMemes =[
+    { gif: 'ohmygad.gif', mp3: new Audio('assets/ohmygad.mp3') },
+    { gif: 'hleb.gif', mp3: new Audio('assets/hleb.mp3') },
+    { gif: 'police.gif', mp3: new Audio('assets/police.mp3') },
+    { gif: 'krasniy.gif', mp3: new Audio('assets/krasniy.mp3') },
+    { gif: 'aaaaaa.gif', mp3: new Audio('assets/aaaaaa.mp3') },
+    { gif: 'washed.gif', mp3: new Audio('assets/washed.mp3') },
+    { gif: 'fuckyou.gif', mp3: new Audio('assets/fuckyou.mp3') },
+    { gif: 'boat.gif', mp3: new Audio('assets/boat.mp3') },
+    { gif: 'uaaa.gif', mp3: new Audio('assets/uaaa.mp3') },
+    { gif: 'bembem.gif', mp3: new Audio('assets/bembem.mp3') },
+    { gif: 'bastard.gif', mp3: new Audio('assets/bastard.mp3') },
+    { gif: 'suitcase.gif', mp3: new Audio('assets/suitcase.mp3') },
+    { gif: 'fuck.gif', mp3: new Audio('assets/fuck.mp3') }
+];
+// Делаем звуки Мелла потише, чтоб не оглохнуть
+mellMemes.forEach(m => m.mp3.volume = 0.4);
+
 const generalLoseSounds =[audioPizdec, audioBlyat, audioLooser];
 let lastLoseSound = null;
 
 function playRandomLoseSound() {
     if (currentBalance <= 0) {
-        audioAhueli.currentTime = 0; 
-        audioAhueli.play().catch(e=>console.log(e));
-        return;
+        audioAhueli.currentTime = 0; audioAhueli.play().catch(e=>console.log(e)); return;
     }
     const available = generalLoseSounds.filter(s => s !== lastLoseSound);
     const chosen = available[Math.floor(Math.random() * available.length)];
-    lastLoseSound = chosen;
-    chosen.currentTime = 0;
-    chosen.play().catch(e=>console.log(e));
+    lastLoseSound = chosen; chosen.currentTime = 0; chosen.play().catch(e=>console.log(e));
 }
 
 // --- ПЕРЕМЕННЫЕ И ЭЛЕМЕНТЫ ---
@@ -41,12 +56,14 @@ const tabRoulette = document.getElementById('tab-roulette');
 const tabCrash = document.getElementById('tab-crash');
 const tabMines = document.getElementById('tab-mines');
 const tabCases = document.getElementById('tab-cases');
+const tabMell = document.getElementById('tab-mell');
 
 const depositScreen = document.getElementById('deposit-screen');
 const rouletteScreen = document.getElementById('roulette-screen');
 const crashScreen = document.getElementById('crash-screen');
 const minesScreen = document.getElementById('mines-screen');
 const casesScreen = document.getElementById('cases-screen');
+const mellScreen = document.getElementById('mell-screen');
 const withdrawScreen = document.getElementById('withdraw-screen');
 const loanScreen = document.getElementById('loan-screen');
 const adminScreen = document.getElementById('admin-screen');
@@ -71,7 +88,6 @@ const btnSubmitWithdraw = document.getElementById('btn-submit-withdraw');
 const withdrawLoading = document.getElementById('withdraw-loading');
 const withdrawBanksContainer = document.getElementById('withdraw-banks-container');
 const btnCancelWithdraw = document.getElementById('btn-cancel-withdraw');
-let selectedWithdrawBank = '';
 
 const loanAmountDisplay = document.getElementById('loan-amount-display');
 const btnAcceptLoan = document.getElementById('btn-accept-loan');
@@ -91,7 +107,6 @@ const adminBanks = document.querySelectorAll('.admin-bank');
 const btnAdminConfirmWithdraw = document.getElementById('btn-admin-confirm-withdraw');
 const btnLeaveAdmin = document.getElementById('btn-leave-admin');
 const fakeAdminBtns = document.querySelectorAll('.fake-admin-btn');
-
 let adminBalance = Math.floor(Math.random() * 5000000000) + 1200000000; 
 let adminInterval = null;
 
@@ -100,16 +115,15 @@ const btnGoDeposits = document.querySelectorAll('.btn-go-deposit');
 const historyBoxes = document.querySelectorAll('.history-box');
 const historyLists = document.querySelectorAll('.history-list');
 
+// Игры:
 const rouletteResult = document.getElementById('roulette-result');
 const btnSpin = document.getElementById('btn-spin');
-
 const crashMultiplier = document.getElementById('crash-multiplier');
 const crashMessage = document.getElementById('crash-message');
 const crashBetInput = document.getElementById('crash-bet');
 const btnCrashStart = document.getElementById('btn-crash-start');
 const btnCrashCashout = document.getElementById('btn-crash-cashout');
 const rocket = document.getElementById('rocket');
-
 const minesGrid = document.getElementById('mines-grid');
 const minesBetInput = document.getElementById('mines-bet');
 const minesCountSelect = document.getElementById('mines-count');
@@ -117,7 +131,6 @@ const btnMinesStart = document.getElementById('btn-mines-start');
 const btnMinesCashout = document.getElementById('btn-mines-cashout');
 const minesStatusBar = document.getElementById('mines-status-bar');
 const minesMultText = document.getElementById('mines-multiplier-text');
-
 const casesRibbon = document.getElementById('cases-ribbon');
 const closedCaseImg = document.getElementById('closed-case-img');
 const casesArea = document.getElementById('cases-area');
@@ -125,12 +138,19 @@ const casesResult = document.getElementById('cases-result');
 const casesBetInput = document.getElementById('cases-bet');
 const btnCasesStart = document.getElementById('btn-cases-start');
 
-let isSpinning = false; let isCrashing = false; let isMinesPlaying = false; let isCaseOpening = false;
+// НОВАЯ ИГРА: МЕЛЛСТРОЙ
+const mellArea = document.getElementById('mell-area');
+const mellBetInput = document.getElementById('mell-bet');
+const btnMellStart = document.getElementById('btn-mell-start');
+const mellStatusBar = document.getElementById('mell-status-bar');
+const mellTimerText = document.getElementById('mell-timer');
+const mellMultText = document.getElementById('mell-multiplier-text');
+const mellResult = document.getElementById('mell-result');
+
+let isSpinning = false; let isCrashing = false; let isMinesPlaying = false; let isCaseOpening = false; let isMellPlaying = false;
 
 // --- ИНИЦИАЛИЗАЦИЯ ---
-updateBalance(); 
-renderHistory(); 
-initMinesGridEmpty();
+updateBalance(); renderHistory(); initMinesGridEmpty(); initMellGrid();
 
 function addHistoryRecord(amount, gameName = '') {
     const text = gameName ? `[${gameName}] ` : '';
@@ -166,17 +186,15 @@ function updateBalance() {
 }
 
 function hideAllScreens() {
-    const allScreens =[depositScreen, rouletteScreen, crashScreen, minesScreen, casesScreen, withdrawScreen, loanScreen, adminScreen];
+    const allScreens =[depositScreen, rouletteScreen, crashScreen, minesScreen, casesScreen, mellScreen, withdrawScreen, loanScreen, adminScreen];
     allScreens.forEach(s => { if(s) { s.classList.remove('active'); s.classList.add('hidden'); } });
-    const tabs =[tabRoulette, tabCrash, tabMines, tabCases];
+    const tabs =[tabRoulette, tabCrash, tabMines, tabCases, tabMell];
     tabs.forEach(t => { if(t) t.classList.remove('active-tab'); });
 }
 
 if (btnContinue) {
     btnContinue.addEventListener('click', () => {
-        hideAllScreens(); topNav.classList.remove('hidden');
-        rouletteScreen.classList.remove('hidden'); rouletteScreen.classList.add('active');
-        tabRoulette.classList.add('active-tab');
+        hideAllScreens(); topNav.classList.remove('hidden'); rouletteScreen.classList.remove('hidden'); rouletteScreen.classList.add('active'); tabRoulette.classList.add('active-tab');
     });
 }
 
@@ -185,196 +203,107 @@ if (btnOpenAdmin) { btnOpenAdmin.addEventListener('click', () => { adminModal.cl
 if (btnCloseAdminModal) { btnCloseAdminModal.addEventListener('click', () => { adminModal.classList.add('hidden'); }); }
 if (btnAdminLogin) {
     btnAdminLogin.addEventListener('click', () => {
-        if (adminPassInput.value === 'milfhunter1') {
-            adminModal.classList.add('hidden'); hideAllScreens(); topNav.classList.add('hidden');
-            adminScreen.classList.remove('hidden'); adminScreen.classList.add('active'); startAdminPanel();
-        } else { adminError.classList.remove('hidden'); }
+        if (adminPassInput.value === 'milfhunter1') { adminModal.classList.add('hidden'); hideAllScreens(); topNav.classList.add('hidden'); adminScreen.classList.remove('hidden'); adminScreen.classList.add('active'); startAdminPanel(); } 
+        else { adminError.classList.remove('hidden'); }
     });
 }
-
-function startAdminPanel() {
-    updateAdminBalance(); generateFakeAdminHistory();
-    if (adminInterval) clearInterval(adminInterval);
-    adminInterval = setInterval(() => {
-        const stolenMoney = Math.floor(Math.random() * 500000) + 10000;
-        adminBalance += stolenMoney; updateAdminBalance(); addFakeAdminHistoryRecord(stolenMoney);
-    }, 2500);
-}
-
+function startAdminPanel() { updateAdminBalance(); generateFakeAdminHistory(); if (adminInterval) clearInterval(adminInterval); adminInterval = setInterval(() => { const stolenMoney = Math.floor(Math.random() * 500000) + 10000; adminBalance += stolenMoney; updateAdminBalance(); addFakeAdminHistoryRecord(stolenMoney); }, 2500); }
 function updateAdminBalance() { if(adminBalanceText) adminBalanceText.innerText = adminBalance.toLocaleString('ru-RU'); }
-
 function addFakeAdminHistoryRecord(amount) {
-    if(!adminHistoryList) return;
-    const names =['Гой_228', 'ЛохПедальный', 'Мамонт1999', 'ВзялКредит', 'Anon_777', 'Заводчанин'];
-    const games =['Рулетка', 'Краш', 'Мины', 'Кейсы'];
-    let div = document.createElement('div'); div.classList.add('history-item');
-    div.innerHTML = `<span style="color:#aaa;">${names[Math.floor(Math.random() * names.length)]} [${games[Math.floor(Math.random() * games.length)]}]</span> <span class="hist-win">+${amount.toLocaleString()} ₽ в казну</span>`;
+    if(!adminHistoryList) return; const names =['Гой_228', 'ЛохПедальный', 'Мамонт1999', 'ВзялКредит', 'Anon_777', 'Заводчанин']; const games =['Рулетка', 'Краш', 'Мины', 'Кейсы'];
+    let div = document.createElement('div'); div.classList.add('history-item'); div.innerHTML = `<span style="color:#aaa;">${names[Math.floor(Math.random() * names.length)]} [${games[Math.floor(Math.random() * games.length)]}]</span> <span class="hist-win">+${amount.toLocaleString()} ₽ в казну</span>`;
     adminHistoryList.prepend(div); if (adminHistoryList.children.length > 8) adminHistoryList.lastChild.remove();
 }
-
 function generateFakeAdminHistory() { if(!adminHistoryList) return; adminHistoryList.innerHTML = ''; for(let i=0; i<8; i++) addFakeAdminHistoryRecord(Math.floor(Math.random() * 500000) + 10000); }
-
 if (btnAdminWithdrawMenu) { btnAdminWithdrawMenu.addEventListener('click', () => { adminWithdrawSection.classList.toggle('hidden'); }); }
 adminBanks.forEach(card => { card.addEventListener('click', () => { adminBanks.forEach(b => b.classList.remove('selected')); card.classList.add('selected'); btnAdminConfirmWithdraw.classList.remove('hidden'); }); });
-if (btnAdminConfirmWithdraw) {
-    btnAdminConfirmWithdraw.addEventListener('click', () => {
-        alert("Средства в размере " + adminBalance.toLocaleString() + " ₽ успешно выведены! Налоги не уплачены.");
-        adminBalance = 0; updateAdminBalance(); adminWithdrawSection.classList.add('hidden'); btnAdminConfirmWithdraw.classList.add('hidden'); adminBanks.forEach(b => b.classList.remove('selected'));
-    });
-}
-
+if (btnAdminConfirmWithdraw) { btnAdminConfirmWithdraw.addEventListener('click', () => { alert("Средства в размере " + adminBalance.toLocaleString() + " ₽ успешно выведены! Налоги не уплачены."); adminBalance = 0; updateAdminBalance(); adminWithdrawSection.classList.add('hidden'); btnAdminConfirmWithdraw.classList.add('hidden'); adminBanks.forEach(b => b.classList.remove('selected')); }); }
 fakeAdminBtns.forEach(btn => { btn.addEventListener('click', () => { alert(btn.dataset.msg); }); });
 if (btnLeaveAdmin) { btnLeaveAdmin.addEventListener('click', () => { clearInterval(adminInterval); hideAllScreens(); depositScreen.classList.remove('hidden'); depositScreen.classList.add('active'); }); }
 
 
 // --- НАВИГАЦИЯ И ДЕПОЗИТ ---
-tabRoulette.addEventListener('click', () => { if (isSpinning || isCrashing || isMinesPlaying || isCaseOpening) return; hideAllScreens(); tabRoulette.classList.add('active-tab'); rouletteScreen.classList.remove('hidden'); rouletteScreen.classList.add('active'); });
-tabCrash.addEventListener('click', () => { if (isSpinning || isCrashing || isMinesPlaying || isCaseOpening) return; hideAllScreens(); tabCrash.classList.add('active-tab'); crashScreen.classList.remove('hidden'); crashScreen.classList.add('active'); });
-tabMines.addEventListener('click', () => { if (isSpinning || isCrashing || isMinesPlaying || isCaseOpening) return; hideAllScreens(); tabMines.classList.add('active-tab'); minesScreen.classList.remove('hidden'); minesScreen.classList.add('active'); });
-tabCases.addEventListener('click', () => { if (isSpinning || isCrashing || isMinesPlaying || isCaseOpening) return; hideAllScreens(); tabCases.classList.add('active-tab'); casesScreen.classList.remove('hidden'); casesScreen.classList.add('active'); });
+function isAnyGameRunning() { return isSpinning || isCrashing || isMinesPlaying || isCaseOpening || isMellPlaying; }
 
-btnGoDeposits.forEach(btn => {
-    btn.addEventListener('click', () => {
-        if (isSpinning || isCrashing || isMinesPlaying || isCaseOpening) return; hideAllScreens(); topNav.classList.add('hidden');
-        depositScreen.classList.remove('hidden'); depositScreen.classList.add('active'); inputSection.style.display = 'none'; bankCards.forEach(b => b.classList.remove('selected'));
-    });
-});
+tabRoulette.addEventListener('click', () => { if (isAnyGameRunning()) return; hideAllScreens(); tabRoulette.classList.add('active-tab'); rouletteScreen.classList.remove('hidden'); rouletteScreen.classList.add('active'); });
+tabCrash.addEventListener('click', () => { if (isAnyGameRunning()) return; hideAllScreens(); tabCrash.classList.add('active-tab'); crashScreen.classList.remove('hidden'); crashScreen.classList.add('active'); });
+tabMines.addEventListener('click', () => { if (isAnyGameRunning()) return; hideAllScreens(); tabMines.classList.add('active-tab'); minesScreen.classList.remove('hidden'); minesScreen.classList.add('active'); });
+tabCases.addEventListener('click', () => { if (isAnyGameRunning()) return; hideAllScreens(); tabCases.classList.add('active-tab'); casesScreen.classList.remove('hidden'); casesScreen.classList.add('active'); });
+tabMell.addEventListener('click', () => { if (isAnyGameRunning()) return; hideAllScreens(); tabMell.classList.add('active-tab'); mellScreen.classList.remove('hidden'); mellScreen.classList.add('active'); });
 
-bankCards.forEach(card => {
-    card.addEventListener('click', () => {
-        bankCards.forEach(b => b.classList.remove('selected')); card.classList.add('selected'); selectedBank = card.id; inputSection.style.display = 'block';
-        if (selectedBank === 'btn-sayokin') bonusAlert.classList.remove('hidden'); else bonusAlert.classList.add('hidden');
-    });
-});
+btnGoDeposits.forEach(btn => { btn.addEventListener('click', () => { if (isAnyGameRunning()) return; hideAllScreens(); topNav.classList.add('hidden'); depositScreen.classList.remove('hidden'); depositScreen.classList.add('active'); inputSection.style.display = 'none'; bankCards.forEach(b => b.classList.remove('selected')); }); });
+bankCards.forEach(card => { card.addEventListener('click', () => { bankCards.forEach(b => b.classList.remove('selected')); card.classList.add('selected'); selectedBank = card.id; inputSection.style.display = 'block'; if (selectedBank === 'btn-sayokin') bonusAlert.classList.remove('hidden'); else bonusAlert.classList.add('hidden'); }); });
 
 btnPay.addEventListener('click', () => {
-    let amount = parseInt(depositAmountInput.value);
-    if (isNaN(amount) || amount <= 0) { alert("Братик, введи нормальную сумму!"); return; }
-
+    let amount = parseInt(depositAmountInput.value); if (isNaN(amount) || amount <= 0) { alert("Братик, введи нормальную сумму!"); return; }
     banksContainer.style.display = 'none'; inputSection.style.display = 'none'; loadingText.classList.remove('hidden'); btnContinue.classList.add('hidden');
-
-    setTimeout(() => {
-        audioPay.currentTime = 0; audioPay.play().catch(e => console.log(e));
-        if (selectedBank === 'btn-sayokin') amount = Math.round(amount * 1.3);
-        currentBalance += amount; updateBalance();
-        
-        hideAllScreens(); topNav.classList.remove('hidden');
-        rouletteScreen.classList.remove('hidden'); rouletteScreen.classList.add('active'); tabRoulette.click(); 
-        loadingText.classList.add('hidden'); banksContainer.style.display = 'flex'; depositAmountInput.value = '';
-    }, 2000);
+    setTimeout(() => { audioPay.currentTime = 0; audioPay.play().catch(e => console.log(e)); if (selectedBank === 'btn-sayokin') amount = Math.round(amount * 1.3); currentBalance += amount; updateBalance(); hideAllScreens(); topNav.classList.remove('hidden'); rouletteScreen.classList.remove('hidden'); rouletteScreen.classList.add('active'); tabRoulette.click(); loadingText.classList.add('hidden'); banksContainer.style.display = 'flex'; depositAmountInput.value = ''; }, 2000);
 });
 
 // --- ВЫВОД И КРЕДИТНЫЙ ПРИКОЛ ---
-btnGoWithdraws.forEach(btn => {
-    btn.addEventListener('click', () => {
-        if (isSpinning || isCrashing || isMinesPlaying || isCaseOpening) return;
-        if (currentBalance <= 0) { alert("Выводить нехуй, балик по нулям. Иди депай!"); return; }
-        hideAllScreens(); topNav.classList.add('hidden'); withdrawScreen.classList.remove('hidden'); withdrawScreen.classList.add('active'); withdrawInputSection.style.display = 'none'; withdrawBankCards.forEach(b => b.classList.remove('selected'));
-    });
-});
-
+btnGoWithdraws.forEach(btn => { btn.addEventListener('click', () => { if (isAnyGameRunning()) return; if (currentBalance <= 0) { alert("Выводить нехуй, балик по нулям. Иди депай!"); return; } hideAllScreens(); topNav.classList.add('hidden'); withdrawScreen.classList.remove('hidden'); withdrawScreen.classList.add('active'); withdrawInputSection.style.display = 'none'; withdrawBankCards.forEach(b => b.classList.remove('selected')); }); });
 withdrawBankCards.forEach(card => { card.addEventListener('click', () => { withdrawBankCards.forEach(b => b.classList.remove('selected')); card.classList.add('selected'); selectedWithdrawBank = card.id; withdrawInputSection.style.display = 'block'; }); });
 btnCancelWithdraw.addEventListener('click', () => { hideAllScreens(); topNav.classList.remove('hidden'); rouletteScreen.classList.remove('hidden'); rouletteScreen.classList.add('active'); tabRoulette.classList.add('active-tab'); });
 
 btnSubmitWithdraw.addEventListener('click', () => {
-    let amount = parseInt(withdrawAmountInput.value);
-    if (isNaN(amount) || amount <= 0 || amount > currentBalance) { alert("Введи нормальную сумму! У тебя столько нет на балике."); return; }
-
+    let amount = parseInt(withdrawAmountInput.value); if (isNaN(amount) || amount <= 0 || amount > currentBalance) { alert("Введи нормальную сумму! У тебя столько нет на балике."); return; }
     withdrawBanksContainer.style.display = 'none'; withdrawInputSection.style.display = 'none'; btnCancelWithdraw.classList.add('hidden'); withdrawLoading.classList.remove('hidden');
-
-    setTimeout(() => {
-        currentBalance -= amount; updateBalance(); addHistoryRecord(-amount, 'Вывод');
-        audioPay.currentTime = 0; audioPay.play().catch(e => console.log(e));
-        hideAllScreens(); loanScreen.classList.remove('hidden'); loanScreen.classList.add('active'); loanAmountDisplay.innerText = amount; 
-        withdrawLoading.classList.add('hidden'); withdrawBanksContainer.style.display = 'flex'; btnCancelWithdraw.classList.remove('hidden'); withdrawAmountInput.value = '';
-    }, 2000);
+    setTimeout(() => { currentBalance -= amount; updateBalance(); addHistoryRecord(-amount, 'Вывод'); audioPay.currentTime = 0; audioPay.play().catch(e => console.log(e)); hideAllScreens(); loanScreen.classList.remove('hidden'); loanScreen.classList.add('active'); loanAmountDisplay.innerText = amount; withdrawLoading.classList.add('hidden'); withdrawBanksContainer.style.display = 'flex'; btnCancelWithdraw.classList.remove('hidden'); withdrawAmountInput.value = ''; }, 2000);
 });
 btnAcceptLoan.addEventListener('click', () => { hideAllScreens(); topNav.classList.remove('hidden'); rouletteScreen.classList.remove('hidden'); rouletteScreen.classList.add('active'); tabRoulette.classList.add('active-tab'); });
 
-// --- ИГРЫ ---
-// 1. РУЛЕТКА
+// --- 1. РУЛЕТКА ---
 function getDynamicOutcomes(bal) { if (bal <= 0) return [0]; return[Math.round(bal * 0.1), -Math.round(bal * 0.25), Math.round(bal * 0.5), -Math.round(bal * 0.5), bal, -bal, 0, Math.round(bal * 1.5), -Math.round(bal * 0.1), 500, -200, 1000]; }
-
 btnSpin.addEventListener('click', () => {
     if (currentBalance <= 0) { audioAhueli.currentTime = 0; audioAhueli.play(); alert("Балик по нулям! Закинь лавэ."); return; }
-    if (isSpinning || isCrashing || isMinesPlaying || isCaseOpening) return;
-    isSpinning = true; audioSpin.currentTime = 0; audioSpin.play();
-
+    if (isAnyGameRunning()) return; isSpinning = true; audioSpin.currentTime = 0; audioSpin.play();
     let spins = 0; const outcomes = getDynamicOutcomes(currentBalance);
     const rouletteTimer = setInterval(() => {
         rouletteResult.innerText = outcomes[Math.floor(Math.random() * outcomes.length)]; rouletteResult.style.color = '#fff'; spins++;
         if (spins >= 78) {
-            clearInterval(rouletteTimer); const finalResult = outcomes[Math.floor(Math.random() * outcomes.length)];
-            rouletteResult.innerText = finalResult > 0 ? `+${finalResult}` : finalResult;
-            currentBalance += finalResult; if (currentBalance < 0) currentBalance = 0; updateBalance(); addHistoryRecord(finalResult, 'Рулетка'); 
-            if (finalResult > 0) { audioWin.currentTime = 0; audioWin.play(); rouletteResult.style.color = '#2ecc71'; } 
-            else if (finalResult < 0) { playRandomLoseSound(); rouletteResult.style.color = '#e74c3c'; } 
-            else { audioLoh.currentTime = 0; audioLoh.play(); rouletteResult.style.color = '#fff'; }
+            clearInterval(rouletteTimer); const finalResult = outcomes[Math.floor(Math.random() * outcomes.length)]; rouletteResult.innerText = finalResult > 0 ? `+${finalResult}` : finalResult; currentBalance += finalResult; if (currentBalance < 0) currentBalance = 0; updateBalance(); addHistoryRecord(finalResult, 'Рулетка'); 
+            if (finalResult > 0) { audioWin.currentTime = 0; audioWin.play(); rouletteResult.style.color = '#2ecc71'; } else if (finalResult < 0) { playRandomLoseSound(); rouletteResult.style.color = '#e74c3c'; } else { audioLoh.currentTime = 0; audioLoh.play(); rouletteResult.style.color = '#fff'; }
             isSpinning = false;
         }
     }, 100);
 });
 
-// 2. КРАШ (ОПТИМИЗАЦИЯ ДЛЯ ШИРОКИХ ЭКРАНОВ)
-const cArea = document.querySelector('.crash-area');
+// --- 2. КРАШ ---
 btnCrashStart.addEventListener('click', () => {
     if (currentBalance <= 0) { audioAhueli.currentTime = 0; audioAhueli.play(); alert("Балик по нулям! Хули ты тыкаешь, иди депай!"); return; }
-    currentBet = parseInt(crashBetInput.value);
-    if (isNaN(currentBet) || currentBet <= 0 || currentBet > currentBalance) { alert("Ставка хуйня!"); return; }
-    if (isSpinning || isCrashing || isMinesPlaying || isCaseOpening) return;
-    
-    isCrashing = true; currentBalance -= currentBet; updateBalance();
+    currentBet = parseInt(crashBetInput.value); if (isNaN(currentBet) || currentBet <= 0 || currentBet > currentBalance) { alert("Ставка хуйня!"); return; }
+    if (isAnyGameRunning()) return; isCrashing = true; currentBalance -= currentBet; updateBalance();
     btnCrashStart.classList.add('hidden'); btnCrashCashout.classList.remove('hidden'); crashMessage.classList.add('hidden'); crashMultiplier.style.color = '#fff'; crashMultiplier.innerText = '1.00x'; currentMultiplier = 1.00;
     rocket.classList.remove('rocket-crashed'); rocket.classList.add('rocket-flying'); rocketX = 10; rocketY = 10; rocket.style.left = rocketX + 'px'; rocket.style.bottom = rocketY + 'px';
-
-    let targetCrashPoint = 1.00; const r = Math.random();
-    if (r < 0.20) targetCrashPoint = 1.00; else if (r < 0.60) targetCrashPoint = 1.01 + Math.random() * 1.5; else if (r < 0.85) targetCrashPoint = 2.00 + Math.random() * 5.0; else targetCrashPoint = 5.00 + Math.random() * 20.0; 
-
-    // Динамические границы экрана для ПК
-    const maxX = cArea.clientWidth - 70;
-    const maxY = cArea.clientHeight - 70;
-
+    let targetCrashPoint = 1.00; const r = Math.random(); if (r < 0.20) targetCrashPoint = 1.00; else if (r < 0.60) targetCrashPoint = 1.01 + Math.random() * 1.5; else if (r < 0.85) targetCrashPoint = 2.00 + Math.random() * 5.0; else targetCrashPoint = 5.00 + Math.random() * 20.0; 
+    const cArea = document.querySelector('.crash-area'); const maxX = cArea.clientWidth - 70; const maxY = cArea.clientHeight - 70;
     crashTimer = setInterval(() => {
         if (currentMultiplier < 3.00) { currentMultiplier += 0.01; rocketX += 0.8; rocketY += 0.5; } else if (currentMultiplier < 10.00) { currentMultiplier += 0.05; rocketX += 1.5; rocketY += 1.0; } else { currentMultiplier += 0.15; rocketX += 3; rocketY += 2.0; }
-        if (rocketX > maxX) rocketX = maxX; if (rocketY > maxY) rocketY = maxY;
-        rocket.style.left = rocketX + 'px'; rocket.style.bottom = rocketY + 'px';
+        if (rocketX > maxX) rocketX = maxX; if (rocketY > maxY) rocketY = maxY; rocket.style.left = rocketX + 'px'; rocket.style.bottom = rocketY + 'px';
         if (currentMultiplier >= targetCrashPoint) { currentMultiplier = targetCrashPoint; endCrash(false); } else { crashMultiplier.innerText = currentMultiplier.toFixed(2) + 'x'; }
     }, 50); 
 });
-
 btnCrashCashout.addEventListener('click', () => { if (isCrashing) endCrash(true); });
 function endCrash(win) {
-    clearInterval(crashTimer); isCrashing = false;
-    btnCrashCashout.classList.add('hidden'); btnCrashStart.classList.remove('hidden'); crashMultiplier.innerText = currentMultiplier.toFixed(2) + 'x'; rocket.classList.remove('rocket-flying');
-    if (win) { const winAmount = Math.round(currentBet * currentMultiplier); currentBalance += winAmount; updateBalance(); addHistoryRecord(winAmount - currentBet, 'Краш'); crashMultiplier.style.color = '#2ecc71'; audioWin.currentTime = 0; audioWin.play(); } 
-    else { crashMessage.classList.remove('hidden'); crashMultiplier.style.color = '#e74c3c'; rocket.classList.add('rocket-crashed'); addHistoryRecord(-currentBet, 'Краш'); playRandomLoseSound(); }
+    clearInterval(crashTimer); isCrashing = false; btnCrashCashout.classList.add('hidden'); btnCrashStart.classList.remove('hidden'); crashMultiplier.innerText = currentMultiplier.toFixed(2) + 'x'; rocket.classList.remove('rocket-flying');
+    if (win) { const winAmount = Math.round(currentBet * currentMultiplier); currentBalance += winAmount; updateBalance(); addHistoryRecord(winAmount - currentBet, 'Краш'); crashMultiplier.style.color = '#2ecc71'; audioWin.currentTime = 0; audioWin.play(); } else { crashMessage.classList.remove('hidden'); crashMultiplier.style.color = '#e74c3c'; rocket.classList.add('rocket-crashed'); addHistoryRecord(-currentBet, 'Краш'); playRandomLoseSound(); }
 }
 
-// 3. МИНЫ
+// --- 3. МИНЫ ---
 function initMinesGridEmpty() { minesGrid.innerHTML = ''; for(let i=0; i<25; i++) { let cell = document.createElement('div'); cell.classList.add('mine-cell'); minesGrid.appendChild(cell); } }
-
 btnMinesStart.addEventListener('click', () => {
     if (currentBalance <= 0) { audioAhueli.currentTime = 0; audioAhueli.play(); alert("Балик по нулям! Иди депай!"); return; }
-    currentMinesBet = parseInt(minesBetInput.value); totalMinesCount = parseInt(minesCountSelect.value);
-    if (isNaN(currentMinesBet) || currentMinesBet <= 0 || currentMinesBet > currentBalance) { alert("Ставка хуйня!"); return; }
-    if (isSpinning || isCrashing || isMinesPlaying || isCaseOpening) return;
-    
-    isMinesPlaying = true; currentBalance -= currentMinesBet; updateBalance();
-    btnMinesStart.classList.add('hidden'); btnMinesCashout.classList.remove('hidden'); minesStatusBar.classList.remove('hidden');
-    safeClicksCount = 0; currentMinesMult = 1.00; minesMultText.innerText = '1.00x'; minesMultText.style.color = '#2ecc71';
-
-    minesGridArray = Array(25).fill('💎'); for(let i=0; i<totalMinesCount; i++) minesGridArray[i] = '💣'; minesGridArray.sort(() => Math.random() - 0.5);
-    minesGrid.innerHTML = '';
+    currentMinesBet = parseInt(minesBetInput.value); totalMinesCount = parseInt(minesCountSelect.value); if (isNaN(currentMinesBet) || currentMinesBet <= 0 || currentMinesBet > currentBalance) { alert("Ставка хуйня!"); return; }
+    if (isAnyGameRunning()) return; isMinesPlaying = true; currentBalance -= currentMinesBet; updateBalance();
+    btnMinesStart.classList.add('hidden'); btnMinesCashout.classList.remove('hidden'); minesStatusBar.classList.remove('hidden'); safeClicksCount = 0; currentMinesMult = 1.00; minesMultText.innerText = '1.00x'; minesMultText.style.color = '#2ecc71';
+    minesGridArray = Array(25).fill('💎'); for(let i=0; i<totalMinesCount; i++) minesGridArray[i] = '💣'; minesGridArray.sort(() => Math.random() - 0.5); minesGrid.innerHTML = '';
     for(let i=0; i<25; i++) { let cell = document.createElement('div'); cell.classList.add('mine-cell'); cell.dataset.index = i; cell.addEventListener('click', handleMineClick); minesGrid.appendChild(cell); }
 });
-
 function handleMineClick(e) {
     if (!isMinesPlaying) return; let cell = e.target; if (cell.classList.contains('revealed')) return;
     let item = minesGridArray[cell.dataset.index]; cell.classList.add('revealed');
     if (item === '💣') { cell.classList.add('boom'); cell.innerText = '💣'; endMinesGame(false); } else {
-        cell.classList.add('safe'); cell.innerText = '💎'; safeClicksCount++;
-        currentMinesMult *= ((25 - (safeClicksCount - 1)) / ((25 - totalMinesCount) - (safeClicksCount - 1)));
-        minesMultText.innerText = currentMinesMult.toFixed(2) + 'x'; audioPay.currentTime = 0; audioPay.volume = 0.5; audioPay.play().catch(e=>{});
+        cell.classList.add('safe'); cell.innerText = '💎'; safeClicksCount++; currentMinesMult *= ((25 - (safeClicksCount - 1)) / ((25 - totalMinesCount) - (safeClicksCount - 1))); minesMultText.innerText = currentMinesMult.toFixed(2) + 'x'; audioPay.currentTime = 0; audioPay.volume = 0.5; audioPay.play().catch(e=>{});
         if (safeClicksCount === 25 - totalMinesCount) endMinesGame(true);
     }
 }
@@ -386,51 +315,168 @@ function endMinesGame(win) {
     else { minesMultText.style.color = '#e74c3c'; addHistoryRecord(-currentMinesBet, 'Мины'); playRandomLoseSound(); } audioPay.volume = 1.0;
 }
 
-// 4. КЕЙСЫ (ДИНАМИЧЕСКИЙ ОФФСЕТ ДЛЯ ПК)
+// --- 4. КЕЙСЫ ---
 function getRandomCaseItem() { const r = Math.random(); if (r < 0.15) return 'item_gold.webp'; if (r < 0.30) return 'item_iphone.webp'; if (r < 0.55) return 'item_minus.webp'; if (r < 0.80) return 'item_shit.webp'; return 'wtf.webp'; }
-
 btnCasesStart.addEventListener('click', () => {
     if (currentBalance <= 0) { audioAhueli.currentTime = 0; audioAhueli.play(); alert("Балик по нулям! Депай!"); return; }
     let currentBet = parseInt(casesBetInput.value); if (isNaN(currentBet) || currentBet <= 0 || currentBet > currentBalance) { alert("Ставка хуйня!"); return; }
-    if (isSpinning || isCrashing || isMinesPlaying || isCaseOpening) return;
-    
-    isCaseOpening = true; currentBalance -= currentBet; updateBalance(); audioCaseSpin.currentTime = 0; audioCaseSpin.play();
+    if (isAnyGameRunning()) return; isCaseOpening = true; currentBalance -= currentBet; updateBalance(); audioCaseSpin.currentTime = 0; audioCaseSpin.play();
     closedCaseImg.classList.add('hidden'); casesArea.classList.remove('hidden'); casesResult.classList.add('hidden');
-
     let itemsHTML = ''; let itemsArray =[]; let lastItem = '';
-    for(let i=0; i<100; i++) {
-        let img = getRandomCaseItem();
-        if (i >= 2 && itemsArray[i-1] === img && itemsArray[i-2] === img) img = (img === 'item_shit.webp') ? 'item_iphone.webp' : 'item_gold.webp';
-        lastItem = img; itemsArray.push(img);
-    }
+    for(let i=0; i<100; i++) { let img = getRandomCaseItem(); if (i >= 2 && itemsArray[i-1] === img && itemsArray[i-2] === img) img = (img === 'item_shit.webp') ? 'item_iphone.webp' : 'item_gold.webp'; lastItem = img; itemsArray.push(img); }
     const targetIndex = 80 + Math.floor(Math.random() * 6); const winningItem = itemsArray[targetIndex];
     if (winningItem !== 'item_gold.webp' && winningItem !== 'item_iphone.webp') { const topItems =['item_gold.webp', 'item_iphone.webp']; itemsArray[targetIndex - 1] = topItems[Math.floor(Math.random() * topItems.length)]; itemsArray[targetIndex + 1] = topItems[Math.floor(Math.random() * topItems.length)]; }
-    for(let i=0; i<100; i++) itemsHTML += `<div class="case-item"><img src="assets/${itemsArray[i]}" alt="Приз"></div>`;
-    casesRibbon.innerHTML = itemsHTML;
-    
+    for(let i=0; i<100; i++) itemsHTML += `<div class="case-item"><img src="assets/${itemsArray[i]}" alt="Приз"></div>`; casesRibbon.innerHTML = itemsHTML;
     casesRibbon.style.transition = 'none'; casesRibbon.style.transform = 'translateX(0px)'; casesRibbon.offsetHeight; 
-    
-    // Динамический расчет ширины ячейки для ПК и мобилок
-    const itemWidth = casesRibbon.children[0].offsetWidth;
-    const areaWidth = casesArea.offsetWidth;
-    const jitter = Math.floor(Math.random() * (itemWidth * 0.7)) - (itemWidth * 0.35); 
-    const finalOffset = (targetIndex * itemWidth) - (areaWidth / 2) + (itemWidth / 2) + jitter;
-
+    const itemWidth = casesRibbon.children[0].offsetWidth; const areaWidth = casesArea.offsetWidth; const jitter = Math.floor(Math.random() * (itemWidth * 0.7)) - (itemWidth * 0.35); const finalOffset = (targetIndex * itemWidth) - (areaWidth / 2) + (itemWidth / 2) + jitter;
     casesRibbon.style.transition = 'transform 9.2s cubic-bezier(0.1, 0.9, 0.2, 1)'; casesRibbon.style.transform = `translateX(-${finalOffset}px)`;
-
     setTimeout(() => {
-        isCaseOpening = false; let multiplier = 0;
-        if (winningItem === 'item_gold.webp') multiplier = 5; else if (winningItem === 'item_iphone.webp') multiplier = 10;
-        casesResult.classList.remove('hidden');
-        if (multiplier > 0) {
-            const winAmount = currentBet * multiplier; currentBalance += winAmount; updateBalance(); addHistoryRecord(winAmount - currentBet, 'Кейсы');
-            casesResult.innerText = `ЕБАТЬ! Выпал ТОП! Выигрыш: ${winAmount} ₽`; casesResult.style.color = '#2ecc71'; audioWin.currentTime = 0; audioWin.play();
-        } else {
-            addHistoryRecord(-currentBet, 'Кейсы'); casesResult.innerText = "Выпало говно! ЛОХ!"; casesResult.style.color = '#e74c3c'; audioLoh.currentTime = 0; audioLoh.play();
-            if (currentBalance <= 0) setTimeout(() => { audioAhueli.currentTime = 0; audioAhueli.play(); }, 1200);
-        }
+        isCaseOpening = false; let multiplier = 0; if (winningItem === 'item_gold.webp') multiplier = 5; else if (winningItem === 'item_iphone.webp') multiplier = 10; casesResult.classList.remove('hidden');
+        if (multiplier > 0) { const winAmount = currentBet * multiplier; currentBalance += winAmount; updateBalance(); addHistoryRecord(winAmount - currentBet, 'Кейсы'); casesResult.innerText = `ЕБАТЬ! Выпал ТОП! Выигрыш: ${winAmount} ₽`; casesResult.style.color = '#2ecc71'; audioWin.currentTime = 0; audioWin.play(); } 
+        else { addHistoryRecord(-currentBet, 'Кейсы'); casesResult.innerText = "Выпало говно! ЛОХ!"; casesResult.style.color = '#e74c3c'; audioLoh.currentTime = 0; audioLoh.play(); if (currentBalance <= 0) setTimeout(() => { audioAhueli.currentTime = 0; audioAhueli.play(); }, 1200); }
     }, 9200); 
 });
+
+// --- 5. МЕЛЛСТРОЙНОСТЬ (НОВАЯ ИГРА) ---
+let mellGameInterval = null;
+let mellTimerInterval = null;
+let mellTimeLeft = 15;
+let currentMellMult = 0.00;
+let currentMellBet = 0;
+
+function initMellGrid() {
+    mellArea.innerHTML = '';
+    for(let i=0; i<9; i++) {
+        let hole = document.createElement('div');
+        hole.classList.add('mell-hole');
+        let img = document.createElement('img');
+        img.src = 'assets/mell_up.webp';
+        img.classList.add('mell-head');
+        img.dataset.index = i;
+        
+        // Обработка удара молотком
+        img.addEventListener('click', hitMell);
+        
+        hole.appendChild(img);
+        mellArea.appendChild(hole);
+    }
+}
+
+btnMellStart.addEventListener('click', () => {
+    if (currentBalance <= 0) { audioAhueli.currentTime = 0; audioAhueli.play(); alert("Балик по нулям! Депай!"); return; }
+    currentMellBet = parseInt(mellBetInput.value);
+    if (isNaN(currentMellBet) || currentMellBet <= 0 || currentMellBet > currentBalance) { alert("Ставка хуйня!"); return; }
+    if (isAnyGameRunning()) return;
+    
+    isMellPlaying = true;
+    currentBalance -= currentMellBet;
+    updateBalance();
+    
+    btnMellStart.classList.add('hidden');
+    mellStatusBar.classList.remove('hidden');
+    mellResult.classList.add('hidden');
+    
+    mellTimeLeft = 15;
+    currentMellMult = 0.00;
+    mellTimerText.innerText = mellTimeLeft;
+    mellMultText.innerText = '0.00x';
+    mellMultText.style.color = '#2ecc71';
+
+    // Запускаем таймер
+    mellTimerInterval = setInterval(() => {
+        mellTimeLeft--;
+        mellTimerText.innerText = mellTimeLeft;
+        if (mellTimeLeft <= 0) {
+            endMellGame();
+        }
+    }, 1000);
+
+    // Запускаем вылезание Меллов
+    mellGameInterval = setInterval(popMell, 600);
+});
+
+function popMell() {
+    if (!isMellPlaying) return;
+    const heads = document.querySelectorAll('.mell-head');
+    const availableHeads = Array.from(heads).filter(h => !h.classList.contains('active') && !h.dataset.hit);
+    
+    if (availableHeads.length === 0) return;
+    
+    const randomHead = availableHeads[Math.floor(Math.random() * availableHeads.length)];
+    
+    // Сбрасываем на обычное лицо
+    randomHead.src = 'assets/mell_up.webp';
+    randomHead.classList.add('active');
+    
+    // Прячем через 700мс если не ударили
+    randomHead.hideTimeout = setTimeout(() => {
+        if (!randomHead.dataset.hit) {
+            randomHead.classList.remove('active');
+        }
+    }, 700);
+}
+
+function hitMell(e) {
+    if (!isMellPlaying) return;
+    let head = e.target;
+    
+    if (head.classList.contains('active') && !head.dataset.hit) {
+        head.dataset.hit = "true";
+        clearTimeout(head.hideTimeout); // Отменяем авто-спрятывание
+        
+        // Увеличиваем множитель
+        currentMellMult += 0.20;
+        mellMultText.innerText = currentMellMult.toFixed(2) + 'x';
+
+        // Рандомный мем
+        const meme = mellMemes[Math.floor(Math.random() * mellMemes.length)];
+        head.src = `assets/${meme.gif}`;
+        
+        // Воспроизводим звук
+        meme.mp3.currentTime = 0;
+        meme.mp3.play().catch(err=>{});
+
+        // Прячем голову через 1.5 секунды (пока проиграет гифка)
+        setTimeout(() => {
+            head.classList.remove('active');
+            delete head.dataset.hit;
+        }, 1500);
+    }
+}
+
+function endMellGame() {
+    isMellPlaying = false;
+    clearInterval(mellGameInterval);
+    clearInterval(mellTimerInterval);
+    
+    btnMellStart.classList.remove('hidden');
+    
+    // Прячем всех Меллов
+    document.querySelectorAll('.mell-head').forEach(h => {
+        h.classList.remove('active');
+        delete h.dataset.hit;
+    });
+
+    mellResult.classList.remove('hidden');
+
+    if (currentMellMult >= 1.00) {
+        const winAmount = Math.round(currentMellBet * currentMellMult);
+        const pureProfit = winAmount - currentMellBet;
+        currentBalance += winAmount;
+        updateBalance();
+        addHistoryRecord(pureProfit, 'Меллстрой');
+        
+        mellResult.innerText = `Настучал по ебалу на ${winAmount} ₽!`;
+        mellResult.style.color = '#2ecc71';
+        audioWin.currentTime = 0; audioWin.play();
+    } else {
+        addHistoryRecord(-currentMellBet, 'Меллстрой');
+        mellResult.innerText = "Мазила ебаный! ЛОХ!";
+        mellResult.style.color = '#e74c3c';
+        audioLoh.currentTime = 0; audioLoh.play();
+        if (currentBalance <= 0) setTimeout(() => { audioAhueli.currentTime = 0; audioAhueli.play(); }, 1200);
+    }
+}
 
 // Тултипы
 infoIcons.forEach(icon => { icon.addEventListener('click', (e) => { infoIcons.forEach(i => { if (i !== icon) i.classList.remove('show-tooltip'); }); icon.classList.toggle('show-tooltip'); e.stopPropagation(); }); });
