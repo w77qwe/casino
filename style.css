@@ -1,4 +1,3 @@
-/* БАЗА */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #121212; color: #ffffff; text-align: center; padding: 20px; overflow-x: hidden; transition: all 0.3s; }
 h1 { margin-bottom: 20px; color: #f1c40f; }
@@ -7,30 +6,25 @@ h1 { margin-bottom: 20px; color: #f1c40f; }
 .screen.active { display: block; animation: fadeIn 0.4s ease-in-out; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
-/* НОВОСТИ И ПАРТНЕРЫ */
 .news-banner { background: #1a1a1a; border: 2px dashed #e74c3c; border-radius: 12px; padding: 15px; margin: 0 auto 25px; box-shadow: 0 0 20px rgba(231, 76, 60, 0.2); max-width: 600px; }
 .partners-container { display: flex; justify-content: center; align-items: center; gap: 15px; margin-top: 10px; background: #111; padding: 10px; border-radius: 8px; border: 1px solid #333; }
 .partner-item { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; }
 .partner-divider { width: 2px; height: 40px; background-color: #444; }
 
-/* АДМИНКА */
 .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; display: flex; align-items: center; justify-content: center; }
 .modal-content { background: #1a1a1a; border: 2px solid #f1c40f; padding: 20px; border-radius: 12px; width: 90%; max-width: 350px; box-shadow: 0 0 30px rgba(241, 196, 15, 0.4); }
 
-/* НАВИГАЦИЯ */
 .top-nav { display: flex; justify-content: center; align-items: center; gap: 8px; margin-bottom: 25px; background: #1a1a1a; padding: 10px; border-radius: 12px; border: 1px solid #333; flex-wrap: wrap; max-width: 800px; margin-left: auto; margin-right: auto; }
 .tab-btn { background: transparent; color: #777; border: none; font-size: 14px; padding: 8px 12px; cursor: pointer; transition: 0.3s; border-radius: 8px; font-weight: bold; }
-.active-tab { background: #f1c40f; color: #000; box-shadow: 0 0 10px rgba(241, 196, 15, 0.4); }
+.active-tab { background: #f1c40f !important; color: #000 !important; box-shadow: 0 0 10px rgba(241, 196, 15, 0.4); }
 .fake-tab-wrapper { position: relative; display: inline-block; }
 .tab-info-icon { position: absolute; top: -5px; right: -5px; background: #e74c3c; width: 18px; height: 18px; font-size: 12px; }
 
-/* ТУЛТИПЫ */
 .info-icon { width: 16px; height: 16px; border-radius: 50%; background: #555; color: #fff; font-size: 11px; font-weight: bold; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; }
 .tooltip-text { visibility: hidden; width: 180px; background-color: #e74c3c; color: #fff; text-align: center; border-radius: 6px; padding: 8px; position: absolute; z-index: 100; top: 130%; left: 50%; transform: translateX(-50%); font-size: 11px; opacity: 0; transition: opacity 0.3s; box-shadow: 0 4px 10px rgba(0,0,0,0.5); pointer-events: none; }
 .tooltip-text::after { content: ""; position: absolute; bottom: 100%; left: 50%; margin-left: -5px; border-width: 5px; border-style: solid; border-color: transparent transparent #e74c3c transparent; }
 .info-icon:hover .tooltip-text, .info-icon.show-tooltip .tooltip-text { visibility: visible; opacity: 1; }
 
-/* БАНКИ (ПО УМОЛЧАНИЮ МОБИЛА) */
 .banks-container { display: flex; flex-direction: column; gap: 15px; margin-bottom: 25px; align-items: center; }
 .bank-card { position: relative; width: 100%; max-width: 320px; padding: 15px; border-radius: 12px; transition: 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 80px; background-color: #1e1e1e; cursor: pointer; border: 2px solid #444; }
 .bank-card:active { transform: scale(0.95); }
@@ -40,7 +34,6 @@ h1 { margin-bottom: 20px; color: #f1c40f; }
 .badge { position: absolute; top: -10px; right: -10px; background: #e74c3c; color: #fff; font-size: 10px; font-weight: bold; padding: 4px 8px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.5); z-index: 10; }
 .bonus-text { color: #2ecc71; font-size: 12px; font-weight: bold; margin-top: 8px; }
 
-/* ЭЛЕМЕНТЫ */
 .input-group { margin-top: 20px; animation: fadeIn 0.3s; }
 input[type="number"], select { width: 100%; max-width: 320px; padding: 15px; font-size: 20px; border-radius: 8px; border: none; outline: none; text-align: center; margin-bottom: 15px; background-color: #fff; color: #000; font-weight: bold; margin-left: auto; margin-right: auto; display: block;}
 button { width: 100%; max-width: 320px; padding: 15px; font-size: 18px; font-weight: bold; border-radius: 8px; border: none; cursor: pointer; transition: 0.2s; background-color: #21a038; color: #ffffff; margin: 0 auto; display: block; }
@@ -50,7 +43,9 @@ button:active { transform: scale(0.95); }
 .small-btn { background-color: transparent; border: 1px solid #777; color: #aaa; width: auto; padding: 10px 15px; font-size: 14px; margin: 0; }
 .hidden { display: none !important; }
 
-/* ИГРЫ */
+#loading, #withdraw-loading { font-size: 18px; color: #f1c40f; margin-top: 25px; font-weight: bold; animation: blink 0.8s infinite alternate; }
+@keyframes blink { from { opacity: 1; } to { opacity: 0.3; } }
+
 .balance-display { font-size: 26px; font-weight: bold; margin-bottom: 20px; color: #2ecc71; background: #1e1e1e; padding: 15px; border-radius: 10px; display: inline-block; border: 1px solid #333; }
 .roulette-area { margin: 20px auto; width: 220px; height: 220px; border: 8px solid #f1c40f; border-radius: 50%; display: flex; align-items: center; justify-content: center; background-color: #1e1e1e; box-shadow: 0 0 30px rgba(241, 196, 15, 0.4); transition: all 0.3s; }
 .result-box { font-size: 45px; font-weight: bold; color: #fff; transition: all 0.3s; }
@@ -62,7 +57,6 @@ button:active { transform: scale(0.95); }
 .rocket-flying { animation: rocket-shake 0.2s infinite; }
 .rocket-crashed { transform: translateY(350px) rotate(135deg) scale(0.5); opacity: 0; transition: transform 0.6s ease-in, opacity 0.5s ease-in; }
 
-/* МИНЫ */
 .mines-controls { display: flex; flex-direction: column; align-items: center; gap: 10px; margin-top: 10px; }
 .mines-select { font-size: 16px; padding: 10px; margin-bottom: 0; }
 .mines-status { margin: 15px 0; font-size: 18px; }
@@ -74,7 +68,6 @@ button:active { transform: scale(0.95); }
 .mine-cell.revealed.boom { background: #e74c3c; animation: shake-text 0.3s; cursor: default; transform: none; }
 .mine-cell.revealed.dim { opacity: 0.5; cursor: default; }
 
-/* КЕЙСЫ */
 .cases-container { min-height: 180px; display: flex; flex-direction: column; justify-content: center; margin-top: 10px; }
 .cases-area { width: 300px; height: 120px; overflow: hidden; position: relative; margin: 0 auto; border: 3px solid #f1c40f; border-radius: 8px; background: #1a1a1a; box-shadow: 0 0 20px rgba(241, 196, 15, 0.3); transition: all 0.3s; }
 .cases-pointer { position: absolute; left: 50%; top: 0; bottom: 0; width: 4px; background: #e74c3c; z-index: 10; transform: translateX(-50%); box-shadow: 0 0 10px red; }
@@ -82,7 +75,47 @@ button:active { transform: scale(0.95); }
 .case-item { width: 100px; height: 114px; display: flex; justify-content: center; align-items: center; border-right: 2px solid #333; flex-shrink: 0; background: linear-gradient(180deg, #2a2a2a, #111); padding: 15px; transition: all 0.3s; }
 .case-item img { max-width: 100%; max-height: 100%; object-fit: contain; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5)); }
 
-/* История */
+/* ========================================================= */
+/* НОВАЯ ИГРА: МЕЛЛСТРОЙНОСТЬ                                */
+/* ========================================================= */
+.mell-area {
+    /* КАСТОМНЫЙ КУРСОР МОЛОТКА! */
+    cursor: url('assets/hit.webp'), crosshair;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin: 20px auto;
+    max-width: 350px;
+    background: #1a1a1a;
+    padding: 15px;
+    border-radius: 12px;
+    border: 3px solid #e74c3c;
+    box-shadow: 0 0 20px rgba(231, 76, 60, 0.3);
+}
+.mell-hole {
+    aspect-ratio: 1;
+    background: #000;
+    border-radius: 50%;
+    border: 4px solid #333;
+    overflow: hidden;
+    position: relative;
+    box-shadow: inset 0 10px 20px rgba(0,0,0,0.8);
+}
+.mell-head {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    bottom: -100%; /* Спрятан внизу */
+    left: 0;
+    transition: bottom 0.1s ease-out;
+}
+.mell-head.active {
+    bottom: 0; /* Вылез! */
+}
+/* Эффект удара (чтобы чувствовалась боль) */
+.mell-area:active { cursor: url('assets/hit.webp'), crosshair; }
+
 .history-box { margin: 30px auto 0; max-width: 320px; background: #1a1a1a; border: 1px solid #333; border-radius: 8px; padding: 10px; max-height: 150px; overflow-y: auto; text-align: left; font-family: 'Courier New', Courier, monospace; font-size: 14px; transition: all 0.3s; }
 .history-title { color: #777; font-size: 12px; text-transform: uppercase; margin-bottom: 5px; text-align: center; }
 .history-item { padding: 5px 0; border-bottom: 1px dashed #333; }
@@ -94,53 +127,32 @@ button:active { transform: scale(0.95); }
 @keyframes shake-text { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-3px); } 50% { transform: translateX(3px); } 75% { transform: translateX(-3px); } }
 @keyframes rocket-shake { 0% { margin-left: 0px; margin-bottom: 0px; } 25% { margin-left: -2px; margin-bottom: 2px; } 50% { margin-left: 2px; margin-bottom: -1px; } 75% { margin-left: -1px; margin-bottom: 1px; } 100% { margin-left: 0px; margin-bottom: 0px; } }
 
-/* Кредит */
 .loan-box { background: #1a1a1a; border: 2px solid #e74c3c; border-radius: 12px; padding: 20px; max-width: 400px; margin: 0 auto; box-shadow: 0 0 30px rgba(231, 76, 60, 0.4); }
 .loan-amount-text { font-size: 40px; font-weight: bold; color: #2ecc71; margin-bottom: 15px; text-shadow: 0 0 10px rgba(46, 204, 113, 0.5); }
 
-
-/* ========================================================= */
-/* 💻 АДАПТАЦИЯ ДЛЯ КОМПЬЮТЕРОВ (Широкие экраны) 💻          */
-/* ========================================================= */
 @media (min-width: 768px) {
     body { padding: 40px; font-size: 18px; }
     h1 { font-size: 42px; margin-bottom: 30px; }
-    
-    /* Сетка банков */
-    .banks-container, #withdraw-banks-container, .admin-banks-grid { 
-        display: grid; 
-        grid-template-columns: repeat(2, 1fr); 
-        gap: 20px; 
-        max-width: 800px; 
-        margin: 0 auto 30px; 
-    }
+    .banks-container, #withdraw-banks-container, .admin-banks-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; max-width: 800px; margin: 0 auto 30px; }
     .bank-card { max-width: 100%; min-height: 100px; }
-    #btn-sayokin { grid-column: span 2; } /* Сайокин Банк на всю ширину сверху */
-    
-    /* Инпуты и кнопки больше */
+    #btn-sayokin { grid-column: span 2; } 
     input[type="number"], select, button { max-width: 500px; font-size: 22px; padding: 20px; }
     .small-btn { padding: 15px 25px; font-size: 18px; }
     .tab-btn { font-size: 18px; padding: 12px 20px; }
-    
-    /* ИГРЫ ОГРОМНЫЕ */
     .roulette-area { width: 350px; height: 350px; border-width: 12px; }
     .result-box { font-size: 80px; }
-    
     .crash-area { max-width: 800px; height: 400px; }
     .multiplier-box { font-size: 90px; }
     .rocket { font-size: 70px; }
     .crash-msg { font-size: 36px; }
-    
     .mines-grid { max-width: 500px; gap: 10px; padding: 15px; }
     .mine-cell { font-size: 50px; border-radius: 12px; }
-    
     .cases-area { width: 600px; height: 180px; }
     .case-item { width: 160px; height: 174px; padding: 20px; }
-    
-    /* Прочее */
+    .mell-area { max-width: 500px; gap: 15px; padding: 20px; }
     .balance-display { font-size: 32px; padding: 20px; max-width: 400px; margin: 0 auto 30px; display: block; }
     .history-box { max-width: 600px; font-size: 18px; max-height: 250px; padding: 15px; }
     .modal-content { max-width: 500px; padding: 40px; }
     .news-banner { max-width: 800px; padding: 25px; }
     .news-banner p { font-size: 18px; }
-                          }
+}
