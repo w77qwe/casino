@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ООО «Тмыв денег»</title>
-    <!-- Юбилейная версия 10: ПК-Оптимизация -->
-    <link rel="stylesheet" href="style.css?v=10">
+    <!-- Версия 11: ДОБАВЛЕНА МЕЛЛСТРОЙНОСТЬ -->
+    <link rel="stylesheet" href="style.css?v=11">
 </head>
 <body>
 
@@ -15,6 +15,8 @@
         <button id="tab-crash" class="tab-btn">🚀 Краш</button>
         <button id="tab-mines" class="tab-btn">💣 Мины</button>
         <button id="tab-cases" class="tab-btn">📦 Кейсы</button>
+        <!-- НОВАЯ ИГРА -->
+        <button id="tab-mell" class="tab-btn" style="color: #e74c3c;">🤡 Меллстрой</button>
         
         <div class="fake-tab-wrapper">
             <button class="tab-btn fake-disabled" style="cursor: not-allowed; color: #555;">Секрет</button>
@@ -29,53 +31,35 @@
 
     <!-- ЭКРАН 1: ДЕПОЗИТ (ГЛАВНАЯ) -->
     <div id="deposit-screen" class="screen active">
-        
         <div class="news-banner">
             <h2 style="color: #e74c3c; margin-bottom: 5px;">⚠️ ВАЖНОЕ ЗАЯВЛЕНИЕ ⚠️</h2>
             <p style="font-size: 14px; font-weight: bold;">"Сайокин Казикс" официально переименован в ООО «Тмыв денег» из-за исков.</p>
             <p style="font-size: 12px; color: #aaa; margin-top: 5px;">Официальный комментарий Генерального Директора:</p>
             <video src="assets/news.webm" controls playsinline preload="metadata" style="width: 100%; max-width: 500px; border-radius: 8px; margin-top: 10px; border: 2px solid #333;"></video>
         </div>
-
         <h1>Касса ООО «Тмыв денег»</h1>
-        
         <button id="btn-continue" class="spin-btn hidden" style="background-color: #34495e; margin-bottom: 25px; border: 2px solid #f1c40f; box-shadow: 0 0 15px rgba(241,196,15,0.2);">
             Продолжить игру <br><span style="font-size: 14px; color: #2ecc71;">(Балик: <span id="continue-balance">0</span> ₽)</span>
         </button>
-
         <p style="color: #aaa; margin-bottom: 20px;">Выбери способ пополнения балика:</p>
-        
         <div class="banks-container">
-            <div class="bank-card active-bank vip-bank" id="btn-sayokin">
-                <div class="badge">🔥 ТОП ВЫБОР</div>
-                <img src="assets/sayokin_bank.svg" alt="Сайокин Банк" style="max-width: 90%; height: 45px; object-fit: contain; display: block; margin: 0 auto;">
-                <div class="bonus-text">Бонус +30% к депу!</div>
-            </div>
-            <div class="bank-card active-bank" id="btn-tinkoff">
-                <img src="assets/Tinkoff_logo_2024.svg" alt="Тинькофф" height="30">
-            </div>
-            <div class="bank-card active-bank" id="btn-alfa">
-                <img src="assets/Alfa_Bank_RU_logo.svg" alt="Альфа-Банк" height="30">
-            </div>
-            <div class="bank-card active-bank" id="btn-sber">
-                <img src="assets/Logo_Sberbank.svg" alt="Сбербанк" height="30">
-            </div>
+            <div class="bank-card active-bank vip-bank" id="btn-sayokin"><div class="badge">🔥 ТОП ВЫБОР</div><img src="assets/sayokin_bank.svg" alt="Сайокин Банк" style="max-width: 90%; height: 45px; object-fit: contain; display: block; margin: 0 auto;"><div class="bonus-text">Бонус +30% к депу!</div></div>
+            <div class="bank-card active-bank" id="btn-tinkoff"><img src="assets/Tinkoff_logo_2024.svg" alt="Тинькофф" height="30"></div>
+            <div class="bank-card active-bank" id="btn-alfa"><img src="assets/Alfa_Bank_RU_logo.svg" alt="Альфа-Банк" height="30"></div>
+            <div class="bank-card active-bank" id="btn-sber"><img src="assets/Logo_Sberbank.svg" alt="Сбербанк" height="30"></div>
         </div>
-        
         <div class="input-group" id="input-section" style="display: none;">
             <p id="bonus-alert" class="hidden" style="color: #2ecc71; font-weight: bold; margin-bottom: 10px;">Активирован бонус +30% от Сайокин Банка!</p>
             <input type="number" id="deposit-amount" placeholder="Введите сумму (₽)">
             <button id="btn-pay">Оплатить нахуй</button>
         </div>
         <div id="loading" class="hidden"><p>Отмываем деньги... ⏳</p></div>
-
-        <!-- СЕКРЕТНАЯ КНОПКА АДМИНА -->
         <div style="margin-top: 40px; padding-bottom: 20px;">
             <span id="btn-open-admin" style="color: #777; font-size: 14px; font-weight: bold; cursor: pointer; border-bottom: 1px dashed #777; padding-bottom: 2px;">💼 Казна ООО «Тмыв денег»</span>
         </div>
     </div>
 
-    <!-- МОДАЛЬНОЕ ОКНО ПАРОЛЯ АДМИНА -->
+    <!-- АДМИНКА (МОДАЛКА + ЭКРАН) -->
     <div id="admin-modal" class="modal hidden">
         <div class="modal-content">
             <h2 style="color: #f1c40f; margin-bottom: 10px;">Вход в Казну</h2>
@@ -87,20 +71,14 @@
         </div>
     </div>
 
-    <!-- ЭКРАН 8: КАЗНА КАЗИКА (АДМИНКА) -->
     <div id="admin-screen" class="screen hidden">
         <h1 style="color: #ff9f43; text-shadow: 0 0 10px rgba(255,159,67,0.5);">👑 КАЗНА ТМЫВ ДЕНЕГ 👑</h1>
-        
-        <div class="balance-display" style="border-color: #ff9f43; background: #2d1804;">
-            Общак: <br><span id="admin-balance" style="color: #ff9f43; font-size: 32px;">0</span> ₽
-        </div>
-
+        <div class="balance-display" style="border-color: #ff9f43; background: #2d1804;">Общак: <br><span id="admin-balance" style="color: #ff9f43; font-size: 32px;">0</span> ₽</div>
         <div class="admin-controls" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; max-width: 500px; margin-left: auto; margin-right: auto;">
             <button id="btn-admin-withdraw-menu" class="spin-btn" style="background-color: #27ae60;">💸 Вывести бабки</button>
             <button class="small-btn fake-admin-btn" data-msg="Успешно! Шанс выигрыша игроков снижен до 0.01%">Подкрутить отдачу (сбрить мамонтов)</button>
             <button class="small-btn fake-admin-btn" data-msg="Базы данных ФНС успешно подменены.">Зачистить логи налоговой</button>
         </div>
-
         <div id="admin-withdraw-section" class="hidden" style="background: #1a1a1a; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #ff9f43; max-width: 900px; margin-left: auto; margin-right: auto;">
             <p style="color: #ccc; margin-bottom: 10px;">Куда выводим транш, босс?</p>
             <div class="banks-container admin-banks-grid" style="gap: 10px;">
@@ -108,95 +86,76 @@
                 <div class="bank-card admin-bank" id="ab-tinkoff"><img src="assets/Tinkoff_logo_2024.svg" height="25"></div>
                 <div class="bank-card admin-bank" id="ab-alfa"><img src="assets/Alfa_Bank_RU_logo.svg" height="25"></div>
                 <div class="bank-card admin-bank" id="ab-sayokin"><img src="assets/sayokin_bank.svg" height="30"></div>
-                <div class="bank-card admin-bank" id="ab-offshore" style="background: #27ae60; border-color: #2ecc71;">🏝️ Офшоры (Каймановы о-ва)</div>
+                <div class="bank-card admin-bank" id="ab-offshore" style="background: #27ae60; border-color: #2ecc71;">🏝️ Офшоры</div>
             </div>
             <button id="btn-admin-confirm-withdraw" class="spin-btn hidden" style="background-color: #ff9f43; margin-top: 15px; max-width: 400px; margin-left: auto; margin-right: auto;">Подтвердить перевод</button>
         </div>
-
-        <div class="history-box" style="display: block; border-color: #ff9f43; max-height: 250px; max-width: 500px;">
-            <div class="history-title" style="color: #ff9f43;">Лайв-статистика гоев</div>
-            <div id="admin-history-list"></div>
-        </div>
-
+        <div class="history-box" style="display: block; border-color: #ff9f43; max-height: 250px; max-width: 500px;"><div class="history-title" style="color: #ff9f43;">Лайв-статистика гоев</div><div id="admin-history-list"></div></div>
         <button id="btn-leave-admin" class="small-btn" style="margin-top: 20px; color: #e74c3c; border-color: #e74c3c;">Вернуться к лохам</button>
     </div>
 
-    <!-- ЭКРАН 2: РУЛЕТКА -->
+    <!-- ИГРЫ -->
     <div id="roulette-screen" class="screen hidden">
         <h1>ООО «Тмыв денег»</h1>
         <div class="balance-display">Балик: <span class="balance-amount">0</span> ₽</div>
         <div class="roulette-area"><div id="roulette-result" class="result-box">0</div></div>
         <button id="btn-spin" class="spin-btn">въебать баланс</button>
-        <div class="action-buttons">
-            <button class="small-btn btn-go-deposit">Депнуть еще</button>
-            <button class="small-btn btn-go-withdraw" style="color: #f1c40f; border-color: #f1c40f;">Вывод</button>
-        </div>
+        <div class="action-buttons"><button class="small-btn btn-go-deposit">Депнуть еще</button><button class="small-btn btn-go-withdraw" style="color: #f1c40f; border-color: #f1c40f;">Вывод</button></div>
         <div class="history-box" style="display: none;"><div class="history-title">История лудомании</div><div class="history-list"></div></div>
     </div>
 
-    <!-- ЭКРАН 3: КРАШ -->
     <div id="crash-screen" class="screen hidden">
         <h1>Тмыв-Краш 🚀</h1>
         <div class="balance-display">Балик: <span class="balance-amount">0</span> ₽</div>
-        <div class="crash-area">
-            <div id="crash-multiplier" class="multiplier-box">1.00x</div>
-            <div id="rocket" class="rocket">🚀</div>
-            <div id="crash-message" class="crash-msg hidden">ПИЗДЕЦ!</div>
-        </div>
-        <div class="crash-controls">
-            <input type="number" id="crash-bet" placeholder="Ставка (₽)">
-            <button id="btn-crash-start" class="spin-btn" style="background-color: #9b59b6;">Полетели нахуй</button>
-            <button id="btn-crash-cashout" class="spin-btn hidden" style="background-color: #2ecc71;">Съебаться с бабками</button>
-        </div>
-        <div class="action-buttons">
-            <button class="small-btn btn-go-deposit">Депнуть еще</button>
-            <button class="small-btn btn-go-withdraw" style="color: #f1c40f; border-color: #f1c40f;">Вывод</button>
-        </div>
+        <div class="crash-area"><div id="crash-multiplier" class="multiplier-box">1.00x</div><div id="rocket" class="rocket">🚀</div><div id="crash-message" class="crash-msg hidden">ПИЗДЕЦ!</div></div>
+        <div class="crash-controls"><input type="number" id="crash-bet" placeholder="Ставка (₽)"><button id="btn-crash-start" class="spin-btn" style="background-color: #9b59b6;">Полетели нахуй</button><button id="btn-crash-cashout" class="spin-btn hidden" style="background-color: #2ecc71;">Съебаться с бабками</button></div>
+        <div class="action-buttons"><button class="small-btn btn-go-deposit">Депнуть еще</button><button class="small-btn btn-go-withdraw" style="color: #f1c40f; border-color: #f1c40f;">Вывод</button></div>
         <div class="history-box" style="display: none;"><div class="history-title">История лудомании</div><div class="history-list"></div></div>
     </div>
 
-    <!-- ЭКРАН 4: МИНЫ -->
     <div id="mines-screen" class="screen hidden">
         <h1>Минное поле 💣</h1>
         <div class="balance-display">Балик: <span class="balance-amount">0</span> ₽</div>
-        <div class="mines-controls">
-            <input type="number" id="mines-bet" placeholder="Ставка (₽)">
-            <select id="mines-count" class="mines-select">
-                <option value="3">3 мины (для лохов)</option>
-                <option value="5" selected>5 мин (нормально)</option>
-                <option value="10">10 мин (смертник)</option>
-                <option value="20">20 мин (долбоеб)</option>
-            </select>
-        </div>
-        <div class="mines-status hidden" id="mines-status-bar">
-            Множитель: <span id="mines-multiplier-text" style="color: #2ecc71; font-weight: bold; font-size: 24px;">1.00x</span>
-        </div>
+        <div class="mines-controls"><input type="number" id="mines-bet" placeholder="Ставка (₽)"><select id="mines-count" class="mines-select"><option value="3">3 мины</option><option value="5" selected>5 мин</option><option value="10">10 мин</option><option value="20">20 мин</option></select></div>
+        <div class="mines-status hidden" id="mines-status-bar">Множитель: <span id="mines-multiplier-text" style="color: #2ecc71; font-weight: bold; font-size: 24px;">1.00x</span></div>
         <div class="mines-grid" id="mines-grid"></div>
         <button id="btn-mines-start" class="spin-btn" style="background-color: #3498db;">Начать саперные работы</button>
         <button id="btn-mines-cashout" class="spin-btn hidden" style="background-color: #2ecc71;">Забрать бабки</button>
-        <div class="action-buttons">
-            <button class="small-btn btn-go-deposit">Депнуть еще</button>
-            <button class="small-btn btn-go-withdraw" style="color: #f1c40f; border-color: #f1c40f;">Вывод</button>
-        </div>
+        <div class="action-buttons"><button class="small-btn btn-go-deposit">Депнуть еще</button><button class="small-btn btn-go-withdraw" style="color: #f1c40f; border-color: #f1c40f;">Вывод</button></div>
         <div class="history-box" style="display: none;"><div class="history-title">История лудомании</div><div class="history-list"></div></div>
     </div>
 
-    <!-- ЭКРАН 5: КЕЙСЫ -->
     <div id="cases-screen" class="screen hidden">
         <h1>Лутбоксы 📦</h1>
         <div class="balance-display">Балик: <span class="balance-amount">0</span> ₽</div>
-        <div class="cases-container">
-            <img src="assets/case_closed.webp" id="closed-case-img" alt="Кейс" style="width: 150px; margin: 20px auto; display: block;">
-            <div class="cases-area hidden" id="cases-area">
-                <div class="cases-pointer"></div>
-                <div class="cases-ribbon" id="cases-ribbon"></div>
-            </div>
-            <div id="cases-result" class="crash-msg hidden" style="position: relative; margin-top: 20px;"></div>
-        </div>
+        <div class="cases-container"><img src="assets/case_closed.webp" id="closed-case-img" alt="Кейс" style="width: 150px; margin: 20px auto; display: block;"><div class="cases-area hidden" id="cases-area"><div class="cases-pointer"></div><div class="cases-ribbon" id="cases-ribbon"></div></div><div id="cases-result" class="crash-msg hidden" style="position: relative; margin-top: 20px;"></div></div>
+        <div class="crash-controls"><input type="number" id="cases-bet" placeholder="Цена кейса (₽)"><button id="btn-cases-start" class="spin-btn" style="background-color: #f39c12;">ОТКРЫТЬ НАХУЙ</button></div>
+        <div class="action-buttons"><button class="small-btn btn-go-deposit">Депнуть еще</button><button class="small-btn btn-go-withdraw" style="color: #f1c40f; border-color: #f1c40f;">Вывод</button></div>
+        <div class="history-box" style="display: none;"><div class="history-title">История лудомании</div><div class="history-list"></div></div>
+    </div>
+
+    <!-- ЭКРАН 9: МЕЛЛСТРОЙНОСТЬ (НОВОЕ) -->
+    <div id="mell-screen" class="screen hidden">
+        <h1>Въеби Меллстрою 🤬</h1>
+        <div class="balance-display">Балик: <span class="balance-amount">0</span> ₽</div>
+        
         <div class="crash-controls">
-            <input type="number" id="cases-bet" placeholder="Цена кейса (₽)">
-            <button id="btn-cases-start" class="spin-btn" style="background-color: #f39c12;">ОТКРЫТЬ НАХУЙ</button>
+            <input type="number" id="mell-bet" placeholder="Ставка на пиздюли (₽)">
+            <button id="btn-mell-start" class="spin-btn" style="background-color: #e74c3c;">Начать пиздиловку</button>
         </div>
+
+        <div class="mines-status hidden" id="mell-status-bar">
+            Осталось: <span id="mell-timer" style="color: #f1c40f;">15</span> сек | 
+            Множитель: <span id="mell-multiplier-text" style="color: #2ecc71;">0.00x</span>
+        </div>
+
+        <!-- АРЕНА С МОЛОТКОМ -->
+        <div class="mell-area" id="mell-area">
+            <!-- 9 лунок сгенерируем через JS -->
+        </div>
+        
+        <div id="mell-result" class="crash-msg hidden" style="position: relative; margin-top: 20px;"></div>
+
         <div class="action-buttons">
             <button class="small-btn btn-go-deposit">Депнуть еще</button>
             <button class="small-btn btn-go-withdraw" style="color: #f1c40f; border-color: #f1c40f;">Вывод</button>
@@ -212,10 +171,7 @@
             <div class="bank-card withdraw-bank" id="wd-sber"><img src="assets/Logo_Sberbank.svg" alt="Сбербанк" height="30"></div>
             <div class="bank-card withdraw-bank" id="wd-tinkoff"><img src="assets/Tinkoff_logo_2024.svg" alt="Тинькофф" height="30"></div>
             <div class="bank-card withdraw-bank" id="wd-alfa"><img src="assets/Alfa_Bank_RU_logo.svg" alt="Альфа-Банк" height="30"></div>
-            <div class="bank-card withdraw-bank vip-bank" id="wd-sayokin">
-                <div class="badge">БЕЗ КОМИССИИ</div>
-                <img src="assets/sayokin_bank.svg" alt="Сайокин Банк" style="max-width: 90%; height: 45px; object-fit: contain; display: block; margin: 0 auto;">
-            </div>
+            <div class="bank-card withdraw-bank vip-bank" id="wd-sayokin"><div class="badge">БЕЗ КОМИССИИ</div><img src="assets/sayokin_bank.svg" alt="Сайокин Банк" style="max-width: 90%; height: 45px; object-fit: contain; display: block; margin: 0 auto;"></div>
         </div>
         <div class="input-group" id="withdraw-input-section" style="display: none;">
             <input type="number" id="withdraw-amount" placeholder="Сколько выводим? (₽)">
@@ -233,23 +189,16 @@
             <p style="font-size: 18px; margin-bottom: 10px;">Вам успешно оформлен микрозайм на сумму:</p>
             <div class="loan-amount-text"><span id="loan-amount-display">0</span> ₽</div>
             <p style="color: #aaa; font-size: 12px; margin-bottom: 20px;">*Средства уже зачислены на ваш счет. Процентная ставка: 365% годовых. При просрочке платежа мы заберем вашу почку.</p>
-            
             <p style="font-size: 12px; color: #777; margin-bottom: 10px;">Синдикат кредитования:</p>
             <div class="partners-container">
-                <div class="partner-item">
-                    <img src="assets/wtf.webp" alt="WTF Bank" height="45">
-                    <h3 style="color: #e74c3c; margin-top: 5px; font-size: 14px;">WTF Bank</h3>
-                </div>
+                <div class="partner-item"><img src="assets/wtf.webp" alt="WTF Bank" height="45"><h3 style="color: #e74c3c; margin-top: 5px; font-size: 14px;">WTF Bank</h3></div>
                 <div class="partner-divider"></div>
-                <div class="partner-item">
-                    <img src="assets/shylily_bank.png" alt="Shylily Bank" height="45">
-                </div>
+                <div class="partner-item"><img src="assets/shylily_bank.png" alt="Shylily Bank" height="45"></div>
             </div>
-
         </div>
         <button id="btn-accept-loan" class="spin-btn" style="margin-top: 20px;">ахуеть спасибо</button>
     </div>
 
-    <script src="script.js?v=10"></script>
+    <script src="script.js?v=11"></script>
 </body>
 </html>
