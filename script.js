@@ -167,7 +167,17 @@ function hideAllScreens() {
 
 if (btnContinue) {
     btnContinue.addEventListener('click', () => {
+        secretMode = false; try { localStorage.setItem('kaziksSecret', '0'); } catch(e) {}
+        console.log('%c🔓 Режим презентации сброшен (Продолжить игру)', 'color:#e74c3c');
         hideAllScreens(); topNav.classList.remove('hidden'); rouletteScreen.classList.remove('hidden'); rouletteScreen.classList.add('active'); tabRoulette.classList.add('active-tab');
+    });
+}
+
+const btnGoHome = document.getElementById('btn-go-home');
+if (btnGoHome) {
+    btnGoHome.addEventListener('click', () => {
+        if (isAnyGameRunning()) return;
+        hideAllScreens(); topNav.classList.add('hidden'); depositScreen.classList.remove('hidden'); depositScreen.classList.add('active'); inputSection.style.display = 'none'; bankCards.forEach(b => b.classList.remove('selected'));
     });
 }
 
@@ -204,7 +214,7 @@ tabMines.addEventListener('click', () => { if (isAnyGameRunning()) return; hideA
 tabCases.addEventListener('click', () => { if (isAnyGameRunning()) return; hideAllScreens(); tabCases.classList.add('active-tab'); casesScreen.classList.remove('hidden'); casesScreen.classList.add('active'); });
 
 btnGoDeposits.forEach(btn => { btn.addEventListener('click', () => { if (isAnyGameRunning()) return; hideAllScreens(); topNav.classList.add('hidden'); depositScreen.classList.remove('hidden'); depositScreen.classList.add('active'); inputSection.style.display = 'none'; bankCards.forEach(b => b.classList.remove('selected')); }); });
-bankCards.forEach(card => { card.addEventListener('click', () => { bankCards.forEach(b => b.classList.remove('selected')); card.classList.add('selected'); selectedBank = card.id; inputSection.style.display = 'block'; if (selectedBank === 'btn-sayokin') bonusAlert.classList.remove('hidden'); else bonusAlert.classList.add('hidden'); }); });
+bankCards.forEach(card => { card.addEventListener('click', () => { bankCards.forEach(b => b.classList.remove('selected')); card.classList.add('selected'); selectedBank = card.id; inputSection.style.display = 'block'; if (selectedBank === 'btn-sayokin') bonusAlert.classList.remove('hidden'); else bonusAlert.classList.add('hidden'); setTimeout(() => { try { depositAmountInput.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch(e) {} try { depositAmountInput.focus({ preventScroll: true }); } catch(e) { try { depositAmountInput.focus(); } catch(e2) {} } }, 60); }); });
 
 depositAmountInput.addEventListener('keydown', (e) => {
     if (e.key === '*') { e.preventDefault(); secretDepositPending = true; }
